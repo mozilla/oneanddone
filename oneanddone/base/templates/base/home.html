@@ -4,6 +4,78 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-  <h1>{{ _('One and Done') }}</h1>
-  <p>{{ _('Hello!') }}</p>
-{% endblock %}
+  <section class="billboard sub-header">
+    <img src="{{ static('img/qa-logo.png') }}" width="110" height="110" alt="{{ _('Mozilla WebQA Logo') }}" class="mozqa-logo" />
+    <h2>{{ _('Mozilla One And Done') }}</h2>
+    <p>
+      {% trans %}
+        The &quot;One and Done&quot; initiative, previously known as &quot;QA Taskboard&quot;, is a workflow where Mozilla community contributors can pick tasks and work on them &#45; one at a time, one day at a time &#45; and feel good about doing them.
+      {% endtrans %}
+    </p>
+  </section>
+
+  <main class="main">
+    <div class="main-top-row">
+      <section class="automation-section">
+        <h3 class="automation-heading">{{ _('Automation') }}</h3>
+        <p>
+          {% trans %}
+            Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+          {% endtrans %}
+        </p>
+      </section>
+      <section class="desktopqa-section">
+        <h3 class="desktopqa-heading">{{ _('Desktop QA') }}</h3>
+        <p>
+          {% trans %}
+            Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+          {% endtrans %}
+        </p>
+      </section>
+      <section class="webqa-section">
+        <h3 class="webqa-heading">{{ _('Web QA') }}</h3>
+        <p>
+          {% trans %}
+            Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+          {% endtrans %}
+        </p>
+      </section>
+    </div>
+
+    <div class="main-bottom-row">
+      <section class="thunderbird-section">
+        <h3 class="thunderbird-heading">Thunderbird</h3>
+        <p>
+          {% trans %}
+            Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+          {% endtrans %}
+        </p>
+      </section>
+      <section class="servicesqa-section">
+        <h3 class="servicesqa-heading">{{ _('Services QA') }}</h3>
+        <p>
+          {% trans %}
+            Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+          {% endtrans %}
+        </p>
+      </section>
+      <section class="mobilefx-section">
+        <h3 class="mobilefx-heading">{{ _('Mobile Firefox') }}</h3>
+        <p>
+          {% trans %}
+            Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+          {% endtrans %}
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <aside>
+    <h3>{{ _('Get Involved') }}</h3>
+    <p>
+      {% trans %}
+        Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+      {% endtrans %}
+    </p>
+  </aside>
+  {% endblock %}

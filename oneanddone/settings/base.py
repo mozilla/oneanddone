@@ -16,6 +16,9 @@ LANGUAGE_CODE = 'en-US'
 
 INSTALLED_APPS = list(INSTALLED_APPS) + [
     'oneanddone.base',
+
+    # Third-party apps.
+    'jingo_minify',
 ]
 
 LOCALE_PATHS = (
@@ -41,15 +44,22 @@ PROD_LANGUAGES = ('de', 'en-US', 'es', 'fr',)
 MINIFY_BUNDLES = {
     'css': {
         'base': (
-            #'css/base.css',
+            'css/sandstone/sandstone-resp.less',
+            'css/one-and-done.less'
         ),
     },
     'js': {
-        'jquery': (
-            #'js/libs/jquery-1.7.1.min.js',
+        'base': (
+            'js/site.js',
         ),
     }
 }
+
+# Use staticfiles loaders for finding resources for minification.
+JINGO_MINIFY_USE_STATIC = True
+
+# Do not preprocess LESS files.
+LESS_PREPROCESS = False
 
 # Testing configuration.
 NOSE_ARGS = ['--logging-clear-handlers', '--logging-filter=-factory,-south']

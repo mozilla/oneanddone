@@ -1,0 +1,79 @@
+@import "sandstone/lib.less";
+
+h2 {
+    font-weight: bold;
+}
+aside {
+    display: inline-block;
+    margin-top: 2rem;
+    h3 {
+        font-weight: bold;
+    }
+}
+footer {
+    clear: left;
+}
+.sub-header {
+    position: relative;
+    /* Fallback for browser that does not suport rgba. */
+    background-color: rgb(255, 255, 255);
+    background-color: rgba(255, 255, 255, 0.5);
+    padding-left: 10%;
+    padding-right: 10%;
+}
+.mozqa-logo {
+    position: absolute;
+    top: 20%;
+    left: -55px;
+}
+.main {
+    h3 {
+        text-align: center;
+        font-size: 1.6rem;
+    }
+}
+.main-top-row {
+    h3 {
+        color: #ef8a1d;
+    }
+}
+.main-bottom-row {
+    clear: both;
+    padding-top: 2rem;
+    h3 {
+        color: #608fbf;
+    }
+}
+.automation-section,
+.desktopqa-section,
+.webqa-section,
+.thunderbird-section,
+.servicesqa-section,
+.mobilefx-section {
+    .span(4);
+}
+/* Icon Headings */
+.automation-heading {
+    background: transparent url(../icons/automation.png) 50% -10px no-repeat;
+    padding-top: 120px;
+}
+.desktopqa-heading {
+    background: transparent url(../icons/desktopqa.png) 50% -10px no-repeat;
+    padding-top: 120px;
+}
+.webqa-heading {
+    background: transparent url(../icons/webqa.png) 50% -10px no-repeat;
+    padding-top: 120px;
+}
+.thunderbird-heading {
+    background: transparent url(../icons/thunderbird.png) 50% -10px no-repeat;
+    padding-top: 120px;
+}
+.servicesqa-heading {
+    background: transparent url(../icons/servicesqa.png) 50% -10px no-repeat;
+    padding-top: 120px;
+}
+.mobilefx-heading {
+    background: transparent url(../icons/mobilefx.png) 50% -10px no-repeat;
+    padding-top: 120px;
+}
