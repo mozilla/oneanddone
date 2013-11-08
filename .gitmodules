@@ -1,0 +1,6 @@
+[submodule "vendor"]
+	path = vendor
+	url = git://github.com/mozilla/playdoh-lib.git
+[submodule "vendor-local/src/jingo-minify"]
+	path = vendor-local/src/jingo-minify
+	url = git@github.com:jsocol/jingo-minify.git

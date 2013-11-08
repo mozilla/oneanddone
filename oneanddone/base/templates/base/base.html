@@ -1,0 +1,79 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
+<!DOCTYPE html>
+<html class="windows no-js" lang="{{ LANG }}" dir="{{ DIR }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Mozilla - {{ _('One And Done') }}</title>
+
+    <link rel="shortcut icon" href="img/favicon.ico" />
+
+    <!--[if lte IE 8]>
+    <script src="{{ static('js/libs/html5shiv.js') }}"></script>
+    <![endif]-->
+
+    {% block site_css %}
+      <link rel="stylesheet" type="text/css" href="//www.mozilla.org/tabzilla/media/css/tabzilla.css" media="screen" />
+      {{ less_css('base') }}
+    {% endblock %}
+  </head>
+  <body class="sand">
+    <div id="outer-wrapper">
+      <div id="wrapper">
+        <header id="masthead">
+          <a href="http://www.mozilla.org/" id="tabzilla">Mozilla</a>
+          <nav id="nav-main" role="menubar">
+            <span class="toggle" role="button" aria-controls="nav-main-menu" tabindex="0">{{ _('Menu') }}</span>
+            <ul role="menu" id="nav-main-menu">
+              <li role="menuitem" class="first"><a href="/tasks">{{ _('Tasks') }}</a></li>
+              <li role="menuitem"><a href="/leader_board">{{ _('Leader Board') }}</a></li>
+              <li role="menuitem"><a href="#signin" id="browserid-signin">{{ _('Sign In') }}</a></li>
+            </ul>
+          </nav>
+          <h2><a href="//mozilla.org/"><img src="{{ static('img/sandstone/header-mozilla-stone.png') }}" alt="mozilla"></a></h2>
+        </header>
+
+        {% block content %}{% endblock %}
+      </div>
+      <footer id="colophon">
+        <div class="row">
+          <div class="footer-logo">
+            <a href="//mozilla.org"><img src="{{ static('img/sandstone/footer-mozilla.png') }}" alt="mozilla"></a>
+          </div>
+
+          <div class="footer-license">
+            <p>
+              {% trans cc_href='//www.mozilla.org/foundation/licensing/website-content.html' %}
+                Portions of this content are &copy;1998–2012 by individual mozilla.org contributors. Content available under a <a href="{{ cc_href }}">Creative Commons license</a>.
+              {% endtrans %}
+            </p>
+            <p><a href="https://github.com/mozilla/oneanddone">{{ _('Contribute to this page') }}</a></p>
+          </div>
+          <ul class="footer-nav">
+            <li><a href="//mozilla.org/about/contact.html">{{ _('Contact Us') }}</a></li>
+            <li><a href="//mozilla.org/privacy-policy.html">{{ _('Privacy Policy') }}</a></li>
+            <li><a href="//mozilla.org/about/legal.html">{{ _('Legal Notices') }}</a></li>
+            <li><a href="//mozilla.org/legal/fraud-report/index.html">{{ _('Report Trademark Abuse') }}</a></li>
+          </ul>
+
+          <ul class="footer-nav">
+            <li><a href="http://twitter.com/firefox">Twitter</a></li>
+            <li><a href="http://facebook.com/Firefox">Facebook</a></li>
+            <li><a href="https://affiliates.mozilla.org/">{{ _('Firefox Affiliates') }}</a></li>
+          </ul>
+        </div>
+      </footer>
+    </div>
+
+    {% block site_js %}
+      {% if settings.TEMPLATE_DEBUG %}
+        <script src="{{ static('js/libs/less-1.5.0.min.js') }}"></script>
+      {% endif %}
+      <script src="//www.mozilla.org/tabzilla/media/js/tabzilla.js"></script>
+      {{ js('base') }}
+    {% endblock %}
+  </body>
+</html>
