@@ -64,6 +64,11 @@ you don't have `pip` installed, you can install it with `easy_install pip`.
    $ python manage.py syncdb
    ```
 
+[git]: http://git-scm.com/
+[git-clone]: https://help.github.com/articles/fork-a-repo
+[python]: http://www.python.org/
+[mysql]: http://dev.mysql.com/doc/refman/5.6/en/installing.html
+
 
 Running the Development Server
 ------------------------------
