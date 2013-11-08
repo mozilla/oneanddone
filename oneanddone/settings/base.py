@@ -32,6 +32,7 @@ INSTALLED_APPS = (
     'funfactory',
     'jingo_minify',
     'product_details',
+    'south',
     'tower',
     'session_csrf',
 )
