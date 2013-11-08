@@ -1,23 +1,20 @@
-playdoh
-=======
+oneanddone
+==========
 
-Mozilla's Playdoh is a web application template based on [Django][django].
+The "One and Done" initiative, previously known as "QA Taskboard", is a workflow
+where Mozilla community contributors can pick tasks and work on them - one at a
+time, one day at a time - and feel good about doing them.
 
-Patches are welcome! Feel free to fork and contribute to this project on
-[github][gh-playdoh].
-
-Full [documentation][docs] is available as well.
-
+One and Done is written with [Playdoh][playdoh] and [Django][django].
 
 [django]: http://www.djangoproject.com/
-[gh-playdoh]: https://github.com/mozilla/playdoh
-[docs]: http://playdoh.rtfd.org/
+[playdoh]: https://github.com/mozilla/playdoh
 
 
 License
 -------
-This software is licensed under the [New BSD License][BSD]. For more
+This software is licensed under the `Mozilla Public License v. 2.0`_. For more
 information, read the file ``LICENSE``.
 
-[BSD]: http://creativecommons.org/licenses/BSD/
+.. _Mozilla Public License v. 2.0: http://mozilla.org/MPL/2.0/
 

@@ -1,56 +1,58 @@
-# This is your project's main settings file that can be committed to your
-# repo. If you need to override a setting locally, use settings_local.py
-
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from funfactory.settings_base import *
 
-# Name of the top-level module where you put all your apps.
-# If you did not install Playdoh with the funfactory installer script
-# you may need to edit this value. See the docs about installing from a
-# clone.
-PROJECT_MODULE = 'oneanddone'
+
+# Django Settings
+##############################################################################
 
 # Defines the views served for root URLs.
-ROOT_URLCONF = '%s.urls' % PROJECT_MODULE
+ROOT_URLCONF = 'oneanddone.urls'
+
+# Language code for this installation. All choices can be found here:
+# http://www.i18nguy.com/unicode/language-identifiers.html
+LANGUAGE_CODE = 'en-US'
 
 INSTALLED_APPS = list(INSTALLED_APPS) + [
-    # Application base, containing global templates.
-    '%s.base' % PROJECT_MODULE,
-    # Example code. Can (and should) be removed for actual projects.
-    '%s.examples' % PROJECT_MODULE,
+    'oneanddone.base',
 ]
 
-# Note! If you intend to add `south` to INSTALLED_APPS,
-# make sure it comes BEFORE `django_nose`.
-#INSTALLED_APPS.remove('django_nose')
-#INSTALLED_APPS.append('django_nose')
-
-
 LOCALE_PATHS = (
-    os.path.join(ROOT, PROJECT_MODULE, 'locale'),
+    os.path.join(ROOT, 'locale'),
 )
+
+
+# Third-party Libary Settings
+##############################################################################
 
 # Because Jinja2 is the default template loader, add any non-Jinja templated
 # apps here:
-JINGO_EXCLUDE_APPS = (
+JINGO_EXCLUDE_APPS = [
     'admin',
     'registration',
-    'browserid',
-)
+]
 
-# BrowserID configuration
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'django_browserid.auth.BrowserIDBackend',
-)
+# Accepted locales
+PROD_LANGUAGES = ('de', 'en-US', 'es', 'fr',)
 
-SITE_URL = 'http://localhost:8000'
-LOGIN_URL = '/'
-LOGIN_REDIRECT_URL = '/'
-LOGIN_REDIRECT_URL_FAILURE = '/'
+# Bundles is a dictionary of two dictionaries, css and js, which list css files
+# and js files that can be bundled together by the minify app.
+MINIFY_BUNDLES = {
+    'css': {
+        'base': (
+            #'css/base.css',
+        ),
+    },
+    'js': {
+        'jquery': (
+            #'js/libs/jquery-1.7.1.min.js',
+        ),
+    }
+}
 
-TEMPLATE_CONTEXT_PROCESSORS += (
-    'django_browserid.context_processors.browserid',
-)
+# Testing configuration.
+NOSE_ARGS = ['--logging-clear-handlers', '--logging-filter=-factory,-south']
 
 # Should robots.txt deny everything or disallow a calculated list of URLs we
 # don't want to be crawled?  Default is false, disallow everything.
@@ -63,36 +65,15 @@ ANON_ALWAYS = True
 # Tells the extract script what files to look for L10n in and what function
 # handles the extraction. The Tower library expects this.
 DOMAIN_METHODS['messages'] = [
-    ('%s/**.py' % PROJECT_MODULE,
+    ('oneanddone/**.py',
         'tower.management.commands.extract.extract_tower_python'),
-    ('%s/**/templates/**.html' % PROJECT_MODULE,
+    ('oneanddone/**/templates/**.html',
         'tower.management.commands.extract.extract_tower_template'),
     ('templates/**.html',
         'tower.management.commands.extract.extract_tower_template'),
 ]
 
-# # Use this if you have localizable HTML files:
-# DOMAIN_METHODS['lhtml'] = [
-#    ('**/templates/**.lhtml',
-#        'tower.management.commands.extract.extract_tower_template'),
-# ]
 
-# # Use this if you have localizable JS files:
-# DOMAIN_METHODS['javascript'] = [
-#    # Make sure that this won't pull in strings from external libraries you
-#    # may use.
-#    ('media/js/**.js', 'javascript'),
-# ]
+# Project-specific Settings
+##############################################################################
 
-LOGGING = {
-    'loggers': {
-        'playdoh': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-        'django_browserid': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        }
-    }
-}
