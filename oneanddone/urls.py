@@ -16,6 +16,8 @@ patch()
 urlpatterns = patterns('',
     (r'', include('oneanddone.base.urls')),
 
+    (r'^browserid/', include('django_browserid.urls')),
+
     # Generate robots.txt
     (r'^robots\.txt$',
         lambda r: HttpResponse(

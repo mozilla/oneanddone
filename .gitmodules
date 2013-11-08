@@ -4,3 +4,6 @@
 [submodule "vendor-local/src/jingo-minify"]
 	path = vendor-local/src/jingo-minify
 	url = git@github.com:jsocol/jingo-minify.git
+[submodule "vendor-local/src/django-browserid"]
+	path = vendor-local/src/django-browserid
+	url = git@github.com:mozilla/django-browserid.git

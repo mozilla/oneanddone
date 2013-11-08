@@ -1,6 +1,8 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+from django.core.urlresolvers import reverse_lazy
+
 from funfactory.settings_base import *
 
 
@@ -14,12 +16,53 @@ ROOT_URLCONF = 'oneanddone.urls'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-US'
 
-INSTALLED_APPS = list(INSTALLED_APPS) + [
+INSTALLED_APPS = (
     'oneanddone.base',
 
+    # Django contrib apps
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.staticfiles',
+
     # Third-party apps.
+    'commonware.response.cookies',
+    'django_browserid',
+    'django_nose',
+    'funfactory',
     'jingo_minify',
-]
+    'product_details',
+    'tower',
+    'session_csrf',
+)
+
+MIDDLEWARE_CLASSES = (
+    'funfactory.middleware.LocaleURLMiddleware',
+    'multidb.middleware.PinningRouterMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'session_csrf.CsrfMiddleware',  # Must be after auth middleware.
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'commonware.middleware.FrameOptionsHeader',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.media',
+    'django.core.context_processors.request',
+    'session_csrf.context_processor',
+    'django.contrib.messages.context_processors.messages',
+    'funfactory.context_processors.i18n',
+    'funfactory.context_processors.globals',
+    'django_browserid.context_processors.browserid',
+)
+
+AUTHENTICATION_BACKENDS = (
+   'django.contrib.auth.backends.ModelBackend',
+   'django_browserid.auth.BrowserIDBackend',
+)
 
 LOCALE_PATHS = (
     os.path.join(ROOT, 'locale'),
@@ -34,6 +77,7 @@ LOCALE_PATHS = (
 JINGO_EXCLUDE_APPS = [
     'admin',
     'registration',
+    'browserid',
 ]
 
 # Accepted locales
@@ -44,12 +88,16 @@ PROD_LANGUAGES = ('de', 'en-US', 'es', 'fr',)
 MINIFY_BUNDLES = {
     'css': {
         'base': (
+            'browserid/persona-buttons.css',
             'css/sandstone/sandstone-resp.less',
             'css/one-and-done.less'
         ),
     },
     'js': {
         'base': (
+            'js/libs/jquery-2.0.3.min.js',
+            'https://login.persona.org/include.js',
+            'browserid/browserid.js',
             'js/site.js',
         ),
     }
@@ -82,6 +130,12 @@ DOMAIN_METHODS['messages'] = [
     ('templates/**.html',
         'tower.management.commands.extract.extract_tower_template'),
 ]
+
+# Authentication settings.
+LOGIN_URL = reverse_lazy('base.home')
+LOGIN_REDIRECT_URL = reverse_lazy('base.home')
+LOGIN_REDIRECT_URL_FAILURE = reverse_lazy('base.home')
+LOGOUT_REDIRECT_URL = reverse_lazy('base.home')
 
 
 # Project-specific Settings

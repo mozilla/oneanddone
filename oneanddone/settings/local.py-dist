@@ -53,6 +53,14 @@ ENGAGE_ROBOTS = True
 # HTTPS to disable HTTPS-only cookies.
 # SESSION_COOKIE_SECURE = False
 
+# django-browserid requires you to specify audiences that are valid for your
+# site. An audience is a protocol + hosename + port that users will use to
+# access your site.
+#
+# In development, this is typically 'http://localhost:8000' or similar. In
+# production, this is typically the protocol and domain for the site.
+BROWSERID_AUDIENCES = ['http://localhost:8000']
+
 
 # Error Reporting
 ##############################################################################
