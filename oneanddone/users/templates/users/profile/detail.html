@@ -1,0 +1,13 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
+{% extends 'base/base.html' %}
+
+{% block content %}
+  <h1>{{ user.profile.name }}</h1>
+  <dl>
+    <dt>{{ _('Tasks completed') }}</dt>
+    <dd>{{ ngettext('{count} task', '{count} tasks', 0)|f(count=0) }}</dd>
+  </dl>
+  <a href="#">{{ _('Pick a task to do') }}</a>
+{% endblock %}

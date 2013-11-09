@@ -18,6 +18,7 @@ LANGUAGE_CODE = 'en-US'
 
 INSTALLED_APPS = (
     'oneanddone.base',
+    'oneanddone.users',
 
     # Django contrib apps
     'django.contrib.auth',
@@ -134,7 +135,7 @@ DOMAIN_METHODS['messages'] = [
 
 # Authentication settings.
 LOGIN_URL = reverse_lazy('base.home')
-LOGIN_REDIRECT_URL = reverse_lazy('base.home')
+LOGIN_REDIRECT_URL = reverse_lazy('users.profile.detail')
 LOGIN_REDIRECT_URL_FAILURE = reverse_lazy('base.home')
 LOGOUT_REDIRECT_URL = reverse_lazy('base.home')
 

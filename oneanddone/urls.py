@@ -6,15 +6,16 @@ from django.conf.urls.defaults import patterns, include
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.http import HttpResponse
 
-from funfactory.monkeypatches import patch
+import funfactory.monkeypatches
 
 
-# Activate funfactory monkeypatches.
-patch()
+# Activate monkeypatches.
+funfactory.monkeypatches.patch()
 
 
 urlpatterns = patterns('',
     (r'', include('oneanddone.base.urls')),
+    (r'', include('oneanddone.users.urls')),
 
     (r'^browserid/', include('django_browserid.urls')),
 

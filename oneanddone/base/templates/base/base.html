@@ -33,9 +33,14 @@
               <li role="menuitem"><a href="/leader_board">{{ _('Leader Board') }}</a></li>
               <li role="menuitem" class="auth-menu">
                 {% if user.is_authenticated() %}
-                  {% trans name=user.email, logout_button=browserid_logout(text=_('Sign out')) %}
-                    Welcome, {{ name }} | {{ logout_button }}
-                  {% endtrans %}
+                  {% if user.display_name %}
+                    {% trans name=user.display_name, profile_url=url('users.profile.update') %}
+                      Welcome, <a href="{{ profile_url }}">{{ name }}</a>
+                    {% endtrans %}
+                  {% else %}
+                    {{ _('Welcome!') }}
+                  {% endif %}
+                  | {{ browserid_logout(text=_('Sign out')) }}
                 {% else %}
                   {{ browserid_login(text=_('Sign in'), color='blue') }}
                 {% endif %}
@@ -55,8 +60,8 @@
 
           <div class="footer-license">
             <p>
-              {% trans cc_href='//www.mozilla.org/foundation/licensing/website-content.html' %}
-                Portions of this content are &copy;1998–2012 by individual mozilla.org contributors. Content available under a <a href="{{ cc_href }}">Creative Commons license</a>.
+              {% trans cc_href='//www.mozilla.org/foundation/licensing/website-content.html', this_year=thisyear() %}
+                Portions of this content are &copy;1998–{{ this_year }} by individual mozilla.org contributors. Content available under a <a href="{{ cc_href }}">Creative Commons license</a>.
               {% endtrans %}
             </p>
             <p><a href="https://github.com/mozilla/oneanddone">{{ _('Contribute to this page') }}</a></p>
