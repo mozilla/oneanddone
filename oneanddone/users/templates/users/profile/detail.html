@@ -9,5 +9,5 @@
     <dt>{{ _('Tasks completed') }}</dt>
     <dd>{{ ngettext('{count} task', '{count} tasks', 0)|f(count=0) }}</dd>
   </dl>
-  <a href="#">{{ _('Pick a task to do') }}</a>
+  <a href="{{ url('tasks.available') }}">{{ _('Pick a task to do') }}</a>
 {% endblock %}

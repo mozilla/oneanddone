@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.conf import settings
 from django.conf.urls.defaults import patterns, include
+from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.http import HttpResponse
 
@@ -13,9 +14,16 @@ import funfactory.monkeypatches
 funfactory.monkeypatches.patch()
 
 
+# Auto-discover admin interface definitions.
+admin.autodiscover()
+
+
 urlpatterns = patterns('',
     (r'', include('oneanddone.base.urls')),
     (r'', include('oneanddone.users.urls')),
+    (r'', include('oneanddone.tasks.urls')),
+
+    (r'^admin/', include(admin.site.urls)),
 
     (r'^browserid/', include('django_browserid.urls')),
 

@@ -16,11 +16,16 @@ ROOT_URLCONF = 'oneanddone.urls'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-US'
 
+# Support timezone-aware datetimes.
+USE_TZ = True
+
 INSTALLED_APPS = (
     'oneanddone.base',
+    'oneanddone.tasks',
     'oneanddone.users',
 
     # Django contrib apps
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
