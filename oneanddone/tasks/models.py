@@ -5,11 +5,13 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
+from mptt.models import MPTTModel, TreeForeignKey
+
 from oneanddone.base.models import CreatedModifiedModel
 
 
-class TaskArea(CreatedModifiedModel):
-    parent = models.ForeignKey('self', blank=True, null=True)
+class TaskArea(MPTTModel, CreatedModifiedModel):
+    parent = TreeForeignKey('self', blank=True, null=True, related_name='children')
     name = models.CharField(max_length=255)
 
     def __unicode__(self):
@@ -22,7 +24,7 @@ class Task(CreatedModifiedModel):
     and include instructions and estimated execution times. Certain
     tasks can also be completed multiple times.
     """
-    area = models.ForeignKey(TaskArea)
+    area = TreeForeignKey(TaskArea)
 
     name = models.CharField(max_length=255)
     short_description = models.CharField(max_length=255)

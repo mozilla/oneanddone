@@ -13,8 +13,12 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('parent', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tasks.TaskArea'], null=True, blank=True)),
+            ('parent', self.gf('mptt.fields.TreeForeignKey')(blank=True, related_name='children', null=True, to=orm['tasks.TaskArea'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            (u'lft', self.gf('django.db.models.fields.PositiveIntegerField')(db_index=True)),
+            (u'rght', self.gf('django.db.models.fields.PositiveIntegerField')(db_index=True)),
+            (u'tree_id', self.gf('django.db.models.fields.PositiveIntegerField')(db_index=True)),
+            (u'level', self.gf('django.db.models.fields.PositiveIntegerField')(db_index=True)),
         ))
         db.send_create_signal('tasks', ['TaskArea'])
 
@@ -23,7 +27,7 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('area', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tasks.TaskArea'])),
+            ('area', self.gf('mptt.fields.TreeForeignKey')(to=orm['tasks.TaskArea'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('short_description', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('instructions', self.gf('django.db.models.fields.TextField')()),
@@ -97,7 +101,7 @@ class Migration(SchemaMigration):
         'tasks.task': {
             'Meta': {'object_name': 'Task'},
             'allow_multiple_finishes': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'area': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tasks.TaskArea']"}),
+            'area': ('mptt.fields.TreeForeignKey', [], {'to': "orm['tasks.TaskArea']"}),
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'execution_time': ('django.db.models.fields.IntegerField', [], {}),
@@ -112,9 +116,13 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'TaskArea'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            u'level': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'}),
+            u'lft': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tasks.TaskArea']", 'null': 'True', 'blank': 'True'})
+            'parent': ('mptt.fields.TreeForeignKey', [], {'blank': 'True', 'related_name': "'children'", 'null': 'True', 'to': "orm['tasks.TaskArea']"}),
+            u'rght': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'}),
+            u'tree_id': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'})
         },
         'tasks.taskattempt': {
             'Meta': {'object_name': 'TaskAttempt'},

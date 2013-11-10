@@ -7,6 +7,12 @@
 
 {% block content %}
   <h1>{{ _('Tasks') }}</h1>
+
+  <form class="task-filters" method="get">
+    {{ filter.form.as_p() }}
+    <button type="submit">{{ _('Filter tasks') }}</button>
+  </form>
+
   <ol class="task-list">
     {% for task in available_tasks %}
       <li>

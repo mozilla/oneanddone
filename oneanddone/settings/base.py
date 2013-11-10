@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django_nose',
     'funfactory',
     'jingo_minify',
+    'mptt',
     'product_details',
     'south',
     'tower',
