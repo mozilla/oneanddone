@@ -29,7 +29,7 @@
           <nav id="nav-main" role="menubar">
             <span class="toggle" role="button" aria-controls="nav-main-menu" tabindex="0">{{ _('Menu') }}</span>
             <ul role="menu" id="nav-main-menu">
-              <li role="menuitem" class="first"><a href="/tasks">{{ _('Tasks') }}</a></li>
+              <li role="menuitem" class="first"><a href="{{ url('tasks.available') }}">{{ _('Tasks') }}</a></li>
               <li role="menuitem" class="auth-menu">
                 {% if user.is_authenticated() %}
                   {% if user.display_name %}
