@@ -9,4 +9,6 @@ from oneanddone.tasks import views
 urlpatterns = patterns('',
     url(r'^tasks/available/$', views.AvailableTasksView.as_view(), name='tasks.available'),
     url(r'^tasks/(?P<pk>\d+)/$', views.TaskDetailView.as_view(), name='tasks.detail'),
+    url(r'^tasks/(?P<pk>\d+)/start/$', views.StartTaskView.as_view(), name='tasks.start'),
+    url(r'^tasks/(?P<pk>\d+)/finish/$', views.FinishTaskView.as_view(), name='tasks.finish'),
 )

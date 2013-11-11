@@ -7,7 +7,18 @@
   <h1>{{ user.profile.name }}</h1>
   <dl>
     <dt>{{ _('Tasks completed') }}</dt>
-    <dd>{{ ngettext('{count} task', '{count} tasks', 0)|f(count=0) }}</dd>
+    <dd>{{ ngettext('{count} task', '{count} tasks', user.attempts_finished)|f(count=user.attempts_finished) }}</dd>
+
+    {% if attempts_in_progress %}
+      <dt>{{ _('Tasks in progress') }}</dt>
+      <dd>
+        <ul>
+          {% for attempt in attempts_in_progress %}
+            <a href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a>
+          {% endfor %}
+        </ul>
+      </dd>
+    {% endif %}
   </dl>
   <a href="{{ url('tasks.available') }}">{{ _('Pick a task to do') }}</a>
 {% endblock %}

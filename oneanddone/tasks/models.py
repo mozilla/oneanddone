@@ -68,11 +68,9 @@ class TaskAttempt(CreatedModifiedModel):
     task = models.ForeignKey(Task)
 
     STARTED = 0
-    PAUSED = 1
-    FINISHED = 2
+    FINISHED = 1
     state = models.IntegerField(default=STARTED, choices=(
         (STARTED, 'Started'),
-        (PAUSED, 'Paused'),
         (FINISHED, 'Finished')
     ))
 

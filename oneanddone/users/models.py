@@ -6,22 +6,36 @@ from django.db import models
 
 from tower import ugettext_lazy as _lazy
 
+from oneanddone.tasks.models import TaskAttempt
+
 
 # User class extensions
 def user_unicode(self):
-    """Change user string representation to use the user's email address."""
-    return u'{name} <{email}>'.format(self.display_name or 'Anonymous', self.email)
+    """
+    Change user string representation to use the user's email address.
+    """
+    return u'{name} <{email}>'.format(name=self.display_name or u'Anonymous', email=self.email)
 User.add_to_class('__unicode__', user_unicode)
 
 
 @property
 def user_display_name(self):
-    """Return this user's display name, or 'Anonymous' if they don't have a profile."""
+    """
+    Return this user's display name, or 'Anonymous' if they don't have a
+    profile.
+    """
     try:
         return self.profile.name
     except UserProfile.DoesNotExist:
         return None
 User.add_to_class('display_name', user_display_name)
+
+
+@property
+def user_attempts_finished(self):
+    """Number of task attempts the user has finished."""
+    return self.taskattempt_set.filter(state=TaskAttempt.FINISHED).count()
+User.add_to_class('attempts_finished', user_attempts_finished)
 
 
 class UserProfile(models.Model):

@@ -1,3 +1,6 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
 {% extends 'base/base.html' %}
 
 {% block content %}
@@ -8,5 +11,21 @@
       Estimated time needed for completion: {{ execution_time }} minutes
     {% endtrans %}
   </div>
-  <a href="#">{{ _('Get Started') }}</a>
+
+  {% if not attempt %}
+    <form method="post" action="{{ url('tasks.start', task.id) }}">
+      {{ csrf() }}
+      <button type="submit">{{ _('Get Started') }}</button>
+    </form>
+  {% else %}
+    <a href="{{ url('users.profile.detail') }}">{{ _('Pause') }}</a>
+    <small>
+      {{ _('Don\'t have time to finish this task right now? Come back later and finish it.') }}
+    </small>
+
+    <form method="post" action="{{ url('tasks.finish', task.id) }}">
+      {{ csrf() }}
+      <button type="submit">{{ _('I\'m done') }}</button>
+    </form>
+  {% endif %}
 {% endblock %}

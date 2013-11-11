@@ -6,6 +6,7 @@ from django.views import generic
 
 from funfactory.urlresolvers import reverse_lazy
 
+from oneanddone.tasks.models import TaskAttempt
 from oneanddone.users.forms import UserProfileForm
 from oneanddone.users.mixins import UserProfileRequiredMixin
 from oneanddone.users.models import UserProfile
@@ -45,3 +46,11 @@ class ProfileDetailView(UserProfileRequiredMixin, generic.DetailView):
 
     def get_object(self):
         return self.request.user.profile
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(ProfileDetailView, self).get_context_data(*args, **kwargs)
+
+        attempts_in_progress = self.request.user.taskattempt_set.filter(state=TaskAttempt.STARTED)
+        ctx['attempts_in_progress'] = attempts_in_progress
+
+        return ctx

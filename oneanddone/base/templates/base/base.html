@@ -50,6 +50,10 @@
           <h2><a href="//mozilla.org/"><img src="{{ static('img/sandstone/header-mozilla-stone.png') }}" alt="mozilla"></a></h2>
         </header>
 
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+
         {% block content %}{% endblock %}
       </div>
       <footer id="colophon">
