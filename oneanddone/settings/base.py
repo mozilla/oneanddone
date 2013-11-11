@@ -104,7 +104,6 @@ MINIFY_BUNDLES = {
     'js': {
         'base': (
             'js/libs/jquery-2.0.3.min.js',
-            'https://login.persona.org/include.js',
             'browserid/browserid.js',
             'js/site.js',
         ),
