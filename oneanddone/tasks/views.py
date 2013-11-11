@@ -13,7 +13,8 @@ from tower import ugettext as _
 from oneanddone.base.util import get_object_or_none
 from oneanddone.users.mixins import UserProfileRequiredMixin
 from oneanddone.tasks.filters import AvailableTasksFilterSet
-from oneanddone.tasks.models import Task, TaskAttempt
+from oneanddone.tasks.forms import FeedbackForm
+from oneanddone.tasks.models import Feedback, Task, TaskAttempt
 
 
 class AvailableTasksView(UserProfileRequiredMixin, FilterView):
@@ -73,5 +74,28 @@ class FinishTaskView(UserProfileRequiredMixin, generic.detail.SingleObjectMixin,
         attempt.state = TaskAttempt.FINISHED
         attempt.save()
 
-        return redirect('users.profile.detail')
+        return redirect('tasks.feedback', task.pk)
 
+
+class CreateFeedbackView(UserProfileRequiredMixin, generic.CreateView):
+    model = Feedback
+    form_class = FeedbackForm
+    template_name = 'tasks/feedback.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.task = get_object_or_404(Task, pk=kwargs['pk'])
+        return super(CreateFeedbackView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(CreateFeedbackView, self).get_context_data(*args, **kwargs)
+        ctx['task'] = self.task
+        return ctx
+
+    def form_valid(self, form):
+        feedback = form.save(commit=False)
+        feedback.user = self.request.user
+        feedback.task = self.task
+        feedback.save()
+
+        messages.success(self.request, _('Your feedback has been submitted. Thanks!'))
+        return redirect('users.profile.detail')

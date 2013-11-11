@@ -20,5 +20,6 @@
       </dd>
     {% endif %}
   </dl>
+  <a href="{{ url('users.profile.update') }}">{{ _('Edit profile') }}</a><br>
   <a href="{{ url('tasks.available') }}">{{ _('Pick a task to do') }}</a>
 {% endblock %}

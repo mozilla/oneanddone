@@ -15,6 +15,11 @@ class TaskAttemptAdmin(admin.ModelAdmin):
     pass
 
 
+class FeedbackAdmin(admin.ModelAdmin):
+    pass
+
+
 admin.site.register(models.TaskArea, TaskAreaAdmin)
 admin.site.register(models.Task, TaskAdmin)
 admin.site.register(models.TaskAttempt, TaskAttemptAdmin)
+admin.site.register(models.Feedback, FeedbackAdmin)

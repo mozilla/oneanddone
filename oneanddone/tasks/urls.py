@@ -11,4 +11,5 @@ urlpatterns = patterns('',
     url(r'^tasks/(?P<pk>\d+)/$', views.TaskDetailView.as_view(), name='tasks.detail'),
     url(r'^tasks/(?P<pk>\d+)/start/$', views.StartTaskView.as_view(), name='tasks.start'),
     url(r'^tasks/(?P<pk>\d+)/finish/$', views.FinishTaskView.as_view(), name='tasks.finish'),
+    url(r'^tasks/(?P<pk>\d+)/feedback/$', views.CreateFeedbackView.as_view(), name='tasks.feedback'),
 )

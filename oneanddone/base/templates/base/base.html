@@ -30,11 +30,10 @@
             <span class="toggle" role="button" aria-controls="nav-main-menu" tabindex="0">{{ _('Menu') }}</span>
             <ul role="menu" id="nav-main-menu">
               <li role="menuitem" class="first"><a href="/tasks">{{ _('Tasks') }}</a></li>
-              <li role="menuitem"><a href="/leader_board">{{ _('Leader Board') }}</a></li>
               <li role="menuitem" class="auth-menu">
                 {% if user.is_authenticated() %}
                   {% if user.display_name %}
-                    {% trans name=user.display_name, profile_url=url('users.profile.update') %}
+                    {% trans name=user.display_name, profile_url=url('users.profile.detail') %}
                       Welcome, <a href="{{ profile_url }}">{{ name }}</a>
                     {% endtrans %}
                   {% else %}

@@ -62,7 +62,6 @@ class Task(CreatedModifiedModel):
         return u'{area} > {name}'.format(area=self.area, name=self.name)
 
 
-
 class TaskAttempt(CreatedModifiedModel):
     user = models.ForeignKey(User)
     task = models.ForeignKey(Task)
@@ -76,3 +75,12 @@ class TaskAttempt(CreatedModifiedModel):
 
     def __unicode__(self):
         return u'{user} attempt [{task}]'.format(user=self.user, task=self.task)
+
+
+class Feedback(CreatedModifiedModel):
+    user = models.ForeignKey(User)
+    task = models.ForeignKey(Task)
+    text = models.TextField()
+
+    def __unicode__(self):
+        return u'Feedback: {user} for {task}'.format(user=self.user, task=self.task)
