@@ -3,14 +3,16 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.db.models import Q
 from django.utils import timezone
+from django.views import generic
 
 from django_filters.views import FilterView
 
+from oneanddone.users.mixins import UserProfileRequiredMixin
 from oneanddone.tasks.filters import AvailableTasksFilterSet
 from oneanddone.tasks.models import Task, TaskAttempt
 
 
-class AvailableTasksView(FilterView):
+class AvailableTasksView(UserProfileRequiredMixin, FilterView):
     context_object_name = 'available_tasks'
     template_name = 'tasks/available.html'
     paginate_by = 10
@@ -30,3 +32,8 @@ class AvailableTasksView(FilterView):
         return (Task.objects
                 .filter(start_filter, end_filter, finished_filter)
                 .order_by('-execution_time'))
+
+
+class TaskDetailView(UserProfileRequiredMixin, generic.DetailView):
+    model = Task
+    template_name = 'tasks/detail.html'

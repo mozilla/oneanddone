@@ -2,8 +2,8 @@
  # License, v. 2.0. If a copy of the MPL was not distributed with this
  # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
 {% macro task_area_tree(task_area) -%}
-  {% if task_area.parent %}
-    {{ task_area_tree(task_area.parent) }} &gt;
-  {% endif %}
+  {% for area in task_area.get_ancestors() %}
+    {{ area.name }} &gt;
+  {% endfor %}
   {{ task_area.name }}
 {%- endmacro %}

@@ -54,6 +54,10 @@ class Task(CreatedModifiedModel):
             return (self.allow_multiple_finishes or
                     not self.taskattempt_set.filter(state=TaskAttempt.FINISHED).exists())
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('tasks.detail', (self.id,))
+
     def __unicode__(self):
         return u'{area} > {name}'.format(area=self.area, name=self.name)
 

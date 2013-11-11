@@ -4,7 +4,6 @@
 from django.shortcuts import redirect
 from django.views import generic
 
-from braces.views import LoginRequiredMixin
 from funfactory.urlresolvers import reverse_lazy
 
 from oneanddone.users.forms import UserProfileForm
@@ -12,7 +11,7 @@ from oneanddone.users.mixins import UserProfileRequiredMixin
 from oneanddone.users.models import UserProfile
 
 
-class CreateProfileView(LoginRequiredMixin, generic.CreateView):
+class CreateProfileView(generic.CreateView):
     model = UserProfile
     form_class = UserProfileForm
     template_name = 'users/profile/edit.html'
@@ -30,7 +29,7 @@ class CreateProfileView(LoginRequiredMixin, generic.CreateView):
         return redirect('users.profile.detail')
 
 
-class UpdateProfileView(LoginRequiredMixin, UserProfileRequiredMixin, generic.UpdateView):
+class UpdateProfileView(UserProfileRequiredMixin, generic.UpdateView):
     model = UserProfile
     form_class = UserProfileForm
     template_name = 'users/profile/edit.html'
@@ -40,7 +39,7 @@ class UpdateProfileView(LoginRequiredMixin, UserProfileRequiredMixin, generic.Up
         return self.request.user.profile
 
 
-class ProfileDetailView(LoginRequiredMixin, UserProfileRequiredMixin, generic.DetailView):
+class ProfileDetailView(UserProfileRequiredMixin, generic.DetailView):
     model = UserProfile
     template_name = 'users/profile/detail.html'
 
