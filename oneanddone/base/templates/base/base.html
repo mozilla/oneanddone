@@ -20,7 +20,7 @@
       {{ less_css('base') }}
     {% endblock %}
   </head>
-  <body class="sand">
+  <body class="{% block body_class %}sand{% endblock %}">
     {{ browserid_info() }}
     <div id="outer-wrapper">
       <div id="wrapper">
@@ -55,6 +55,16 @@
 
         {% block content %}{% endblock %}
       </div>
+
+      <aside>
+      <h3>{{ _('Get Involved') }}</h3>
+      <p>
+        {% trans %}
+          Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+        {% endtrans %}
+      </p>
+      </aside>
+
       <footer id="colophon">
         <div class="row">
           <div class="footer-logo">

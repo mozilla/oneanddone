@@ -154,6 +154,13 @@
   box-shadow: @shadow;
 }
 
+.border-box(@model: border-box) {
+  /* apply a natural box layout model to all elements */
+  -moz-box-sizing: @model;
+  -webkit-box-sizing: @model;
+  box-sizing: @model;
+}
+
 .transition(@transition: all linear .25s) {
   -webkit-transition: @transition;
   -moz-transition: @transition;
