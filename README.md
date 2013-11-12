@@ -52,7 +52,7 @@ you don't have `pip` installed, you can install it with `easy_install pip`.
    `oneanddone/settings/local.py` and customizing the settings in it:
 
    ```sh
-   $ cp settings/local.py-dist settings/local.py
+   $ cp oneanddone/settings/local.py-dist oneanddone/settings/local.py
    ```
 
    The file is commented to explain what each setting does and how to customize
