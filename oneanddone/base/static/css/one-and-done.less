@@ -3,6 +3,9 @@
 h2 {
     font-weight: bold;
 }
+main {
+    position: relative;
+}
 aside {
     display: inline-block;
     margin-top: 2rem;
@@ -43,6 +46,30 @@ footer {
     h3 {
         color: #608fbf;
     }
+}
+.profile-navigation {
+    position: absolute;
+    bottom: 5%;
+    left: 1%;
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        li {
+            display: inline;
+            margin-left: 5px;
+        }
+    }
+}
+.profile-container {
+    /* Fallback for browser that does not suport rgba. */
+    background-color: rgb(255, 255, 255);
+    background-color: rgba(255, 255, 255, 0.5);
+    margin-top: 2%;
+    padding: 20px 0 20px 6%;
+}
+.task-status {
+    margin: 3% 5% 5%;
 }
 .automation-section,
 .desktopqa-section,

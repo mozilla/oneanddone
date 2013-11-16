@@ -4,22 +4,31 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
+<main class="billboard profile-container">
+  <img src="{{ static('img/qa-logo.png') }}" width="110" height="110" alt="{{ _('Mozilla WebQA Logo') }}" class="mozqa-logo" />
   <h1>{{ user.profile.name }}</h1>
-  <dl>
-    <dt>{{ _('Tasks completed') }}</dt>
-    <dd>{{ ngettext('{count} task', '{count} tasks', user.attempts_finished)|f(count=user.attempts_finished) }}</dd>
 
-    {% if attempts_in_progress %}
-      <dt>{{ _('Tasks in progress') }}</dt>
-      <dd>
-        <ul>
-          {% for attempt in attempts_in_progress %}
-            <a href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a>
-          {% endfor %}
-        </ul>
-      </dd>
-    {% endif %}
-  </dl>
-  <a href="{{ url('users.profile.update') }}">{{ _('Edit profile') }}</a><br>
-  <a href="{{ url('tasks.available') }}">{{ _('Pick a task to do') }}</a>
+  <nav class="profile-navigation">
+    <ul>
+      <li><a href="{{ url('users.profile.update') }}" class="button">{{ _('Edit profile') }}</a></li>
+      <li><a href="{{ url('tasks.available') }}" class="button">{{ _('Pick a task to do') }}</a></li>
+    </ul>
+  </nav>
+
+  <section class="task-status">
+    <h3>{{ _('Tasks completed') }}</h3>
+    <ul>
+      <li>{{ ngettext('{count} task', '{count} tasks', user.attempts_finished)|f(count=user.attempts_finished) }}</li>
+    </ul>
+
+  {% if attempts_in_progress %}
+    <h3>{{ _('Tasks in progress') }}</h3>
+    <ul>
+    {% for attempt in attempts_in_progress %}
+      <li><a href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a></li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  </section>
+</main>
 {% endblock %}
