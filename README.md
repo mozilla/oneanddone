@@ -62,16 +62,58 @@ you don't have `pip` installed, you can install it with `easy_install pip`.
    Open up local.py, find and uncomment SESSION_COOKIE_SECURE = False
 
 
-6. Initialize your database structure:
+7. Create the initial empty database:
+
+   ```sh
+   # Start the MySQL server
+   $ mysql.server start
+   # Once successfully started, log into the console
+   # using your username and password
+   $ mysql -uroot -p
+   # Create the database
+   mysql> create database oneanddone;
+   ```
+
+8. Initialize your database structure:
 
    ```sh
    $ python manage.py syncdb
    ```
 
+Applying Migrations
+-------------------
+
+We're using [South][south] to handle database migrations. To apply the migrations,
+run the following:
+
+   ```sh
+   $ ./manage.py migrate oneanddone.tasks && ./manage.py migrate oneanddone.users
+   ```
+
+If you make changes to an existing model you will need to regeneratre the schema migration as follows:
+
+   ```sh
+   $ ./manage.py schemamigration oneanddone.tasks --auto
+   ```
+
+To generate a blank schema migration:
+
+   ```sh
+   $ ./manage.py datamigration oneanddone.mymodel data_migration_name
+   ```
+
+Then fill in the generated file with logic, fixtures, etc. You can then apply this migration as above with:
+
+   ```sh
+   $ ./manage.py migrate oneanddone.mymodel
+   ```
+
+
 [git]: http://git-scm.com/
 [git-clone]: https://help.github.com/articles/fork-a-repo
 [python]: http://www.python.org/
 [mysql]: http://dev.mysql.com/doc/refman/5.6/en/installing.html
+[south]: http://south.aeracode.org/
 
 
 Running the Development Server
@@ -81,6 +123,8 @@ You can launch the development server like so:
 ```sh
 $ python manage.py runserver
 ```
+
+If you are asked to create a super user, just enter no and let the process complete.
 
 
 License
