@@ -56,7 +56,11 @@ you don't have `pip` installed, you can install it with `easy_install pip`.
    ```
 
    The file is commented to explain what each setting does and how to customize
-   them.
+   them. One item in the local.py settings file you are going to want to change, if
+   you are running this locally and not over HTTPS, is the following.
+
+   Open up local.py, find and uncomment SESSION_COOKIE_SECURE = False
+
 
 6. Initialize your database structure:
 
