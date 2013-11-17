@@ -15,7 +15,7 @@ class TaskArea(MPTTModel, CreatedModifiedModel):
     name = models.CharField(max_length=255)
 
     def __unicode__(self):
-        return self.name
+        return ' > '.join(area.name for area in self.get_ancestors(include_self=True))
 
 
 class Task(CreatedModifiedModel):
@@ -30,7 +30,7 @@ class Task(CreatedModifiedModel):
     short_description = models.CharField(max_length=255)
     instructions = models.TextField()
 
-    execution_time = models.IntegerField()
+    execution_time = models.IntegerField(help_text='How many minutes will this take to finish?')
     allow_multiple_finishes = models.BooleanField(
         default=False, help_text=('If allowed, the task will remain available until it expires, '
                                   'instead of being taken down once an attempt is finished.'))
@@ -40,7 +40,7 @@ class Task(CreatedModifiedModel):
                                           'immediately available if blank.'))
     end_date = models.DateTimeField(
         blank=True, null=True, help_text=('If a task expires, it will not be shown to users '
-                                          'regardless of if it has been finished.'))
+                                          'regardless of whether it has been finished.'))
 
     @property
     def is_available(self):
