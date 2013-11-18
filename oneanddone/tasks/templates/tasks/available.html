@@ -8,42 +8,54 @@
 {% set title = _('Tasks') %}
 
 {% block content %}
+<main class="billboard profile-container">
+  <img src="{{ static('img/qa-logo.png') }}" width="110" height="110" alt="{{ _('Mozilla WebQA Logo') }}" class="mozqa-logo" />
   <h1>{{ _('Tasks') }}</h1>
 
-  <form class="task-filters" method="get">
-    {{ filter.form.as_p() }}
-    <button type="submit">{{ _('Filter tasks') }}</button>
-  </form>
+  <div class="task-filters">
+    <h3>Filters</h3>
+    <form class="filters" method="get">
+      <fieldset>
+        <legend class="visually-hidden">Select filters below to filter available tasks.</legend>
+        {{ filter.form.as_p() }}
+      </fieldset>
+      <button type="submit" class="button">{{ _('Filter tasks') }}</button>
+    </form>
+  </div>
 
-  <ol class="task-list">
-    {% for task in available_tasks %}
-      <li>
-        <div>{{ task_area_tree(task.area) }}</div>
-        <div><a href="{{ task.get_absolute_url() }}">{{ task.name }} {{ task.id }}</a></div>
-        <div>{{ task.short_description }}</div>
-      </li>
-    {% endfor %}
-  </ol>
+  <div class="task-list-container">
+    <h3>Tasks</h3>
+    <ol class="task-list">
+      {% for task in available_tasks %}
+        <li>
+          <h4>{{ task_area_tree(task.area) }}</h4>
+          <p><a href="{{ task.get_absolute_url() }}">{{ task.name }} {{ task.id }}</a></p>
+          <p>{{ task.short_description }}</p>
+        </li>
+      {% endfor %}
+    </ol>
 
-  {% if is_paginated %}
-    <div class="pagination">
-      <a href="{{ page_url(request, paginator.page_range[0]) }}">|&lt;&lt;</a>
+    {% if is_paginated %}
+      <div class="pagination">
+        <a href="{{ page_url(request, paginator.page_range[0]) }}">|&lt;&lt;</a>
 
-      {% if page_obj.has_previous() %}
-        <a href="{{ page_url(request, page_obj.previous_page_number()) }}">|&lt;</a>
-      {% endif %}
+        {% if page_obj.has_previous() %}
+          <a href="{{ page_url(request, page_obj.previous_page_number()) }}">|&lt;</a>
+        {% endif %}
 
-      <span>
-        {% trans current_page=page_obj.number, total_pages=paginator.num_pages %}
-          {{ current_page }} of {{ total_pages }}
-        {% endtrans %}
-      </span>
+        <span>
+          {% trans current_page=page_obj.number, total_pages=paginator.num_pages %}
+            {{ current_page }} of {{ total_pages }}
+          {% endtrans %}
+        </span>
 
-      {% if page_obj.has_next() %}
-        <a href="{{ page_url(request, page_obj.next_page_number()) }}">&gt;|</a>
-      {% endif %}
+        {% if page_obj.has_next() %}
+          <a href="{{ page_url(request, page_obj.next_page_number()) }}">&gt;|</a>
+        {% endif %}
 
-      <a href="{{ page_url(request, paginator.page_range[-1]) }}">&gt;&gt;|</a>
-    </div>
-  {% endif %}
+        <a href="{{ page_url(request, paginator.page_range[-1]) }}">&gt;&gt;|</a>
+      </div>
+    {% endif %}
+  </div>
+</main>
 {% endblock %}

@@ -1,10 +1,20 @@
 @import "sandstone/lib.less";
 
+/* apply a natural box layout model to all elements */
+* {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
 h2 {
     font-weight: bold;
 }
 main {
     position: relative;
+    h1 {
+        margin-bottom: 20px;
+    }
 }
 aside {
     background-color: rgba(130, 0, 0, .8);
@@ -24,6 +34,12 @@ aside {
         letter-spacing: .3px;
     }
 }
+legend {
+    font-size: 1.2rem;
+}
+label {
+    display: block;
+}
 footer {
     clear: left;
 }
@@ -35,8 +51,8 @@ footer {
     /* Fallback for browser that does not suport rgba. */
     background-color: rgb(255, 255, 255);
     background-color: rgba(255, 255, 255, 0.5);
-    padding-left: 10%;
-    padding-right: 10%;
+    padding-left: 12%;
+    padding-right: 12%;
 }
 .mozqa-logo {
     position: absolute;
@@ -80,7 +96,11 @@ footer {
     background-color: rgb(255, 255, 255);
     background-color: rgba(255, 255, 255, 0.5);
     margin-top: 2%;
-    padding: 20px 0 20px 6%;
+    padding: 20px 0 20px 7%;
+}
+/* TASKS */
+.filters {
+    margin-left: 1px;
 }
 .edit-profile {
     margin: 3%;
@@ -89,7 +109,26 @@ footer {
     }
 }
 .task-status {
-    margin: 3% 5% 5%;
+    margin: 0 5% 5%;
+}
+.task-filters,
+.task-list-container {
+    .span(5);
+}
+.task-list {
+    h4 {
+        margin-bottom: 6px;
+        font-size: 1.4rem;
+    }
+    li {
+        margin-bottom: 18px;
+        p {
+            margin-bottom: 0;
+        }
+    }
+}
+.task-filters {
+    margin-left: 3%;
 }
 .automation-section,
 .desktopqa-section,
@@ -137,5 +176,14 @@ footer {
         margin-bottom: -7px;
     }
 }
-
-
+/*http://developer.yahoo.com/blogs/ydn/posts/2012/10/clip-your-hidden-content-for-better-accessibility/*/
+.visually-hidden {
+    position: absolute;
+    clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+    clip: rect(1px, 1px, 1px, 1px);
+    padding:0;
+    border:0;
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+}
