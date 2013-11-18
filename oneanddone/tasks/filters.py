@@ -19,6 +19,14 @@ class TreeFilter(django_filters.Filter):
         return queryset.filter(**{key: value.get_descendants(include_self=True)})
 
 
+class AreaChoiceField(TreeNodeChoiceField):
+    def label_from_instance(self, area):
+        return area.name
+
+
+class AreaFilter(TreeFilter):
+    field_class = AreaChoiceField
+
 
 class AvailableTasksFilterSet(django_filters.FilterSet):
     """
