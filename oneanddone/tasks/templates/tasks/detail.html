@@ -18,14 +18,19 @@
       <button type="submit">{{ _('Get Started') }}</button>
     </form>
   {% else %}
-    <a href="{{ url('users.profile.detail') }}">{{ _('Pause') }}</a>
+    <a href="{{ url('users.profile.detail') }}">{{ _('Save for later') }}</a>
     <small>
       {{ _('Don\'t have time to finish this task right now? Come back later and finish it.') }}
     </small>
 
+    <form method="post" action="{{ url('tasks.abandon', task.id) }}">
+      {{ csrf() }}
+      <button type="submit">{{ _('Abandon task') }}</button>
+    </form>
+
     <form method="post" action="{{ url('tasks.finish', task.id) }}">
       {{ csrf() }}
-      <button type="submit">{{ _('I\'m done') }}</button>
+      <button type="submit">{{ _('Complete task') }}</button>
     </form>
   {% endif %}
 {% endblock %}

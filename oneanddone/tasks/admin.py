@@ -8,8 +8,8 @@ class TaskAreaAdmin(admin.ModelAdmin):
 
 
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('name', 'area', 'execution_time', 'allow_multiple_finishes', 'start_date',
-                    'end_date')
+    list_display = ('name', 'area', 'execution_time', 'is_finished', 'is_available',
+                    'allow_multiple_finishes', 'start_date', 'end_date')
     list_filter = ('area', 'allow_multiple_finishes')
     search_fields = ('name', 'area__name', 'short_description')
     fieldsets = (
@@ -23,6 +23,14 @@ class TaskAdmin(admin.ModelAdmin):
             'fields': ('allow_multiple_finishes', 'start_date', 'end_date')
         })
     )
+
+    def is_finished(self, task):
+        return task.is_finished
+    is_finished.boolean = True
+
+    def is_available(self, task):
+        return task.is_available
+    is_available.boolean = True
 
 
 class TaskAttemptAdmin(admin.ModelAdmin):

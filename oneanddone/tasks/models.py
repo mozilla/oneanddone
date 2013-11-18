@@ -54,6 +54,21 @@ class Task(CreatedModifiedModel):
             return (self.allow_multiple_finishes or
                     not self.taskattempt_set.filter(state=TaskAttempt.FINISHED).exists())
 
+    @property
+    def is_finished(self):
+        """
+        Whether this task is finished. A task is finished if either the
+        end date has passed or at least one finished attempt exists and
+        the task doesn't allow multiple finishes.
+        """
+        now = timezone.now()
+        if self.end_date and now > self.end_date:
+            return True
+        else:
+            return (not self.allow_multiple_finishes or
+                    self.taskattempt_set.filter(state=TaskAttempt.FINISHED).exists())
+
+
     @models.permalink
     def get_absolute_url(self):
         return ('tasks.detail', (self.id,))
