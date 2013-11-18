@@ -3,6 +3,8 @@
  # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
 {% extends 'base/base.html' %}
 
+{% set title = task.name %}
+
 {% block content %}
   <h1>{{ task.name }}</h1>
   <div>{{ task.instructions }}</div>
