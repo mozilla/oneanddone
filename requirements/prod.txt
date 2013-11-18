@@ -3,6 +3,7 @@
 django-braces==1.2.2
 django-filter==0.7
 django-mptt==0.6.0
+markdown==2.3.1
 south==0.8.2
 
 # Requirements tied to specific commits
