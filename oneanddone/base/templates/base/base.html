@@ -56,14 +56,7 @@
         {% block content %}{% endblock %}
       </div>
 
-      <aside>
-      <h3>{{ _('Get Involved') }}</h3>
-      <p>
-        {% trans %}
-          Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
-        {% endtrans %}
-      </p>
-      </aside>
+      {% block get_involved %}{% endblock %}
 
       <footer id="colophon">
         <div class="row">
