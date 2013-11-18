@@ -1,10 +1,14 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
+import bleach
+import jinja2
+from markdown import markdown
 from mptt.models import MPTTModel, TreeForeignKey
 
 from oneanddone.base.models import CreatedModifiedModel
@@ -30,17 +34,11 @@ class Task(CreatedModifiedModel):
     short_description = models.CharField(max_length=255)
     instructions = models.TextField()
 
-    execution_time = models.IntegerField(help_text='How many minutes will this take to finish?')
-    allow_multiple_finishes = models.BooleanField(
-        default=False, help_text=('If allowed, the task will remain available until it expires, '
-                                  'instead of being taken down once an attempt is finished.'))
+    execution_time = models.IntegerField()
+    allow_multiple_finishes = models.BooleanField(default=False)
 
-    start_date = models.DateTimeField(
-        blank=True, null=True, help_text=('Date the task will start to be available. Task is '
-                                          'immediately available if blank.'))
-    end_date = models.DateTimeField(
-        blank=True, null=True, help_text=('If a task expires, it will not be shown to users '
-                                          'regardless of whether it has been finished.'))
+    start_date = models.DateTimeField(blank=True, null=True)
+    end_date = models.DateTimeField(blank=True, null=True)
 
     @property
     def is_available(self):
@@ -69,12 +67,46 @@ class Task(CreatedModifiedModel):
                     self.taskattempt_set.filter(state=TaskAttempt.FINISHED).exists())
 
 
+    @property
+    def instructions_html(self):
+        """
+        Return the instructions for a task after parsing them as
+        markdown and bleaching/linkifying them.
+        """
+        linkified_instructions = bleach.linkify(self.instructions)
+        html = markdown(linkified_instructions, output_format='html5')
+        cleaned_html = bleach.clean(html, tags=settings.INSTRUCTIONS_ALLOWED_TAGS,
+                                    attributes=settings.INSTRUCTIONS_ALLOWED_ATTRIBUTES)
+        return jinja2.Markup(cleaned_html)
+
+
     @models.permalink
     def get_absolute_url(self):
         return ('tasks.detail', (self.id,))
 
     def __unicode__(self):
         return u'{area} > {name}'.format(area=self.area, name=self.name)
+
+    # Help text
+    instructions.help_text = """
+        Markdown formatting is applied. See
+        <a href="http://www.markdowntutorial.com/">http://www.markdowntutorial.com/</a> for a
+        primer on Markdown syntax.
+    """
+    execution_time.help_text = """
+        How many minutes will this take to finish?
+    """
+    allow_multiple_finishes.help_text = """
+        If allowed, the task will remain available until it expires, instead of being taken down
+        once an attempt is finished.
+    """
+    start_date.help_text = """
+        Date the task will start to be available. Task is immediately available if blank.
+    """
+    end_date.help_text = """
+        If a task expires, it will not be shown to users regardless of whether it has been
+        finished.
+    """
 
 
 class TaskAttempt(CreatedModifiedModel):

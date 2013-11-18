@@ -7,7 +7,7 @@
 
 {% block content %}
   <h1>{{ task.name }}</h1>
-  <div>{{ task.instructions }}</div>
+  <div>{{ task.instructions_html }}</div>
   <div>
     {% trans execution_time=task.execution_time %}
       Estimated time needed for completion: {{ execution_time }} minutes

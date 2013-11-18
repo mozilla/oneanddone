@@ -147,4 +147,36 @@ LOGOUT_REDIRECT_URL = reverse_lazy('base.home')
 
 # Project-specific Settings
 ##############################################################################
+# Whitelisted tags allowed to be used in task instructions.
+INSTRUCTIONS_ALLOWED_TAGS = [
+    'a',
+    'abbr',
+    'acronym',
+    'b',
+    'blockquote',
+    'code',
+    'dl',
+    'dt',
+    'em',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'i',
+    'img',
+    'li',
+    'ol',
+    'p',
+    'strong',
+    'ul',
+]
 
+# Whitelisted attributes allowed to be used in task instruction tags.
+INSTRUCTIONS_ALLOWED_ATTRIBUTES = {
+    'a': ['href', 'title', 'rel'],
+    'abbr': ['title'],
+    'acronym': ['title'],
+    'img': ['src', 'alt', 'title'],
+}
