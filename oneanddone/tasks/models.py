@@ -18,8 +18,12 @@ class TaskArea(MPTTModel, CreatedModifiedModel):
     parent = TreeForeignKey('self', blank=True, null=True, related_name='children')
     name = models.CharField(max_length=255)
 
-    def __unicode__(self):
+    @property
+    def full_name(self):
         return ' > '.join(area.name for area in self.get_ancestors(include_self=True))
+
+    def __unicode__(self):
+        return self.name
 
 
 class Task(CreatedModifiedModel):

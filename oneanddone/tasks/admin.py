@@ -1,14 +1,16 @@
 from django.contrib import admin
 
+from mptt.admin import MPTTModelAdmin
+
 from oneanddone.tasks import models
 
 
-class TaskAreaAdmin(admin.ModelAdmin):
-    list_display = ('name', 'parent')
+class TaskAreaAdmin(MPTTModelAdmin):
+    pass
 
 
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('name', 'area', 'execution_time', 'is_finished', 'is_available',
+    list_display = ('name', 'area_full_name', 'execution_time', 'is_finished', 'is_available',
                     'allow_multiple_finishes', 'start_date', 'end_date')
     list_filter = ('area', 'allow_multiple_finishes')
     search_fields = ('name', 'area__name', 'short_description')
@@ -31,6 +33,9 @@ class TaskAdmin(admin.ModelAdmin):
     def is_available(self, task):
         return task.is_available
     is_available.boolean = True
+
+    def area_full_name(self, task):
+        return task.area.full_name
 
 
 class TaskAttemptAdmin(admin.ModelAdmin):
