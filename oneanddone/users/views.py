@@ -1,15 +1,28 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+from django.contrib import messages
 from django.shortcuts import redirect
 from django.views import generic
 
+import django_browserid.views
 from funfactory.urlresolvers import reverse_lazy
+from tower import ugettext as _
 
 from oneanddone.tasks.models import TaskAttempt
 from oneanddone.users.forms import UserProfileForm
 from oneanddone.users.mixins import UserProfileRequiredMixin
 from oneanddone.users.models import UserProfile
+
+
+class LoginView(generic.TemplateView):
+    template_name = 'users/login.html'
+
+
+class Verify(django_browserid.views.Verify):
+    def login_failure(self, *args, **kwargs):
+        messages.error(self.request, _('There was a problem signing you in. Please try again.'))
+        return super(Verify, self).login_failure(*args, **kwargs)
 
 
 class CreateProfileView(generic.CreateView):

@@ -7,5 +7,5 @@ from oneanddone.base import views
 
 
 urlpatterns = patterns('',
-    url(r'^$', views.home, name='base.home'),
+    url(r'^$', views.HomeView.as_view(), name='base.home'),
 )

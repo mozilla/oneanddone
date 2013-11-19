@@ -7,6 +7,7 @@ from oneanddone.users import views
 
 
 urlpatterns = patterns('',
+    url(r'^login/$', views.LoginView.as_view(), name='users.login'),
     url(r'^profile/$', views.ProfileDetailView.as_view(), name='users.profile.detail'),
     url(r'^profile/new/$', views.CreateProfileView.as_view(), name='users.profile.create'),
     url(r'^profile/edit/$', views.UpdateProfileView.as_view(), name='users.profile.update'),
