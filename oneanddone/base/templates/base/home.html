@@ -13,6 +13,19 @@
       {% trans %}
         The &quot;One and Done&quot; initiative, previously known as &quot;QA Taskboard&quot;, is a workflow where Mozilla community contributors can pick tasks and work on them &#45; one at a time, one day at a time &#45; and feel good about doing them.
       {% endtrans %}
+      {{ browserid_info() }}
+      <p class="auth-menu">{% if user.is_authenticated() %}
+        {% if user.display_name %}
+          {% trans name=user.display_name, profile_url=url('users.profile.detail') %}
+            Welcome, <a href="{{ profile_url }}">{{ name }}</a>
+          {% endtrans %}
+        {% else %}
+          {{ _('Welcome!') }}
+        {% endif %}
+        | {{ browserid_logout(text=_('Sign out')) }}
+      {% else %}
+        {{ browserid_login(text=_('Sign in'), color='blue') }}
+      {% endif %}</p>
     </p>
   </section>
 
@@ -44,6 +57,17 @@
       </section>
     </div>
 
+    {% block get_involved %}
+    <aside>
+      <h3>{{ _('Get Involved') }}</h3>
+      <p>
+        {% trans %}
+          Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+        {% endtrans %}
+      </p>
+    </aside>
+  {% endblock %}
+
     <div class="main-bottom-row">
       <section class="thunderbird-section">
         <h3 class="thunderbird-heading">Thunderbird</h3>
@@ -72,14 +96,3 @@
     </div>
   </main>
   {% endblock %}
-
-{% block get_involved %}
-  <aside>
-    <h3>{{ _('Get Involved') }}</h3>
-    <p>
-      {% trans %}
-        Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
-      {% endtrans %}
-    </p>
-  </aside>
-{% endblock %}
