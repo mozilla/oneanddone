@@ -6,6 +6,7 @@ from django.conf.urls.defaults import patterns, include
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.http import HttpResponse
+from django.shortcuts import render
 
 import funfactory.monkeypatches
 
@@ -16,6 +17,14 @@ funfactory.monkeypatches.patch()
 
 # Auto-discover admin interface definitions.
 admin.autodiscover()
+
+
+def handler500(request):
+    return render(request, '500.html', status=500)
+
+
+def handler404(request):
+    return render(request, '404.html', status=404)
 
 
 urlpatterns = patterns('',
@@ -37,6 +46,11 @@ urlpatterns = patterns('',
 )
 
 
-# In DEBUG mode, serve media files through Django.
+# In DEBUG mode, serve media files through Django and make error views
+# viewable.
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()
+    urlpatterns += patterns('',
+        (r'^404/$', handler404),
+        (r'^500/$', handler500),
+    )
