@@ -10,9 +10,9 @@ class TaskAreaAdmin(MPTTModelAdmin):
 
 
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('name', 'area_full_name', 'execution_time', 'is_finished', 'is_available',
-                    'allow_multiple_finishes', 'start_date', 'end_date')
-    list_filter = ('area', 'allow_multiple_finishes')
+    list_display = ('name', 'area_full_name', 'execution_time', 'is_available',
+                    'start_date', 'end_date')
+    list_filter = ['area']
     search_fields = ('name', 'area__name', 'short_description')
     fieldsets = (
         (None, {
@@ -22,13 +22,9 @@ class TaskAdmin(admin.ModelAdmin):
             'fields': ('short_description', 'instructions')
         }),
         ('Availability', {
-            'fields': ('allow_multiple_finishes', 'start_date', 'end_date')
+            'fields': ('start_date', 'end_date')
         })
     )
-
-    def is_finished(self, task):
-        return task.is_finished
-    is_finished.boolean = True
 
     def is_available(self, task):
         return task.is_available

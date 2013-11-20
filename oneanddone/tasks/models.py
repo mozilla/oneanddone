@@ -39,7 +39,6 @@ class Task(CreatedModifiedModel):
     instructions = models.TextField()
 
     execution_time = models.IntegerField()
-    allow_multiple_finishes = models.BooleanField(default=False)
 
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
@@ -48,28 +47,10 @@ class Task(CreatedModifiedModel):
     def is_available(self):
         """Whether this task is available for users to attempt."""
         now = timezone.now()
-        if self.end_date and now > self.end_date:
-            return False
-        elif self.start_date and now < self.start_date:
-            return False
-        else:
-            return (self.allow_multiple_finishes or
-                    not self.taskattempt_set.filter(state=TaskAttempt.FINISHED).exists())
-
-    @property
-    def is_finished(self):
-        """
-        Whether this task is finished. A task is finished if either the
-        end date has passed or at least one finished attempt exists and
-        the task doesn't allow multiple finishes.
-        """
-        now = timezone.now()
-        if self.end_date and now > self.end_date:
-            return True
-        else:
-            return (not self.allow_multiple_finishes or
-                    self.taskattempt_set.filter(state=TaskAttempt.FINISHED).exists())
-
+        return not (
+            self.end_date and now > self.end_date or
+            self.start_date and now < self.start_date
+        )
 
     @property
     def instructions_html(self):
@@ -82,7 +63,6 @@ class Task(CreatedModifiedModel):
         cleaned_html = bleach.clean(html, tags=settings.INSTRUCTIONS_ALLOWED_TAGS,
                                     attributes=settings.INSTRUCTIONS_ALLOWED_ATTRIBUTES)
         return jinja2.Markup(cleaned_html)
-
 
     @models.permalink
     def get_absolute_url(self):
@@ -99,10 +79,6 @@ class Task(CreatedModifiedModel):
     """
     execution_time.help_text = """
         How many minutes will this take to finish?
-    """
-    allow_multiple_finishes.help_text = """
-        If allowed, the task will remain available until it expires, instead of being taken down
-        once an attempt is finished.
     """
     start_date.help_text = """
         Date the task will start to be available. Task is immediately available if blank.
