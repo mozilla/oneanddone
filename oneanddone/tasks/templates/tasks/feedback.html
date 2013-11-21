@@ -6,8 +6,9 @@
 {% set title = task.name %}
 
 {% block content %}
+<main class="billboard profile-container feedback">
   <h1>{{ task.name }}</h1>
-  <h2>{{ _('Thank you!') }}</h2>
+  <h4>{{ _('Thank you!') }}</h4>
   <p>
     {% trans %}
       Thank you for contributing to Mozilla QA! Your time and effort are highly
@@ -21,10 +22,11 @@
       start doing.
     {% endtrans %}
   </p>
-  <form method="post">
+  <form method="post" class="feedback-form">
     {{ csrf() }}
     {{ form.as_p() }}
-    <button type="submit">{{ _('Submit feedback') }}</button>
+    <a href="{{ url('users.profile.detail') }}" class="no-feedback">{{ _('No, thanks.') }}</a>
+    <button type="submit" class="button">{{ _('Submit feedback') }}</button>
   </form>
-  <a href="{{ url('users.profile.detail') }}">{{ _('No, thanks.') }}</a>
+</main>
 {% endblock %}

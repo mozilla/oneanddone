@@ -1,4 +1,5 @@
 @import "sandstone/lib.less";
+@import "mixins.less";
 
 /* apply a natural box layout model to all elements */
 * {
@@ -34,6 +35,7 @@ aside {
         letter-spacing: .3px;
     }
 }
+/* Forms */
 legend {
     font-size: 1.2rem;
 }
@@ -42,6 +44,25 @@ label {
 }
 footer {
     clear: left;
+}
+/* Feedback */
+.feedback {
+    h4 {
+        margin: 2rem 0;
+    }
+}
+.feedback-form {
+    width: 90%;
+    text-align: right;
+    label:first-child {
+        .visually-hidden;
+    }
+    textarea {
+        width: 100%;
+    }
+    .no-feedback {
+        margin-right: 1rem;
+    }
 }
 .home #colophon {
     margin-top: 4em;
