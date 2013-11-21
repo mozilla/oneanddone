@@ -16,29 +16,36 @@
   </p>
 
   <div class="actions-container">
-  {% if not attempt %}
-    <form method="post" action="{{ url('tasks.start', task.id) }}">
-      {{ csrf() }}
-      <button type="submit" class="button">{{ _('Get Started') }}</button>
-    </form>
-  {% else %}
-    <div class="save">
-      <a href="{{ url('users.profile.detail') }}" class="button" role="button">{{ _('Save for later') }}</a>
-      <small>
-        {{ _('Don\'t have time to finish this task right now? Come back later and finish it.') }}
-      </small>
-    </div>
+    {% if attempt %}
+      <div class="save">
+        <a href="{{ url('users.profile.detail') }}" class="button" role="button">{{ _('Save for later') }}</a>
+        <small>
+          {{ _('Don\'t have time to finish this task right now? Come back later and finish it.') }}
+        </small>
+      </div>
 
-    <form method="post" action="{{ url('tasks.abandon', task.id) }}">
-      {{ csrf() }}
-      <button type="submit" class="button-negative">{{ _('Abandon task') }}</button>
-    </form>
+      <form method="post" action="{{ url('tasks.abandon', task.id) }}">
+        {{ csrf() }}
+        <button type="submit" class="button-negative">{{ _('Abandon task') }}</button>
+      </form>
 
-    <form method="post" action="{{ url('tasks.finish', task.id) }}">
-      {{ csrf() }}
-      <button type="submit" class="button">{{ _('Complete task') }}</button>
-    </form>
-  {% endif %}
+      <form method="post" action="{{ url('tasks.finish', task.id) }}">
+        {{ csrf() }}
+        <button type="submit" class="button">{{ _('Complete task') }}</button>
+      </form>
+    {% else %}
+      {% if user.attempts_in_progress.exists() %}
+        <button class="button" disabled="disabled">{{ _('Get Started') }}</button>
+        <small>
+          {{ _('There is an outstanding task. You need to complete / abandon it in order to start on a new task.') }}
+        </small>
+      {% else %}
+        <form method="post" action="{{ url('tasks.start', task.id) }}">
+          {{ csrf() }}
+          <button type="submit" class="button">{{ _('Get Started') }}</button>
+        </form>
+      {% endif %}
+    {% endif %}
   </div>
 </main>
 {% endblock %}

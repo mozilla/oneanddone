@@ -12,20 +12,22 @@
   <nav class="profile-navigation">
     <ul>
       <li><a href="{{ url('users.profile.update') }}" class="button">{{ _('Edit profile') }}</a></li>
-      <li><a href="{{ url('tasks.available') }}" class="button">{{ _('Pick a task to do') }}</a></li>
+      {% if not user.attempts_in_progress %}
+        <li><a href="{{ url('tasks.available') }}" class="button">{{ _('Pick a task to do') }}</a></li>
+      {% endif %}
     </ul>
   </nav>
 
   <section class="task-status">
     <h3>{{ _('Tasks completed') }}</h3>
     <ul>
-      <li>{{ ngettext('{count} task', '{count} tasks', user.attempts_finished)|f(count=user.attempts_finished) }}</li>
+      <li>{{ ngettext('{count} task', '{count} tasks', user.attempts_finished_count)|f(count=user.attempts_finished_count) }}</li>
     </ul>
 
-  {% if attempts_in_progress %}
+  {% if user.attempts_in_progress %}
     <h3>{{ _('Tasks in progress') }}</h3>
     <ul>
-    {% for attempt in attempts_in_progress %}
+    {% for attempt in user.attempts_in_progress %}
       <li><a href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a></li>
     {% endfor %}
     </ul>

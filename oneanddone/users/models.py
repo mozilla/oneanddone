@@ -32,10 +32,17 @@ User.add_to_class('display_name', user_display_name)
 
 
 @property
-def user_attempts_finished(self):
+def user_attempts_finished_count(self):
     """Number of task attempts the user has finished."""
     return self.taskattempt_set.filter(state=TaskAttempt.FINISHED).count()
-User.add_to_class('attempts_finished', user_attempts_finished)
+User.add_to_class('attempts_finished_count', user_attempts_finished_count)
+
+
+@property
+def user_attempts_in_progress(self):
+    """All task attempts the user has in progress."""
+    return self.taskattempt_set.filter(state=TaskAttempt.STARTED)
+User.add_to_class('attempts_in_progress', user_attempts_in_progress)
 
 
 class UserProfile(models.Model):
