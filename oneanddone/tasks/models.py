@@ -43,6 +43,8 @@ class Task(CreatedModifiedModel):
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
 
+    is_draft = models.BooleanField()
+
     @property
     def is_available(self):
         """Whether this task is available for users to attempt."""
@@ -86,6 +88,10 @@ class Task(CreatedModifiedModel):
     end_date.help_text = """
         If a task expires, it will not be shown to users regardless of whether it has been
         finished.
+    """
+    is_draft.help_text = """
+        If you do not wish to publish the task yet, set it as a draft. Draft tasks will not
+        be viewable by contributors.
     """
 
 

@@ -13,8 +13,8 @@ class TaskAreaAdmin(MPTTModelAdmin):
 class TaskAdmin(admin.ModelAdmin):
     form = TaskModelForm
     list_display = ('name', 'area_full_name', 'execution_time', 'is_available',
-                    'start_date', 'end_date')
-    list_filter = ['area']
+                    'start_date', 'end_date', 'is_draft')
+    list_filter = ('area', 'is_draft')
     search_fields = ('name', 'area__name', 'short_description')
     fieldsets = (
         (None, {
@@ -24,7 +24,7 @@ class TaskAdmin(admin.ModelAdmin):
             'fields': ('short_description', 'instructions')
         }),
         ('Availability', {
-            'fields': ('start_date', 'end_date')
+            'fields': ('start_date', 'end_date', 'is_draft')
         })
     )
 

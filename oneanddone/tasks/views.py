@@ -14,6 +14,7 @@ from oneanddone.base.util import get_object_or_none
 from oneanddone.users.mixins import UserProfileRequiredMixin
 from oneanddone.tasks.filters import AvailableTasksFilterSet
 from oneanddone.tasks.forms import FeedbackForm
+from oneanddone.tasks.mixins import TaskMustBePublishedMixin
 from oneanddone.tasks.models import Feedback, Task, TaskAttempt
 
 
@@ -31,11 +32,11 @@ class AvailableTasksView(UserProfileRequiredMixin, FilterView):
         end_filter = Q(end_date__isnull=True) | Q(end_date__gt=now)
 
         return (Task.objects
-                .filter(start_filter, end_filter)
+                .filter(start_filter, end_filter, is_draft=False)
                 .order_by('-execution_time'))
 
 
-class TaskDetailView(UserProfileRequiredMixin, generic.DetailView):
+class TaskDetailView(UserProfileRequiredMixin, TaskMustBePublishedMixin, generic.DetailView):
     model = Task
     template_name = 'tasks/detail.html'
 
@@ -46,7 +47,8 @@ class TaskDetailView(UserProfileRequiredMixin, generic.DetailView):
         return ctx
 
 
-class StartTaskView(UserProfileRequiredMixin, generic.detail.SingleObjectMixin, generic.View):
+class StartTaskView(UserProfileRequiredMixin, TaskMustBePublishedMixin,
+                    generic.detail.SingleObjectMixin, generic.View):
     model = Task
 
     def post(self, *args, **kwargs):
@@ -60,7 +62,8 @@ class StartTaskView(UserProfileRequiredMixin, generic.detail.SingleObjectMixin, 
         return redirect(task)
 
 
-class AbandonTaskView(UserProfileRequiredMixin, generic.detail.SingleObjectMixin, generic.View):
+class AbandonTaskView(UserProfileRequiredMixin, TaskMustBePublishedMixin,
+                      generic.detail.SingleObjectMixin, generic.View):
     model = Task
 
     def post(self, *args, **kwargs):
@@ -73,7 +76,8 @@ class AbandonTaskView(UserProfileRequiredMixin, generic.detail.SingleObjectMixin
         return redirect('tasks.feedback', task.pk)
 
 
-class FinishTaskView(UserProfileRequiredMixin, generic.detail.SingleObjectMixin, generic.View):
+class FinishTaskView(UserProfileRequiredMixin, TaskMustBePublishedMixin,
+                     generic.detail.SingleObjectMixin, generic.View):
     model = Task
 
     def post(self, *args, **kwargs):
@@ -86,13 +90,13 @@ class FinishTaskView(UserProfileRequiredMixin, generic.detail.SingleObjectMixin,
         return redirect('tasks.feedback', task.pk)
 
 
-class CreateFeedbackView(UserProfileRequiredMixin, generic.CreateView):
+class CreateFeedbackView(UserProfileRequiredMixin, TaskMustBePublishedMixin, generic.CreateView):
     model = Feedback
     form_class = FeedbackForm
     template_name = 'tasks/feedback.html'
 
     def dispatch(self, request, *args, **kwargs):
-        self.task = get_object_or_404(Task, pk=kwargs['pk'])
+        self.task = get_object_or_404(Task, pk=kwargs['pk'], is_draft=False)
         allow_feedback = TaskAttempt.objects.filter(
             user=request.user, task=self.task, state__in=[TaskAttempt.FINISHED, TaskAttempt.ABANDONED]
         ).exists()
