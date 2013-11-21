@@ -67,11 +67,10 @@ class AbandonTaskView(UserProfileRequiredMixin, generic.detail.SingleObjectMixin
         task = self.get_object()
         attempt = get_object_or_404(TaskAttempt, user=self.request.user, task=task,
                                     state=TaskAttempt.STARTED)
-        attempt.delete()
+        attempt.state = TaskAttempt.ABANDONED
+        attempt.save()
 
-        messages.success(self.request, _('You have abandoned that task. Thank you for trying, and '
-                                         'feel free to try again later!'))
-        return redirect('users.profile.detail')
+        return redirect('tasks.feedback', task.pk)
 
 
 class FinishTaskView(UserProfileRequiredMixin, generic.detail.SingleObjectMixin, generic.View):
