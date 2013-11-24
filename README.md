@@ -127,6 +127,13 @@ $ python manage.py runserver
 If you are asked to create a super user, just enter no and let the process complete.
 
 
+Functional Tests
+-----------------
+Functional (Selenium) tests for oneanddone are maintained by the Web QA team and can be found at [oneanddone-tests].
+
+[oneanddone-tests]: https://github.com/mozilla/oneanddone-tests
+
+
 License
 -------
 This software is licensed under the `Mozilla Public License v. 2.0`_. For more
