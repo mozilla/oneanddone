@@ -3,38 +3,37 @@
 
 /* apply a natural box layout model to all elements */
 * {
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
+    .border-box();
 }
-h1 {
+h1, h2 {
     font-weight: bold;
+}
+p {
+    line-height: 1.5;
 }
 main {
     position: relative;
+    margin-top: 3%;
+    padding: 0 2%;
     h1 {
         margin-bottom: 20px;
     }
-}
-aside {
-    background-color: rgba(130, 0, 0, .8);
-    color: #fff;
-    display: inline-block;
-    margin: 2rem 5%;
-    width: 90%;
-    padding: 1rem 4.5%;
-    .border-box();
-    .border-radius(6px);
+    h2 {
+        margin-bottom: 1.5rem;
+        font-size: 3rem;
+        letter-spacing: -3px;
+    }
     h3 {
-        color: #fff;
-        font-size: 32px;
-        text-shadow: none;
+        font-size: 2rem;
+        font-weight: bold;
     }
-    p {
-        font-size: .9rem;
+    h4 {
         text-align: center;
-        letter-spacing: .3px;
+        font-size: 1.6rem;
     }
+}
+nav {
+    margin-top: 4px;
 }
 /* Forms */
 legend {
@@ -46,11 +45,25 @@ label {
 footer {
     clear: left;
 }
+.home-header {
+    position: relative;
+    background-color: #fff;
+    #gradient > .horizontal(#EAEFF2; #D4DDE4);
+    margin-top: 1rem;
+    padding: 20px 8% 5px;
+    min-height: 240px;
+    .border-radius(.4rem);
+    .box-shadow(2px 2px 8px #999);
+}
 .auth-menu {
     margin-right: 2%;
     text-align: right;
     a {
         color: #fff;
+    }
+    a.about-persona {
+        display: block;
+        color: #333;
     }
 }
 /* Feedback */
@@ -75,33 +88,23 @@ footer {
 .home #colophon {
     margin-top: 4em;
 }
-.sub-header {
-    position: relative;
-    /* Fallback for browser that does not suport rgba. */
-    background-color: rgb(255, 255, 255);
-    background-color: rgba(255, 255, 255, 0.5);
-    padding: 20px 12% 5px 12%;
-}
 .mozqa-logo {
     position: absolute;
     top: 20%;
     left: -55px;
 }
-.main {
-    h3 {
-        text-align: center;
-        font-size: 1.6rem;
-    }
+.teams-heading {
+    margin: 1.5rem 0;
 }
-.main-top-row {
-    h3 {
+.teams-top-row {
+    h4 {
         color: #820000;
     }
 }
-.main-bottom-row {
+.teams-bottom-row {
     clear: both;
     padding-top: 2rem;
-    h3 {
+    h4 {
         color: #608fbf;
     }
 }
@@ -151,6 +154,10 @@ footer {
     margin-top: 2%;
     padding: 20px 5%;
 }
+.get-involved {
+    position: relative;
+    margin-top: 1.5rem;
+}
 /* TASKS */
 .filters {
     margin-left: 1px;
@@ -163,10 +170,16 @@ footer {
 }
 .task-status {
     margin: 0 5% 5%;
+    h3 {
+        text-align: left;
+    }
 }
 .task-filters,
 .task-list-container {
     .span(5);
+    h3 {
+        text-align: left;
+    }
 }
 .task-list {
     h4 {
@@ -183,13 +196,9 @@ footer {
 .task-filters {
     margin-left: 3%;
 }
-.automation-section,
-.desktopqa-section,
-.webqa-section,
-.thunderbird-section,
-.servicesqa-section,
-.mobilefx-section {
+section[class *="-section"] {
     .span(4);
+    text-align: center;
 }
 /* Icon Headings */
 .automation-heading {
@@ -229,6 +238,7 @@ footer {
         margin-bottom: -7px;
     }
 }
+
 /*http://developer.yahoo.com/blogs/ydn/posts/2012/10/clip-your-hidden-content-for-better-accessibility/*/
 .visually-hidden {
     position: absolute;

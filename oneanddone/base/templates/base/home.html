@@ -6,81 +6,83 @@
 {% block body_class %}{{ super() }} home{% endblock %}
 
 {% block content %}
-  <section class="billboard sub-header">
+  <section class="home-header">
     <img src="{{ static('img/qa-logo.png') }}" width="110" height="110" alt="{{ _('Mozilla WebQA Logo') }}" class="mozqa-logo" />
-    <h2>{{ _('Mozilla One And Done') }}</h2>
+    <h2>{{ _('One And Done') }}</h2>
+    <h4>{{ _('Contribute to Mozilla QA - One task at a time, One day at a time.') }}</h4>
     <p>
       {% trans %}
         The &quot;One and Done&quot; initiative, previously known as &quot;QA Taskboard&quot;, is a workflow where Mozilla community contributors can pick tasks and work on them &#45; one at a time, one day at a time &#45; and feel good about doing them.
       {% endtrans %}
-      <p class="auth-menu">
+    </p>
+    <p class="auth-menu">
       {% if not user.is_authenticated() %}
-        {{ browserid_login(text=_('Sign in'), color='blue') }}
-      {% endif %}</p>
+        {{ browserid_login(text=_('Sign in with Mozilla Persona'), color='blue') }}
+        <a href="//login.persona.org/about" class="about-persona">What is Mozilla Persona?</a>
+      {% endif %}
     </p>
   </section>
 
   <main class="main">
-    <div class="main-top-row">
-      <section class="automation-section">
-        <h3 class="automation-heading">{{ _('Automation') }}</h3>
+    <section class="get-involved">
+        <h3>{{ _('Get Involved') }}</h3>
         <p>
           {% trans %}
             Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+          {% endtrans %}
+        </p>
+    </section>
+
+    <h3 class="teams-heading">{{ _('Our Teams') }}</h3>
+    <div class="teams-top-row">
+      <section class="automation-section">
+        <h4 class="automation-heading">{{ _('Automation') }}</h4>
+        <p>
+          {% trans %}
+            We build automated tests to run against Mozilla websites to make sure they are working as expected.
           {% endtrans %}
         </p>
       </section>
       <section class="desktopqa-section">
-        <h3 class="desktopqa-heading">{{ _('Desktop QA') }}</h3>
+        <h4 class="desktopqa-heading">{{ _('Desktop QA') }}</h4>
         <p>
           {% trans %}
-            Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+            We test Desktop Firefox for new features and resolved issues before release.
           {% endtrans %}
         </p>
       </section>
       <section class="webqa-section">
-        <h3 class="webqa-heading">{{ _('Web QA') }}</h3>
+        <h4 class="webqa-heading">{{ _('Web QA') }}</h4>
         <p>
           {% trans %}
-            Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+            We ensure that all Moilla websites are high quality, secure, and user friendly.
           {% endtrans %}
         </p>
       </section>
     </div>
 
-    {% block get_involved %}
-    <aside>
-      <h3>{{ _('Get Involved') }}</h3>
-      <p>
-        {% trans %}
-          Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
-        {% endtrans %}
-      </p>
-    </aside>
-  {% endblock %}
-
-    <div class="main-bottom-row">
+    <div class="teams-bottom-row">
       <section class="thunderbird-section">
-        <h3 class="thunderbird-heading">Thunderbird</h3>
+        <h4 class="thunderbird-heading">Thunderbird</h4>
         <p>
           {% trans %}
-            Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+            We test the Thunderbird mail client for resolved issues before release.
           {% endtrans %}
         </p>
       </section>
       <section class="servicesqa-section">
-        <h3 class="servicesqa-heading">{{ _('Services QA') }}</h3>
+        <h4 class="servicesqa-heading">{{ _('Services QA') }}</h4>
         <p>
           {% trans %}
-            Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+            We test Mozilla's private and secure user-controlled services for Firefox, desktop and mobile.
           {% endtrans %}
         </p>
       </section>
       <section class="mobilefx-section">
-        <h3 class="mobilefx-heading">{{ _('Mobile Firefox') }}</h3>
+        <h4 class="mobilefx-heading">{{ _('Mobile Firefox') }}</h4>
         <p>
           {% trans %}
-            Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
+            We test Firefox for Android and Firefox OS, a new mobile operating system.
           {% endtrans %}
         </p>
       </section>
