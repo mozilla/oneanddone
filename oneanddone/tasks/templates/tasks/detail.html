@@ -8,33 +8,37 @@
 {% block content %}
 <main class="billboard content-container">
   <h1>{{ task.name }}</h1>
-  <div>{{ task.instructions_html }}</div>
-  <div>
+  <div class="markdown">{{ task.instructions_html }}</div>
+  <p>
     {% trans execution_time=task.execution_time %}
       Estimated time needed for completion: {{ execution_time }} minutes
     {% endtrans %}
-  </div>
+  </p>
 
+  <div class="actions-container">
   {% if not attempt %}
     <form method="post" action="{{ url('tasks.start', task.id) }}">
       {{ csrf() }}
-      <button type="submit">{{ _('Get Started') }}</button>
+      <button type="submit" class="button">{{ _('Get Started') }}</button>
     </form>
   {% else %}
-    <a href="{{ url('users.profile.detail') }}">{{ _('Save for later') }}</a>
-    <small>
-      {{ _('Don\'t have time to finish this task right now? Come back later and finish it.') }}
-    </small>
+    <div class="save">
+      <a href="{{ url('users.profile.detail') }}" class="button" role="button">{{ _('Save for later') }}</a>
+      <small>
+        {{ _('Don\'t have time to finish this task right now? Come back later and finish it.') }}
+      </small>
+    </div>
 
     <form method="post" action="{{ url('tasks.abandon', task.id) }}">
       {{ csrf() }}
-      <button type="submit">{{ _('Abandon task') }}</button>
+      <button type="submit" class="button-negative">{{ _('Abandon task') }}</button>
     </form>
 
     <form method="post" action="{{ url('tasks.finish', task.id) }}">
       {{ csrf() }}
-      <button type="submit">{{ _('Complete task') }}</button>
+      <button type="submit" class="button">{{ _('Complete task') }}</button>
     </form>
   {% endif %}
+  </div>
 </main>
 {% endblock %}
