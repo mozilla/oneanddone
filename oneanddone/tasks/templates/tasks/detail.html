@@ -6,6 +6,7 @@
 {% set title = task.name %}
 
 {% block content %}
+<main class="billboard content-container">
   <h1>{{ task.name }}</h1>
   <div>{{ task.instructions_html }}</div>
   <div>
@@ -35,4 +36,5 @@
       <button type="submit">{{ _('Complete task') }}</button>
     </form>
   {% endif %}
+</main>
 {% endblock %}
