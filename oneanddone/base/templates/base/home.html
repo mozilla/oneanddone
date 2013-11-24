@@ -13,17 +13,8 @@
       {% trans %}
         The &quot;One and Done&quot; initiative, previously known as &quot;QA Taskboard&quot;, is a workflow where Mozilla community contributors can pick tasks and work on them &#45; one at a time, one day at a time &#45; and feel good about doing them.
       {% endtrans %}
-      {{ browserid_info() }}
-      <p class="auth-menu">{% if user.is_authenticated() %}
-        {% if user.display_name %}
-          {% trans name=user.display_name, profile_url=url('users.profile.detail') %}
-            Welcome, <a href="{{ profile_url }}">{{ name }}</a>
-          {% endtrans %}
-        {% else %}
-          {{ _('Welcome!') }}
-        {% endif %}
-        | {{ browserid_logout(text=_('Sign out')) }}
-      {% else %}
+      <p class="auth-menu">
+      {% if not user.is_authenticated() %}
         {{ browserid_login(text=_('Sign in'), color='blue') }}
       {% endif %}</p>
     </p>
