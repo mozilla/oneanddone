@@ -3,6 +3,7 @@ from django.contrib import admin
 from mptt.admin import MPTTModelAdmin
 
 from oneanddone.tasks import models
+from oneanddone.tasks.forms import TaskModelForm
 
 
 class TaskAreaAdmin(MPTTModelAdmin):
@@ -10,6 +11,7 @@ class TaskAreaAdmin(MPTTModelAdmin):
 
 
 class TaskAdmin(admin.ModelAdmin):
+    form = TaskModelForm
     list_display = ('name', 'area_full_name', 'execution_time', 'is_available',
                     'start_date', 'end_date')
     list_filter = ['area']

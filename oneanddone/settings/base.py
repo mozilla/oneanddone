@@ -35,6 +35,7 @@ INSTALLED_APPS = (
     'commonware.response.cookies',
     'django_browserid',
     'django_nose',
+    'epiceditor',
     'funfactory',
     'jingo_minify',
     'mptt',
@@ -68,8 +69,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 AUTHENTICATION_BACKENDS = (
-   'django.contrib.auth.backends.ModelBackend',
-   'django_browserid.auth.BrowserIDBackend',
+    'django.contrib.auth.backends.ModelBackend',
+    'django_browserid.auth.BrowserIDBackend',
 )
 
 LOCALE_PATHS = (
