@@ -93,6 +93,11 @@ class CreateFeedbackView(UserProfileRequiredMixin, generic.CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.task = get_object_or_404(Task, pk=kwargs['pk'])
+        allow_feedback = TaskAttempt.objects.filter(
+            user=request.user, task=self.task, state__in=[TaskAttempt.FINISHED, TaskAttempt.ABANDONED]
+        ).exists()
+        if not allow_feedback:
+            return redirect('tasks.available')
         return super(CreateFeedbackView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, *args, **kwargs):
