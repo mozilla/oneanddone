@@ -12,5 +12,6 @@ urlpatterns = patterns('',
     url(r'^tasks/(?P<pk>\d+)/start/$', views.StartTaskView.as_view(), name='tasks.start'),
     url(r'^tasks/(?P<pk>\d+)/finish/$', views.FinishTaskView.as_view(), name='tasks.finish'),
     url(r'^tasks/(?P<pk>\d+)/abandon/$', views.AbandonTaskView.as_view(), name='tasks.abandon'),
-    url(r'^tasks/(?P<pk>\d+)/feedback/$', views.CreateFeedbackView.as_view(), name='tasks.feedback'),
+    url(r'^tasks/(?P<pk>\d+)/feedback/completed/$', views.CreateFeedbackView.as_view(), {'aborted':False}, name='tasks.feedback.completed'),
+    url(r'^tasks/(?P<pk>\d+)/feedback/aborted/$', views.CreateFeedbackView.as_view(), {'aborted':True}, name='tasks.feedback.aborted'),
 )
