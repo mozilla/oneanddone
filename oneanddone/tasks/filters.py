@@ -1,6 +1,8 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+import operator
+
 import django_filters
 from mptt.forms import TreeNodeChoiceField
 
@@ -23,9 +25,20 @@ class AvailableTasksFilterSet(django_filters.FilterSet):
     """
     FilterSet that finds Tasks within an area, including child areas.
     """
-    area = TreeFilter(name='area', queryset=TaskArea.objects.all(), empty_label=u'All Areas')
     execution_time = django_filters.NumberFilter(lookup_type='lte')
 
     class Meta:
         model = Task
         fields = ('area', 'execution_time')
+
+    def __init__(self, *args, **kwargs):
+        super(AvailableTasksFilterSet, self).__init__(*args, **kwargs)
+
+        # Limit the area filter to TaskAreas that have available tasks.
+        available_areas = TaskArea.objects.filter(task__is_draft=False).distinct()
+        ancestor_querysets = [area.get_ancestors(include_self=True) for area in available_areas]
+        self.filters['area'] = TreeFilter(
+            name='area',
+            queryset=reduce(operator.or_, ancestor_querysets).distinct(),
+            empty_label=u'All Areas'
+        )
