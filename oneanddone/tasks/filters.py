@@ -19,12 +19,11 @@ class TreeFilter(django_filters.Filter):
         return queryset.filter(**{key: value.get_descendants(include_self=True)})
 
 
-
 class AvailableTasksFilterSet(django_filters.FilterSet):
     """
     FilterSet that finds Tasks within an area, including child areas.
     """
-    area = TreeFilter(name='area', queryset=TaskArea.objects.all())
+    area = TreeFilter(name='area', queryset=TaskArea.objects.all(), empty_label=u'All Areas')
     execution_time = django_filters.NumberFilter(lookup_type='lte')
 
     class Meta:
