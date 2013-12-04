@@ -35,7 +35,7 @@ class AvailableTasksFilterSet(django_filters.FilterSet):
         super(AvailableTasksFilterSet, self).__init__(*args, **kwargs)
 
         # Limit the area filter to TaskAreas that have available tasks.
-        available_areas = TaskArea.objects.filter(task__is_draft=False).distinct()
+        available_areas = TaskArea.objects.filter(Task.is_available_filter(prefix='task__')).distinct()
         ancestor_querysets = [area.get_ancestors(include_self=True) for area in available_areas]
         self.filters['area'] = TreeFilter(
             name='area',

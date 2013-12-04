@@ -4,6 +4,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 
 import bleach
@@ -48,10 +49,13 @@ class Task(CreatedModifiedModel):
     @property
     def is_available(self):
         """Whether this task is available for users to attempt."""
+        if self.is_draft:
+            return False
+
         now = timezone.now()
         return not (
-            self.end_date and now > self.end_date or
-            self.start_date and now < self.start_date
+            (self.end_date and now > self.end_date) or
+            (self.start_date and now < self.start_date)
         )
 
     @property
@@ -72,6 +76,35 @@ class Task(CreatedModifiedModel):
 
     def __unicode__(self):
         return u'{area} > {name}'.format(area=self.area, name=self.name)
+
+    @classmethod
+    def is_available_filter(self, now=None, allow_expired=False, prefix=''):
+        """
+        Return a Q object (queryset filter) that matches available
+        tasks.
+
+        :param now:
+            Datetime to use as the current datetime. Defaults to
+            django.utils.timezone.now().
+
+        :param allow_expired:
+            If False, exclude tasks past their end date.
+
+        :param prefix:
+            Prefix to use for queryset filter names. Good for when you
+            want to filter on a related tasks and need 'task__'
+            prepended to the filters.
+        """
+        # Convenient shorthand for creating a Q filter with the prefix.
+        pQ = lambda **kwargs: Q(**dict((prefix + key, value) for key, value in kwargs.items()))
+
+        now = now or timezone.now()
+        q_filter = pQ(is_draft=False) & (pQ(start_date__isnull=True) | pQ(start_date__lt=now))
+
+        if not allow_expired:
+            q_filter = q_filter & (pQ(end_date__isnull=True) | pQ(end_date__gt=now))
+
+        return q_filter
 
     # Help text
     instructions.help_text = """

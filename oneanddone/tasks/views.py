@@ -2,9 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.contrib import messages
-from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
-from django.utils import timezone
 from django.views import generic
 
 from django_filters.views import FilterView
@@ -18,27 +16,18 @@ from oneanddone.tasks.mixins import TaskMustBePublishedMixin
 from oneanddone.tasks.models import Feedback, Task, TaskAttempt
 
 
-class AvailableTasksView(UserProfileRequiredMixin, FilterView):
+class AvailableTasksView(UserProfileRequiredMixin, TaskMustBePublishedMixin, FilterView):
+    queryset = Task.objects.order_by('-execution_time')
     context_object_name = 'available_tasks'
     template_name = 'tasks/available.html'
     paginate_by = 10
     filterset_class = AvailableTasksFilterSet
 
-    def get_queryset(self):
-        now = timezone.now()
-
-        # Only filter by dates if they are not null.
-        start_filter = Q(start_date__isnull=True) | Q(start_date__lt=now)
-        end_filter = Q(end_date__isnull=True) | Q(end_date__gt=now)
-
-        return (Task.objects
-                .filter(start_filter, end_filter, is_draft=False)
-                .order_by('-execution_time'))
-
 
 class TaskDetailView(UserProfileRequiredMixin, TaskMustBePublishedMixin, generic.DetailView):
     model = Task
     template_name = 'tasks/detail.html'
+    allow_expired_tasks = True
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(TaskDetailView, self).get_context_data(*args, **kwargs)
