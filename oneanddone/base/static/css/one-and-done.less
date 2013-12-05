@@ -1,6 +1,16 @@
 @import "sandstone/lib.less";
 @import "mixins.less";
 
+@font-face {
+    font-family: 'Icons';
+    src: url('/static/fonts/icons.eot?#iefix2013') format('embedded-opentype'),
+         url('/static/fonts/icons.woff?2013') format('woff'),
+         url('/static/fonts/icons.ttf?2013') format('truetype'),
+         url('/static/fonts/icons.svg?23151880#icons') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
 /* apply a natural box layout model to all elements */
 * {
     .border-box();
@@ -28,7 +38,6 @@ main {
         font-weight: bold;
     }
     h4 {
-        text-align: center;
         font-size: 1.6rem;
     }
 }
@@ -187,7 +196,8 @@ footer {
         font-size: 1.4rem;
     }
     li {
-        margin-bottom: 18px;
+        list-style-type: none;
+        margin: 0 0 18px;
         p {
             margin-bottom: 0;
         }
@@ -236,6 +246,39 @@ section[class *="-section"] {
     .persona-button {
         color: #FFFFFF;
         margin-bottom: -7px;
+    }
+}
+
+/* Pagination */
+.pagination {
+    a, span {
+        margin-right: 1em;
+    }
+
+    a {
+        font-family: "Icons";
+        font-size: 120%;
+        font-style: normal;
+        font-variant: : normal;
+        font-weight: normal;
+        speak: none;
+        text-transform: none;
+
+        &.pagination-first:before {
+            content: '\e800';
+        }
+
+        &.pagination-last:before {
+            content: '\e802';
+        }
+
+        &.pagination-previous:before {
+            content: '\e801';
+        }
+
+        &.pagination-next:before {
+            content: '\e803';
+        }
     }
 }
 

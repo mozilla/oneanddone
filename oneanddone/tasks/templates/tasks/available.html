@@ -36,10 +36,14 @@
 
     {% if is_paginated %}
       <div class="pagination">
-        <a href="{{ page_url(request, paginator.page_range[0]) }}">|&lt;&lt;</a>
+        <a href="{{ page_url(request, paginator.page_range[0]) }}" class="pagination-first">
+          <span class="visually-hidden">{{ _('Go to first page') }}</span>
+        </a>
 
         {% if page_obj.has_previous() %}
-          <a href="{{ page_url(request, page_obj.previous_page_number()) }}">|&lt;</a>
+          <a href="{{ page_url(request, page_obj.previous_page_number()) }}" class="pagination-previous">
+            <span class="visually-hidden">{{ _('Go to previous page') }}</span>
+          </a>
         {% endif %}
 
         <span>
@@ -49,10 +53,14 @@
         </span>
 
         {% if page_obj.has_next() %}
-          <a href="{{ page_url(request, page_obj.next_page_number()) }}">&gt;|</a>
+          <a href="{{ page_url(request, page_obj.next_page_number()) }}" class="pagination-next">
+            <span class="visually-hidden">{{ _('Go to next page') }}</span>
+          </a>
         {% endif %}
 
-        <a href="{{ page_url(request, paginator.page_range[-1]) }}">&gt;&gt;|</a>
+        <a href="{{ page_url(request, paginator.page_range[-1]) }}" class="pagination-last">
+          <span class="visually-hidden">{{ _('Go to last page') }}</span>
+        </a>
       </div>
     {% endif %}
   </div>
