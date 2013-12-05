@@ -50,7 +50,13 @@
         </header>
 
         {% for message in messages %}
-          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          <div class="alert alert-{{ message.tags }}">
+            {% if 'safe' in message.tags %}
+              {{ message|safe }}
+            {% else %}
+              {{ message }}
+            {% endif %}
+          </div>
         {% endfor %}
 
         {% block content %}{% endblock %}

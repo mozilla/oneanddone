@@ -9,7 +9,6 @@ import django_browserid.views
 from funfactory.urlresolvers import reverse_lazy
 from tower import ugettext as _
 
-from oneanddone.tasks.models import TaskAttempt
 from oneanddone.users.forms import UserProfileForm
 from oneanddone.users.mixins import UserProfileRequiredMixin
 from oneanddone.users.models import UserProfile
@@ -21,7 +20,10 @@ class LoginView(generic.TemplateView):
 
 class Verify(django_browserid.views.Verify):
     def login_failure(self, *args, **kwargs):
-        messages.error(self.request, _('There was a problem signing you in. Please try again.'))
+        messages.error(self.request, _("""
+            There was a problem signing you in. Please try again. If you continue to have issues
+            logging in, let us know by emailing <a href="mailto:{email}">{email}</a>.
+        """).format(email='oneanddone@mozilla.com'), extra_tags='safe')
         return super(Verify, self).login_failure(*args, **kwargs)
 
 
