@@ -11,7 +11,9 @@
   <form method="post" class="edit-profile">
     {{ csrf() }}
     {{ form.as_p() }}
-    <button type="submit" class="button">{{ _('Save') }}
+    <div class="actions-container">
+      <button type="submit" class="button">{{ _('Save') }}</button>
+    </div>
   </form>
  </main>
 {% endblock %}
