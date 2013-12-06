@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{% if title|default(None) %}{{ title }} | {% endif %}{{ _('Mozilla One And Done') }}</title>
+    <title>{% if title|default(None) %}{{ title }} | {% endif %}{{ _('Mozilla One and Done') }}</title>
 
     <link rel="shortcut icon" href="{{ static('favicon.ico') }}">
 
@@ -29,7 +29,6 @@
           <nav id="nav-main" role="menubar">
             <span class="toggle" role="button" aria-controls="nav-main-menu" tabindex="0">{{ _('Menu') }}</span>
             <ul role="menu" id="nav-main-menu">
-              <li role="menuitem" class="first"><a href="{{ url('tasks.available') }}">{{ _('Tasks') }}</a></li>
               <li role="menuitem" class="auth-menu">
                 {% if user.is_authenticated() %}
                   {% if user.display_name %}
@@ -46,7 +45,12 @@
               </li>
             </ul>
           </nav>
-          <h2><a href="//mozilla.org/"><img src="{{ static('img/sandstone/header-mozilla-stone.png') }}" alt="mozilla"></a></h2>
+          <h2>
+            <a href="{{ url('base.home') }}" title="{{ _('Home') }}">
+              <img src="{{ static('img/qa-logo-header.png') }}" width="45" height="45" alt="{{ _('Mozilla QA logo') }}" class="logo">
+              <span class="logo-text">{{ _('One and Done') }}</span>
+            </a>
+          </h2>
         </header>
 
         {% for message in messages %}
