@@ -15,8 +15,17 @@
 * {
     .border-box();
 }
-h1, h2 {
-    font-weight: bold;
+h1, .billboard h1 {
+    font-size: 48px;
+}
+h2, .billboard h2 {
+    font-size: 32px;
+}
+h3, .billboard h3 {
+    font-size: 28px;
+}
+h4, .billboard h4 {
+    font-size: 24px;
 }
 p {
     line-height: 1.5;
@@ -63,6 +72,10 @@ footer {
     min-height: 240px;
     .border-radius(.4rem);
     .box-shadow(2px 2px 8px #999);
+
+    h2 {
+        font-weight: bold;
+    }
 }
 .auth-menu {
     margin-right: 2%;
@@ -110,8 +123,11 @@ footer {
     padding-top: 2rem;
 }
 .markdown {
-    h2 {
-        font-size: 2.5rem;
+    ul, ol {
+        margin-left: 1rem;
+        li > p {
+            margin: 0;
+        }
     }
 }
 .actions-container {
@@ -185,7 +201,6 @@ footer {
 .task-list {
     h4 {
         margin-bottom: 6px;
-        font-size: 1.4rem;
     }
     li {
         list-style-type: none;

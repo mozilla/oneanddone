@@ -28,7 +28,7 @@
       {% for task in available_tasks %}
         <li>
           <h4>{{ task_area_tree(task.area) }}</h4>
-          <p><a href="{{ task.get_absolute_url() }}">{{ task.name }} {{ task.id }}</a></p>
+          <p><a href="{{ task.get_absolute_url() }}">{{ task.name }}</a></p>
           <p>{{ task.short_description }}</p>
         </li>
       {% endfor %}
