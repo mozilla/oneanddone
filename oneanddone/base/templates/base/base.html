@@ -50,7 +50,7 @@
         </header>
 
         {% for message in messages %}
-          <div class="alert alert-{{ message.tags }}">
+          <div class="alert {{ message.tags }}">
             {% if 'safe' in message.tags %}
               {{ message|safe }}
             {% else %}
