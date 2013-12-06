@@ -7,7 +7,14 @@
 
 {% block content %}
   <main class="billboard content-container">
-    <h1>{{ _('Please sign in.') }}</h1>
-    <p>{{ browserid_login(next=request.GET.get('next'), color='blue') }}</p>
+    <h1>{{ _('Please sign in') }}</h1>
+    <p>
+      {% trans %}
+        In order to claim tasks on One and Done, you must first sign in using <a href="{{ persona_url }}">Persona</a> and create an account. This way, you can let us know that you're working on a task, and mark a task as completed once you've finished it.
+      {% endtrans %}
+    </p>
+    <p class="auth-menu">
+      {{ browserid_login(text=_('Log in or Register'), next=request.GET.get('next'), color='blue') }}
+    </p>
   </main>
 {% endblock %}

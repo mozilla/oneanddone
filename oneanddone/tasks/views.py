@@ -16,7 +16,7 @@ from oneanddone.tasks.mixins import TaskMustBePublishedMixin
 from oneanddone.tasks.models import Feedback, Task, TaskAttempt
 
 
-class AvailableTasksView(UserProfileRequiredMixin, TaskMustBePublishedMixin, FilterView):
+class AvailableTasksView(TaskMustBePublishedMixin, FilterView):
     queryset = Task.objects.order_by('-execution_time')
     context_object_name = 'available_tasks'
     template_name = 'tasks/available.html'
@@ -24,15 +24,16 @@ class AvailableTasksView(UserProfileRequiredMixin, TaskMustBePublishedMixin, Fil
     filterset_class = AvailableTasksFilterSet
 
 
-class TaskDetailView(UserProfileRequiredMixin, TaskMustBePublishedMixin, generic.DetailView):
+class TaskDetailView(TaskMustBePublishedMixin, generic.DetailView):
     model = Task
     template_name = 'tasks/detail.html'
     allow_expired_tasks = True
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(TaskDetailView, self).get_context_data(*args, **kwargs)
-        ctx['attempt'] = get_object_or_none(TaskAttempt, user=self.request.user, task=self.object,
-                                            state=TaskAttempt.STARTED)
+        if self.request.user.is_authenticated():
+            ctx['attempt'] = get_object_or_none(TaskAttempt, user=self.request.user,
+                                                task=self.object, state=TaskAttempt.STARTED)
         return ctx
 
 
