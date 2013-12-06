@@ -9,7 +9,14 @@
 {% block content %}
 <main class="billboard content-container feedback">
   <h1>{{ task.name }}</h1>
-  {% block feedback_message %}{% endblock %}
+  <h4>{{ _('Thank you!') }}</h4>
+  <p>
+    {% trans %}
+      Thank you for contributing to Mozilla QA! Your time and effort are highly
+      appreciated. We'd love to hear from you. Tell us about your experience
+      here.
+    {% endtrans %}
+  </p>
   <p>
     {% trans %}
       We'd love to know what we're doing right, what to keep doing, and what to
