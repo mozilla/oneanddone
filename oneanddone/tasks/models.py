@@ -60,7 +60,7 @@ class Task(CreatedModifiedModel):
         Return the instructions for a task after parsing them as
         markdown and bleaching/linkifying them.
         """
-        linkified_instructions = bleach.linkify(self.instructions)
+        linkified_instructions = bleach.linkify(self.instructions, parse_email=True)
         html = markdown(linkified_instructions, output_format='html5')
         cleaned_html = bleach.clean(html, tags=settings.INSTRUCTIONS_ALLOWED_TAGS,
                                     attributes=settings.INSTRUCTIONS_ALLOWED_ATTRIBUTES)
