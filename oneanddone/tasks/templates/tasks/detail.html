@@ -17,7 +17,7 @@
 
   <div class="actions-container">
     {% if attempt %}
-      <div class="save">
+      <div class="with-message">
         <a href="{{ url('users.profile.detail') }}" class="button" role="button">{{ _('Save for later') }}</a>
         <small>
           {{ _('Don\'t have time to finish this task right now? Come back later and finish it.') }}
@@ -37,10 +37,12 @@
       {% if not user.is_authenticated() %}
         <a href="{{ url('users.login')|urlparams(next=request.path) }}" class="button">{{ _('Get Started') }}</a>
       {% elif user.attempts_in_progress.exists() %}
-        <button class="button" disabled="disabled">{{ _('Get Started') }}</button>
-        <small>
-          {{ _('There is an outstanding task. You need to complete / abandon it in order to start on a new task.') }}
-        </small>
+        <div class="with-message">
+          <button class="button insensitive" disabled="disabled">{{ _('Get Started') }}</button>
+          <small>
+            {{ _('There is an outstanding task. You need to complete / abandon it in order to start on a new task.') }}
+          </small>
+        </div>
       {% else %}
         <form method="post" action="{{ url('tasks.start', task.id) }}">
           {{ csrf() }}
