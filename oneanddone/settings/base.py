@@ -1,9 +1,13 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+import urllib
+
 from django.core.urlresolvers import reverse_lazy
+from django.utils.safestring import mark_safe
 
 from funfactory.settings_base import *
+from tower import ugettext_lazy as _lazy
 
 
 # Django Settings
@@ -145,6 +149,21 @@ LOGIN_URL = reverse_lazy('users.login')
 LOGIN_REDIRECT_URL = reverse_lazy('users.profile.detail')
 LOGIN_REDIRECT_URL_FAILURE = reverse_lazy('users.login')
 LOGOUT_REDIRECT_URL = reverse_lazy('base.home')
+
+# Lazy-load request args since they depend on certain settings.
+def _request_args():
+    from django.contrib.staticfiles import finders
+
+    site_logo = open(finders.find('img/qa-logo.png'), 'rb').read().encode('base64')
+    logo_uri = urllib.quote('data:image/png;base64,{image}'.format(image=site_logo), safe=',:;/')
+    return {
+        'privacyPolicy': 'https://www.mozilla.org/privacy-policy.html',
+        'siteName': _lazy('One and Done'),
+        'termsOfService': 'https://www.mozilla.org/about/legal.html',
+        'siteLogo': mark_safe(logo_uri),
+        'backgroundColor': '#E0DDD4',
+    }
+BROWSERID_REQUEST_ARGS = lazy(_request_args, dict)()
 
 
 # Project-specific Settings
