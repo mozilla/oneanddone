@@ -6,14 +6,16 @@ from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
 
 from django_filters.views import FilterView
+from rest_framework import generics, permissions
 from tower import ugettext as _
 
 from oneanddone.base.util import get_object_or_none
-from oneanddone.users.mixins import UserProfileRequiredMixin
 from oneanddone.tasks.filters import AvailableTasksFilterSet
 from oneanddone.tasks.forms import FeedbackForm
 from oneanddone.tasks.mixins import TaskMustBePublishedMixin
-from oneanddone.tasks.models import Feedback, Task, TaskAttempt
+from oneanddone.tasks.models import Feedback, Task, TaskArea, TaskAttempt
+from oneanddone.tasks.serializers import TaskSerializer, TaskAreaSerializer
+from oneanddone.users.mixins import UserProfileRequiredMixin
 
 
 class AvailableTasksView(TaskMustBePublishedMixin, FilterView):
@@ -107,3 +109,23 @@ class CreateFeedbackView(UserProfileRequiredMixin, TaskMustBePublishedMixin, gen
 
         messages.success(self.request, _('Your feedback has been submitted. Thanks!'))
         return redirect('users.profile.detail')
+
+
+class TaskListAPI(generics.ListCreateAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+
+
+class TaskDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+
+
+class TaskAreaListAPI(generics.ListCreateAPIView):
+    queryset = TaskArea.objects.all()
+    serializer_class = TaskAreaSerializer
+
+
+class TaskAreaDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+    queryset = TaskArea.objects.all()
+    serializer_class = TaskAreaSerializer

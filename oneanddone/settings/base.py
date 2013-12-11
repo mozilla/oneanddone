@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'jingo_minify',
     'mptt',
     'product_details',
+    'rest_framework',
     'south',
     'tower',
     'session_csrf',
@@ -149,6 +150,18 @@ LOGIN_URL = reverse_lazy('users.login')
 LOGIN_REDIRECT_URL = reverse_lazy('users.profile.detail')
 LOGIN_REDIRECT_URL_FAILURE = reverse_lazy('users.login')
 LOGOUT_REDIRECT_URL = reverse_lazy('base.home')
+
+# Paths that don't require a locale code in the URL.
+SUPPORTED_NONLOCALES.append('api')
+
+# Permissions for the REST api
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAdminUser',
+        'rest_framework.permissions.DjangoModelPermissions',
+    )
+}
+
 
 # Lazy-load request args since they depend on certain settings.
 def _request_args():
