@@ -105,7 +105,8 @@ MINIFY_BUNDLES = {
         'base': (
             'browserid/persona-buttons.css',
             'css/sandstone/sandstone-resp.less',
-            'css/one-and-done.less'
+            'css/one-and-done.less',
+            'css/slider.css',
         ),
     },
     'js': {
@@ -113,6 +114,7 @@ MINIFY_BUNDLES = {
             'js/libs/jquery-2.0.3.min.js',
             'browserid/browserid.js',
             'js/site.js',
+            'js/slider.js',
         ),
     }
 }

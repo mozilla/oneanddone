@@ -5,8 +5,10 @@ import operator
 
 import django_filters
 from mptt.forms import TreeNodeChoiceField
+from tower import ugettext_lazy as _lazy
 
 from oneanddone.tasks.models import Task, TaskArea
+from oneanddone.tasks.widgets import RangeInput
 
 
 class TreeFilter(django_filters.Filter):
@@ -25,7 +27,10 @@ class AvailableTasksFilterSet(django_filters.FilterSet):
     """
     FilterSet that finds Tasks within an area, including child areas.
     """
-    execution_time = django_filters.NumberFilter(lookup_type='lte')
+    execution_time = django_filters.NumberFilter(
+        widget=RangeInput(attrs={'min': 0, 'max': 60, 'value': 60, 'step': 1}),
+        label=_lazy(u'Execution time (minutes)'),
+        lookup_type='lte')
 
     class Meta:
         model = Task
