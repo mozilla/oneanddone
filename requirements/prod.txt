@@ -1,5 +1,6 @@
 -r ../vendor/src/funfactory/funfactory/requirements/prod.txt
 
+djangorestframework==2.3.10
 django-braces==1.2.2
 django-epiceditor==0.2.2
 django-filter==0.7
