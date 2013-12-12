@@ -24,12 +24,12 @@
         </small>
       </div>
 
-      <form method="post" action="{{ url('tasks.abandon', task.id) }}">
+      <form method="post" action="{{ url('tasks.abandon', attempt.id) }}">
         {{ csrf() }}
         <button type="submit" class="button light-blue">{{ _('Abandon task') }}</button>
       </form>
 
-      <form method="post" action="{{ url('tasks.finish', task.id) }}">
+      <form method="post" action="{{ url('tasks.finish', attempt.id) }}">
         {{ csrf() }}
         <button type="submit" class="button">{{ _('Complete task') }}</button>
       </form>

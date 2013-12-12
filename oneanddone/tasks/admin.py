@@ -6,11 +6,21 @@ from oneanddone.tasks import models
 from oneanddone.tasks.forms import TaskModelForm
 
 
-class TaskAreaAdmin(MPTTModelAdmin):
-    pass
+class RecordCreatorMixin(object):
+    """
+    Record the creator when an instance is created via tha admin.
+    """
+    def save_model(self, request, obj, form, change):
+        if obj.pk is None:
+            obj.creator = request.user
+        super(RecordCreatorMixin, self).save_model(request, obj, form, change)
 
 
-class TaskAdmin(admin.ModelAdmin):
+class TaskAreaAdmin(RecordCreatorMixin, MPTTModelAdmin):
+    exclude = ('creator',)
+
+
+class TaskAdmin(RecordCreatorMixin, admin.ModelAdmin):
     form = TaskModelForm
     list_display = ('name', 'area_full_name', 'execution_time', 'is_available',
                     'start_date', 'end_date', 'is_draft')
@@ -39,11 +49,23 @@ class TaskAdmin(admin.ModelAdmin):
 class TaskAttemptAdmin(admin.ModelAdmin):
     list_display = ('task', 'user', 'state')
     list_filter = ('state',)
+    readonly_fields = ('task', 'user', 'state')
 
 
 class FeedbackAdmin(admin.ModelAdmin):
-    list_display = ('task', 'user')
+    list_display = ('task', 'user', 'state')
     search_fields = ('text',)
+    readonly_fields = ('task', 'user', 'state', 'text')
+    exclude = ('attempt',)
+
+    def task(self, feedback):
+        return feedback.attempt.task
+
+    def user(self, feedback):
+        return feedback.attempt.user
+
+    def state(self, feedback):
+        return feedback.attempt.get_state_display()
 
 
 admin.site.register(models.TaskArea, TaskAreaAdmin)

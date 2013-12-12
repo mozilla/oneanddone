@@ -13,9 +13,10 @@ from markdown import markdown
 from mptt.models import MPTTModel, TreeForeignKey
 
 from oneanddone.base.models import CreatedModifiedModel
+from oneanddone.base.models import CreatedByModel
 
 
-class TaskArea(MPTTModel, CreatedModifiedModel):
+class TaskArea(MPTTModel, CreatedModifiedModel, CreatedByModel):
     parent = TreeForeignKey('self', blank=True, null=True, related_name='children')
     name = models.CharField(max_length=255)
 
@@ -27,7 +28,7 @@ class TaskArea(MPTTModel, CreatedModifiedModel):
         return self.name
 
 
-class Task(CreatedModifiedModel):
+class Task(CreatedModifiedModel, CreatedByModel):
     """
     Task for a user to attempt to fulfill. Tasks are categorized by area
     and include instructions and estimated execution times. Certain
@@ -146,9 +147,9 @@ class TaskAttempt(CreatedModifiedModel):
 
 
 class Feedback(CreatedModifiedModel):
-    user = models.ForeignKey(User)
-    task = models.ForeignKey(Task)
+    attempt = models.ForeignKey(TaskAttempt)
     text = models.TextField()
 
     def __unicode__(self):
-        return u'Feedback: {user} for {task}'.format(user=self.user, task=self.task)
+        return u'Feedback: {user} for {task}'.format(
+            user=self.attempt.user, task=self.attempt.task)

@@ -4,11 +4,11 @@
 
 {% extends 'base/base.html' %}
 
-{% set title = task.name %}
+{% set title = attempt.task.name %}
 
 {% block content %}
 <main class="billboard content-container feedback">
-  <h1>{{ task.name }}</h1>
+  <h1>{{ attempt.task.name }}</h1>
   <h4>{{ _('Thank you!') }}</h4>
   <p>
     {% trans %}

@@ -60,32 +60,27 @@ class StartTaskView(UserProfileRequiredMixin, TaskMustBePublishedMixin,
         return redirect(task)
 
 
-class AbandonTaskView(UserProfileRequiredMixin, TaskMustBePublishedMixin,
-                      generic.detail.SingleObjectMixin, generic.View):
-    model = Task
+class TaskAttemptView(UserProfileRequiredMixin, generic.detail.SingleObjectMixin, generic.View):
+    def get_queryset(self):
+        return TaskAttempt.objects.filter(user=self.request.user, state=TaskAttempt.STARTED)
 
+
+class AbandonTaskView(TaskAttemptView):
     def post(self, *args, **kwargs):
-        task = self.get_object()
-        attempt = get_object_or_404(TaskAttempt, user=self.request.user, task=task,
-                                    state=TaskAttempt.STARTED)
+        attempt = self.get_object()
         attempt.state = TaskAttempt.ABANDONED
         attempt.save()
 
-        return redirect('tasks.feedback', task.pk)
+        return redirect('tasks.feedback', attempt.pk)
 
 
-class FinishTaskView(UserProfileRequiredMixin, TaskMustBePublishedMixin,
-                     generic.detail.SingleObjectMixin, generic.View):
-    model = Task
-
+class FinishTaskView(TaskAttemptView):
     def post(self, *args, **kwargs):
-        task = self.get_object()
-        attempt = get_object_or_404(TaskAttempt, user=self.request.user, task=task,
-                                    state=TaskAttempt.STARTED)
+        attempt = self.get_object()
         attempt.state = TaskAttempt.FINISHED
         attempt.save()
 
-        return redirect('tasks.feedback', task.pk)
+        return redirect('tasks.feedback', attempt.pk)
 
 
 class CreateFeedbackView(UserProfileRequiredMixin, TaskMustBePublishedMixin, generic.CreateView):
@@ -94,23 +89,18 @@ class CreateFeedbackView(UserProfileRequiredMixin, TaskMustBePublishedMixin, gen
     template_name = 'tasks/feedback.html'
 
     def dispatch(self, request, *args, **kwargs):
-        self.task = get_object_or_404(Task, pk=kwargs['pk'], is_draft=False)
-        allow_feedback = TaskAttempt.objects.filter(
-            user=request.user, task=self.task, state__in=[TaskAttempt.FINISHED, TaskAttempt.ABANDONED]
-        ).exists()
-        if not allow_feedback:
-            return redirect('tasks.available')
+        self.attempt = get_object_or_404(TaskAttempt, pk=kwargs['pk'],
+                                         state__in=[TaskAttempt.FINISHED, TaskAttempt.ABANDONED])
         return super(CreateFeedbackView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(CreateFeedbackView, self).get_context_data(*args, **kwargs)
-        ctx['task'] = self.task
+        ctx['attempt'] = self.attempt
         return ctx
 
     def form_valid(self, form):
         feedback = form.save(commit=False)
-        feedback.user = self.request.user
-        feedback.task = self.task
+        feedback.attempt = self.attempt
         feedback.save()
 
         messages.success(self.request, _('Your feedback has been submitted. Thanks!'))
