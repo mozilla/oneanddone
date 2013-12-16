@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'mptt',
     'product_details',
     'rest_framework',
+    'rest_framework.authtoken',
     'south',
     'tower',
     'session_csrf',
@@ -157,8 +158,11 @@ SUPPORTED_NONLOCALES.append('api')
 # Permissions for the REST api
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAdminUser',
+        'rest_framework.permissions.IsAuthenticated',
         'rest_framework.permissions.DjangoModelPermissions',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
     )
 }
 

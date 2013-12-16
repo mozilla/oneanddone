@@ -12,6 +12,7 @@ from tower import ugettext as _
 from oneanddone.base.util import get_object_or_none
 from oneanddone.tasks.filters import AvailableTasksFilterSet
 from oneanddone.tasks.forms import FeedbackForm
+from oneanddone.tasks.mixins import APIRecordCreatorMixin, APIOnlyCreatorMayDeleteMixin
 from oneanddone.tasks.mixins import TaskMustBePublishedMixin
 from oneanddone.tasks.models import Feedback, Task, TaskArea, TaskAttempt
 from oneanddone.tasks.serializers import TaskSerializer, TaskAreaSerializer
@@ -107,21 +108,23 @@ class CreateFeedbackView(UserProfileRequiredMixin, TaskMustBePublishedMixin, gen
         return redirect('users.profile.detail')
 
 
-class TaskListAPI(generics.ListCreateAPIView):
+class TaskListAPI(APIRecordCreatorMixin, generics.ListCreateAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
 
 
-class TaskDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+class TaskDetailAPI(APIOnlyCreatorMayDeleteMixin,
+                    generics.RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
 
 
-class TaskAreaListAPI(generics.ListCreateAPIView):
+class TaskAreaListAPI(APIRecordCreatorMixin, generics.ListCreateAPIView):
     queryset = TaskArea.objects.all()
     serializer_class = TaskAreaSerializer
 
 
-class TaskAreaDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+class TaskAreaDetailAPI(APIOnlyCreatorMayDeleteMixin,
+                        generics.RetrieveUpdateDestroyAPIView):
     queryset = TaskArea.objects.all()
     serializer_class = TaskAreaSerializer

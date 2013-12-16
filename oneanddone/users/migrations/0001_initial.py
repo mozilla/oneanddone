@@ -7,6 +7,10 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    needed_by = (
+        ('authtoken', '0001_initial'),
+    )
+
     def forwards(self, orm):
         # Adding model 'UserProfile'
         db.create_table('users_userprofile', (
