@@ -124,6 +124,7 @@ JINGO_MINIFY_USE_STATIC = True
 
 # Do not preprocess LESS files.
 LESS_PREPROCESS = False
+LESS_BIN = 'lessc'
 
 # Testing configuration.
 NOSE_ARGS = ['--logging-clear-handlers', '--logging-filter=-factory,-south']

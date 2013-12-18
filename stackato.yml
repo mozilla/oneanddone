@@ -1,0 +1,50 @@
+name: oneanddone
+framework:
+  type: python
+  start-file: wsgi/playdoh.wsgi
+env:
+  DJANGO_SETTINGS_MODULE: oneanddone.settings
+  DJANGO_SECRET_KEY: ${random-word}
+  DJANGO_HMAC_KEY: ${random-word}
+  DJANGO_SERVE_STATIC: true
+  DJANGO_DEBUG: ''
+  DJANGO_TEMPLATE_DEBUG: ''
+  DJANGO_DEV: true
+  BROWSERID_AUDIENCE: 'https://oneanddone.paas.allizom.org'
+  DJANGO_ADMIN_EMAIL: ''
+  LESSC_BIN: '$HOME/node_modules/less/bin/lessc'
+  NEW_RELIC_LOG: stderr
+  NEW_RELIC_APP_NAME: oneanddone.paas.allizom.org
+requirements:
+  pypm:
+    - MySQL-python==1.2.3
+    - jinja2==2.5.5
+    - py-bcrypt==0.3
+min_version:
+  client: 1.4.5
+services:
+  ${name}-db: mysql
+  ${name}-memcache: memcached
+  media: filesystem
+hooks:
+  post-staging:
+    - python manage.py syncdb --noinput
+    - python manage.py migrate --noinput
+    # Currently these have to be run locally prior to pushing. :(
+    #- npm install less
+    #- python manage.py collectstatic --noinput
+    #- python manage.py compress_assets
+processes:
+    web: $STACKATO_UWSGI --static-map /static=$HOME/static
+ignores:
+  - ".git"
+  - "*.pyc"
+  - "*.pyo"
+  - "*.swp"
+  - "*.un~"
+  - "*.orig"
+  - "*.sublime*"
+  - ".coverage*"
+  - "_coverage/*"
+  - ".noseids"
+  - "*settings/local.py"
