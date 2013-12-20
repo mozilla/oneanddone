@@ -1,8 +1,8 @@
 -r ../vendor/src/funfactory/funfactory/requirements/prod.txt
 
 djangorestframework==2.3.10
+django_ace==1.0.0
 django-braces==1.2.2
-django-epiceditor==0.2.2
 django-filter==0.7
 django-mptt==0.6.0
 markdown==2.3.1

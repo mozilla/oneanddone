@@ -37,9 +37,9 @@ INSTALLED_APPS = (
 
     # Third-party apps.
     'commonware.response.cookies',
+    'django_ace',
     'django_browserid',
     'django_nose',
-    'epiceditor',
     'funfactory',
     'jingo_minify',
     'mptt',
