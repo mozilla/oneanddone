@@ -47,13 +47,13 @@ class TaskAdmin(RecordCreatorMixin, admin.ModelAdmin):
 
 
 class TaskAttemptAdmin(admin.ModelAdmin):
-    list_display = ('task', 'user', 'state')
+    list_display = ('task', 'user', 'state', 'modified')
     list_filter = ('state',)
     readonly_fields = ('task', 'user', 'state')
 
 
 class FeedbackAdmin(admin.ModelAdmin):
-    list_display = ('task', 'user', 'state')
+    list_display = ('task', 'user', 'state', 'created')
     search_fields = ('text',)
     readonly_fields = ('task', 'user', 'state', 'text')
     exclude = ('attempt',)
