@@ -26,6 +26,12 @@ class TaskAdmin(RecordCreatorMixin, admin.ModelAdmin):
                     'start_date', 'end_date', 'is_draft')
     list_filter = ('area', 'is_draft')
     search_fields = ('name', 'area__name', 'short_description')
+
+    availability_desc = """
+    All times are read as UTC. You can use
+    <a href="http://time.is/UTC" target="_blank">time.is/UTC</a> to see
+    the current UTC time.
+    """
     fieldsets = (
         (None, {
             'fields': ('name', 'area', 'execution_time')
@@ -34,6 +40,7 @@ class TaskAdmin(RecordCreatorMixin, admin.ModelAdmin):
             'fields': ('short_description', 'instructions')
         }),
         ('Availability', {
+            'description': availability_desc,
             'fields': ('start_date', 'end_date', 'is_draft')
         })
     )

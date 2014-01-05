@@ -60,6 +60,7 @@ MIDDLEWARE_CLASSES = (
     'session_csrf.CsrfMiddleware',  # Must be after auth middleware.
     'django.contrib.messages.middleware.MessageMiddleware',
     'commonware.middleware.FrameOptionsHeader',
+    'oneanddone.base.middleware.TimezoneMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
