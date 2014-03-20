@@ -1,4 +1,8 @@
 name: oneanddone
+url:
+  - oneanddone.mozilla.org
+mem: 256M
+disk: 2G
 framework:
   type: python
   start-file: wsgi/playdoh.wsgi
@@ -6,15 +10,16 @@ env:
   DJANGO_SETTINGS_MODULE: oneanddone.settings
   DJANGO_SECRET_KEY: ${random-word}
   DJANGO_HMAC_KEY: ${random-word}
-  DJANGO_SERVE_STATIC: true
   DJANGO_DEBUG: ''
   DJANGO_TEMPLATE_DEBUG: ''
-  DJANGO_DEV: true
-  BROWSERID_AUDIENCE: 'https://oneanddone.paas.allizom.org'
+  DJANGO_DEV: ''
+  BROWSERID_AUDIENCE: 'https://oneanddone.mozilla.org'
   DJANGO_ADMIN_EMAIL: ''
-  LESSC_BIN: '$HOME/node_modules/less/bin/lessc'
   NEW_RELIC_LOG: stderr
-  NEW_RELIC_APP_NAME: oneanddone.paas.allizom.org
+  NEW_RELIC_APP_NAME: oneanddone.mozilla.org
+  NEW_RELIC_LICENSE_KEY: ''
+  HTTPS: on
+  UWSGI_SCHEME: https
 requirements:
   pypm:
     - MySQL-python==1.2.3
