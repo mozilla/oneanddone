@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
 
 from django_filters.views import FilterView
-from rest_framework import generics, permissions
+from rest_framework import generics
 from tower import ugettext as _
 
 from oneanddone.base.util import get_object_or_none
@@ -45,7 +45,6 @@ class StartTaskView(UserProfileRequiredMixin, TaskMustBePublishedMixin,
     model = Task
 
     def post(self, *args, **kwargs):
-
         # Do not allow users to take more than one task at a time
         if self.request.user.attempts_in_progress.exists():
             messages.error(self.request, _('You may only work on one task at a time.'))
@@ -90,7 +89,7 @@ class CreateFeedbackView(UserProfileRequiredMixin, TaskMustBePublishedMixin, gen
     template_name = 'tasks/feedback.html'
 
     def dispatch(self, request, *args, **kwargs):
-        self.attempt = get_object_or_404(TaskAttempt, pk=kwargs['pk'],
+        self.attempt = get_object_or_404(TaskAttempt, pk=kwargs['pk'], user=request.user,
                                          state__in=[TaskAttempt.FINISHED, TaskAttempt.ABANDONED])
         return super(CreateFeedbackView, self).dispatch(request, *args, **kwargs)
 
