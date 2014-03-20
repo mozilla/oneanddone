@@ -58,6 +58,9 @@ LESS_BIN = os.environ.get('LESSC_BIN', 'lessc')
 # tell Django how to determine if a request is using SSL.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+# Google Analytics ID
+GOOGLE_ANALYTICS_ID = os.environ.get('GOOGLE_ANALYTICS_ID', '')
+
 
 # Error Reporting
 ##############################################################################

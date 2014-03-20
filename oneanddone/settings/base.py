@@ -222,3 +222,6 @@ INSTRUCTIONS_ALLOWED_ATTRIBUTES = {
     'acronym': ['title'],
     'img': ['src', 'alt', 'title'],
 }
+
+# Google Analytics ID
+GOOGLE_ANALYTICS_ID = ''

@@ -20,6 +20,7 @@ env:
   NEW_RELIC_LICENSE_KEY: ''
   HTTPS: on
   UWSGI_SCHEME: https
+  GOOGLE_ANALYTICS_ID: ''
 requirements:
   pypm:
     - MySQL-python==1.2.3
