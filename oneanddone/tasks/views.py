@@ -1,8 +1,6 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-import random
-
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
@@ -34,9 +32,9 @@ class RandomTasksView(TaskMustBePublishedMixin, generic.ListView):
     template_name = 'tasks/random.html'
 
     def get_context_data(self, *args, **kwargs):
-        number_of_tasks = 5
         ctx = super(RandomTasksView, self).get_context_data(*args, **kwargs)
-        ctx['random_task_list'] = ctx['object_list'][:number_of_tasks]
+        # Only return 5 tasks
+        ctx['random_task_list'] = ctx['object_list'][:5]
         return ctx
 
 
