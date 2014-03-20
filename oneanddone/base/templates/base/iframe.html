@@ -1,0 +1,39 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
+<!DOCTYPE html>
+<html class="windows no-js" lang="{{ LANG }}" dir="{{ DIR }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% if title|default(None) %}{{ title }} | {% endif %}{{ _('Mozilla One and Done') }}</title>
+
+    <link rel="shortcut icon" href="{{ static('favicon.ico') }}">
+
+    <!--[if lte IE 8]>
+    <script src="{{ static('js/libs/html5shiv.js') }}"></script>
+    <![endif]-->
+
+    {% block site_css %}
+      <link rel="stylesheet" type="text/css" href="//www.mozilla.org/tabzilla/media/css/tabzilla.css" media="screen" />
+      {{ less_css('base') }}
+    {% endblock %}
+  </head>
+  <body class="{% block body_class %}sand{% endblock %}">
+    <div id="outer-wrapper">
+      <div id="wrapper">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+
+    {% block site_js %}
+      {% if settings.TEMPLATE_DEBUG %}
+        <script src="{{ static('js/libs/less-1.5.0.min.js') }}"></script>
+      {% endif %}
+      <script src="//www.mozilla.org/tabzilla/media/js/tabzilla.js"></script>
+      <script src="//login.persona.org/include.js"></script>
+      {{ js('base') }}
+    {% endblock %}
+  </body>
+</html>
