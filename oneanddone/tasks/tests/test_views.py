@@ -121,3 +121,17 @@ class CreateFeedbackViewTests(TestCase):
 
         with self.assertRaises(Http404):
             self.view.dispatch(request, pk=attempt.pk)
+
+
+class RandomTasksViewTests(TestCase):
+    def setUp(self):
+        self.view = views.RandomTasksView()
+
+    def test_get_context_data_returns_slice(self):
+        """
+        A subset of 5 items should be returned when Random tasks are viewed.
+        """
+        with patch('oneanddone.tasks.views.generic.ListView.get_context_data') as get_context_data:
+            get_context_data.return_value = {'object_list': [i for i in range(0, 10)]}
+            ctx = self.view.get_context_data()
+            eq_(len(ctx['random_task_list']), 5)
