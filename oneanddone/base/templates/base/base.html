@@ -50,6 +50,7 @@
                   {% else %}
                     {{ _('Welcome!') }}
                   {% endif %}
+                  | <a href="{{ url('tasks.available') }}">{{ _('Available Tasks') }}</a>
                   | {{ browserid_logout(text=_('Sign out')) }}
                 {% else %}
                   {{ browserid_login(text=_('Sign in'), color='blue') }}
