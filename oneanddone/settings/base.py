@@ -152,7 +152,7 @@ DOMAIN_METHODS['messages'] = [
 # Authentication settings.
 BROWSERID_VERIFY_CLASS = 'oneanddone.users.views.Verify'
 LOGIN_URL = reverse_lazy('users.login')
-LOGIN_REDIRECT_URL = reverse_lazy('users.profile.detail')
+LOGIN_REDIRECT_URL = reverse_lazy('base.home')
 LOGIN_REDIRECT_URL_FAILURE = reverse_lazy('users.login')
 LOGOUT_REDIRECT_URL = reverse_lazy('base.home')
 

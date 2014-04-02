@@ -13,17 +13,6 @@ class HomeViewTests(TestCase):
         self.view = HomeView()
         self.view.request = Mock()
 
-    def test_get_authenticated_redirect(self):
-        """
-        If the current user is authenticated, redirect them to the
-        profile detail view.
-        """
-        self.view.request.user.is_authenticated.return_value = True
-
-        with patch('oneanddone.base.views.redirect') as redirect:
-            eq_(self.view.get(), redirect.return_value)
-            redirect.assert_called_with('users.profile.detail')
-
     def test_get_unauthenticated_super(self):
         """
         If the current user isn't authenticated, call the parent method.

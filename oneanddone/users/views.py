@@ -34,7 +34,7 @@ class CreateProfileView(generic.CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         if UserProfile.objects.filter(user=request.user).exists():
-            return redirect('users.profile.detail')
+            return redirect('base.home')
         else:
             return super(CreateProfileView, self).dispatch(request, *args, **kwargs)
 
@@ -42,22 +42,14 @@ class CreateProfileView(generic.CreateView):
         profile = form.save(commit=False)
         profile.user = self.request.user
         profile.save()
-        return redirect('users.profile.detail')
+        return redirect('base.home')
 
 
 class UpdateProfileView(UserProfileRequiredMixin, generic.UpdateView):
     model = UserProfile
     form_class = UserProfileForm
     template_name = 'users/profile/edit.html'
-    success_url = reverse_lazy('users.profile.detail')
-
-    def get_object(self):
-        return self.request.user.profile
-
-
-class ProfileDetailView(UserProfileRequiredMixin, generic.DetailView):
-    model = UserProfile
-    template_name = 'users/profile/detail.html'
+    success_url = reverse_lazy('base.home')
 
     def get_object(self):
         return self.request.user.profile

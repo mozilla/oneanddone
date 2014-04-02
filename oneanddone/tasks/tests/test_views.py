@@ -66,7 +66,7 @@ class StartTaskViewTests(TestCase):
 
         with patch('oneanddone.tasks.views.redirect') as redirect:
             eq_(self.view.post(), redirect.return_value)
-            redirect.assert_called_with('users.profile.detail')
+            redirect.assert_called_with('base.home')
             ok_(not TaskAttempt.objects.filter(user=attempt.user, task=self.task).exists())
 
     def test_post_unavailable_task(self):
