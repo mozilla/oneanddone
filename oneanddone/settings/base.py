@@ -178,7 +178,7 @@ def _request_args():
     site_logo = open(finders.find('img/qa-logo.png'), 'rb').read().encode('base64')
     logo_uri = urllib.quote('data:image/png;base64,{image}'.format(image=site_logo), safe=',:;/')
     return {
-        'privacyPolicy': 'https://www.mozilla.org/privacy-policy.html',
+        'privacyPolicy': 'https://www.mozilla.org/privacy/websites/',
         'siteName': _lazy('One and Done'),
         'termsOfService': 'https://www.mozilla.org/about/legal.html',
         'siteLogo': mark_safe(logo_uri),
