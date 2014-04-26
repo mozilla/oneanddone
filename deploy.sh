@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# Checkout master and update
-git checkout master
-git pull upstream master
+# Name of Stackato executable
+if [ -z $STACKATO_EXECUTABLE ]; then
+    echo "Set environment variable STACKATO_EXECUTABLE to the name of the Stackato command line executable."
+    exit 1
+fi
 
 python manage.py collectstatic
 python manage.py compress_assets
@@ -10,14 +12,14 @@ python manage.py compress_assets
 echo "Do you want to deploy to Dev or Prod?"
 select env in "Dev" "Prod"; do
     case $env in
-        Dev ) s target api.paas.allizom.org; break;;
-        Prod ) s target api.paas.mozilla.org; break;;
+        Dev ) $STACKATO_EXECUTABLE target api.paas.allizom.org; break;;
+        Prod ) $STACKATO_EXECUTABLE target api.paas.mozilla.org; break;;
     esac
 done
 
-s login
-s group oneanddone
-s info
+$STACKATO_EXECUTABLE login
+$STACKATO_EXECUTABLE group oneanddone
+$STACKATO_EXECUTABLE info
 
 echo "Does everything look ok? Are you ready to continue to push?"
 select yn in "Yes" "No"; do
@@ -27,4 +29,4 @@ select yn in "Yes" "No"; do
     esac
 done
 
-s update
+$STACKATO_EXECUTABLE update
