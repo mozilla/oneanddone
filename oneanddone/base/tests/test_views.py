@@ -31,8 +31,7 @@ class HomeViewTests(TestCase):
         """
         request = Mock()
         request.user = UserFactory.create()
-        request.user.is_authenticated = Mock()
-        request.user.is_authenticated.return_value = True
+        request.user.is_authenticated = Mock(return_value=True)
 
         with patch('oneanddone.base.views.redirect') as redirect:
             eq_(self.view.dispatch(request), redirect.return_value)
