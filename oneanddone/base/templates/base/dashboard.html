@@ -8,7 +8,7 @@
   <section class="task-status">
     <h4>{{ _('Tasks completed') }}</h4>
     <ul>
-      <li>{{ ngettext('{count} task', '{count} tasks', user.attempts_finished_count)|f(count=user.attempts_finished_count) }}</li>
+      <li>{{ ngettext('%s task', '%s tasks', user.attempts_finished_count) % user.attempts_finished_count}}</li>
     </ul>
 
     {% if user.attempts_in_progress %}

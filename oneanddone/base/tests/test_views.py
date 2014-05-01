@@ -6,6 +6,7 @@ from nose.tools import eq_
 
 from oneanddone.base.tests import TestCase
 from oneanddone.base.views import HomeView
+from oneanddone.users.tests import UserFactory
 
 
 class HomeViewTests(TestCase):
@@ -22,3 +23,17 @@ class HomeViewTests(TestCase):
         with patch('oneanddone.base.views.HomeView.get') as parent_get:
             eq_(self.view.get('baz', foo='bar'), parent_get.return_value)
             parent_get.assert_called_with('baz', foo='bar')
+
+    def test_dispatch_authenticated_without_profile(self):
+        """
+        If the user is authenticated but doesn't have a profile,
+        redirect them to the create profile page.
+        """
+        request = Mock()
+        request.user = UserFactory.create()
+        request.user.is_authenticated = Mock()
+        request.user.is_authenticated.return_value = True
+
+        with patch('oneanddone.base.views.redirect') as redirect:
+            eq_(self.view.dispatch(request), redirect.return_value)
+            redirect.assert_called_with('users.profile.create')

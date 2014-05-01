@@ -43,9 +43,12 @@
             <ul role="menu" id="nav-main-menu">
               <li role="menuitem" class="auth-menu">
                 {% if user.is_authenticated() %}
-                  {{ _('Welcome') }}
                   {% if user.display_name %}
-                    {{ user.display_name }}
+                    {% trans name=user.display_name %}
+                      Welcome, {{ name }}
+                    {% endtrans %}
+                  {% else %}
+                    {{ _('Welcome!') }}
                   {% endif %}
                   | <a href="{{ url('tasks.available') }}">{{ _('Available Tasks') }}</a>
                   | {{ browserid_logout(text=_('Sign out')) }}
