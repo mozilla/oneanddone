@@ -59,7 +59,7 @@ class StartTaskView(UserProfileRequiredMixin, TaskMustBePublishedMixin,
         # Do not allow users to take more than one task at a time
         if self.request.user.attempts_in_progress.exists():
             messages.error(self.request, _('You may only work on one task at a time.'))
-            return redirect('users.profile.detail')
+            return redirect('base.home')
 
         task = self.get_object()
         if not task.is_available:
@@ -115,7 +115,7 @@ class CreateFeedbackView(UserProfileRequiredMixin, TaskMustBePublishedMixin, gen
         feedback.save()
 
         messages.success(self.request, _('Your feedback has been submitted. Thanks!'))
-        return redirect('users.profile.detail')
+        return redirect('base.home')
 
 
 class TaskListAPI(APIRecordCreatorMixin, generics.ListCreateAPIView):

@@ -22,6 +22,11 @@
   </section>
 
   <main class="main">
+
+    {% if user.is_authenticated() %}
+      {% include 'base/dashboard.html' %}
+    {% endif %}
+
     <section class="get-involved">
         <h3>{{ _('Get Involved') }}</h3>
         <p>

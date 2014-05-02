@@ -15,15 +15,14 @@ class CreateProfileViewTests(TestCase):
 
     def test_dispatch_existing_profile(self):
         """
-        If the user already has a profile, redirect them to the profile
-        detail page.
+        If the user already has a profile, redirect them to the home page.
         """
         request = Mock()
         request.user = UserProfileFactory.create().user
 
         with patch('oneanddone.users.views.redirect') as redirect:
             eq_(self.view.dispatch(request), redirect.return_value)
-            redirect.assert_called_with('users.profile.detail')
+            redirect.assert_called_with('base.home')
 
     def test_dispatch_no_profile(self):
         """If the user has no profile, dispatch the request normally."""
