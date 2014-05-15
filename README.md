@@ -127,6 +127,39 @@ $ python manage.py runserver
 If you are asked to create a super user, just enter no and let the process complete.
 
 
+REST API Support
+----------------
+There is a REST API support which enables:
+
+* Getting complete list of Tasks.
+* Getting detail about a Task with particular id.
+* Create and Delete Tasks with particular id.
+The Task queries can be made by appending `api/v1/task/` to the base url.
+
+GET and DELETE queries example.
+```sh
+curl -X GET http://127.0.0.1:8000/api/v1/task/ -H 'Authorization: Token d81e33c57b2d9471f4d6849bab3cb233b3b30468'
+curl -X GET http://127.0.0.1:8000/api/v1/task/1/ -H 'Authorization: Token d81e33c57b2d9471f4d6849bab3cb233b3b30468'
+curl -X DELETE http://127.0.0.1:8000/api/v1/task/1/ -H 'Authorization: Token d81e33c57b2d9471f4d6849bab3cb233b3b30468'
+```
+
+* Getting complete list of Users.
+* Getting details about a User with particular email.
+* Create and Delete Users with with particular email.
+The User queries can be made by appending `api/v1/user/` to the base url.
+
+GET and DELETE queries example.
+```sh
+curl -X GET http://127.0.0.1:8000/api/v1/user/ -H 'Authorization: Token d81e33c57b2d9471f4d6849bab3cb233b3b30468'
+curl -X GET http://127.0.0.1:8000/api/v1/user/testuser@tesmail.com/ -H 'Authorization: Token d81e33c57b2d9471f4d6849bab3cb233b3b30468'
+curl -X DELETE http://127.0.0.1:8000/api/v1/user/testuser@testmail.com/ -H 'Authorization: Token d81e33c57b2d9471f4d6849bab3cb233b3b30468'
+```
+
+#### The API uses a Token Authentication system.
+
+Token used in examples above is just a sample and actual Tokens can be generated from the admin pannel by going to `Authtoken > Tokens`.
+
+
 Functional Tests
 -----------------
 Functional (Selenium) tests for oneanddone are maintained by the Web QA team and can be found at [oneanddone-tests].
