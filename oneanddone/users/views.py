@@ -60,7 +60,7 @@ class UpdateProfileView(UserProfileRequiredMixin, generic.UpdateView):
 
 class UserListAPI(generics.ListCreateAPIView):
     """
-    API endpoint that allows to get complete list of users
+    API endpoint used to get a complete list of users
     and create a new user.
     """
     queryset = User.objects.all()
@@ -69,7 +69,7 @@ class UserListAPI(generics.ListCreateAPIView):
 
 class UserDetailAPI(generics.RetrieveUpdateDestroyAPIView):
     """
-    API endpoint that allows to get, update and delete user data.
+    API endpoint used to get, update and delete user data.
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
