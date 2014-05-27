@@ -44,9 +44,11 @@
               <li role="menuitem" class="auth-menu">
                 {% if user.is_authenticated() %}
                   {% if user.display_name %}
+                   <a href="{{ url('users.profile.details') }}">
                     {% trans name=user.display_name %}
                       Welcome, {{ name }}
                     {% endtrans %}
+                   </a>
                   {% else %}
                     {{ _('Welcome!') }}
                   {% endif %}

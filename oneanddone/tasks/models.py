@@ -145,6 +145,9 @@ class TaskAttempt(CreatedModifiedModel):
     def __unicode__(self):
         return u'{user} attempt [{task}]'.format(user=self.user, task=self.task)
 
+    class Meta(CreatedModifiedModel.Meta):
+        ordering = ['-modified']
+
 
 class Feedback(CreatedModifiedModel):
     attempt = models.ForeignKey(TaskAttempt)

@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 import urlparse
 
+from django.http import QueryDict
 from mock import Mock
 from nose.tools import eq_
 
@@ -17,7 +18,8 @@ class PageUrlTests(TestCase):
         preserving the GET arguments from the given request, and adding
         a page parameter for the given page.
         """
-        request = Mock(GET={'foo': 'bar', 'baz': 5})
+
+        request = Mock(GET=QueryDict('foo=bar&baz=5'))
         url = urlparse.urlsplit(page_url(request, 4))
         args = urlparse.parse_qs(url.query)
         eq_(args, {'foo': ['bar'], 'baz': ['5'], 'page': ['4']})
@@ -27,7 +29,7 @@ class PageUrlTests(TestCase):
         If the current page already has a page GET argument, override
         it.
         """
-        request = Mock(GET={'foo': 'bar', 'page': 5})
+        request = Mock(GET=QueryDict('foo=bar&page=5'))
         url = urlparse.urlsplit(page_url(request, 4))
         args = urlparse.parse_qs(url.query)
         eq_(args, {'foo': ['bar'], 'page': ['4']})

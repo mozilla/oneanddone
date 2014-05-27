@@ -5,12 +5,14 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.views import generic
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from rest_framework import generics, permissions
 import django_browserid.views
 from funfactory.urlresolvers import reverse_lazy
 from tower import ugettext as _
 
+from oneanddone.tasks.models import TaskAttempt
 from oneanddone.users.forms import UserProfileForm
 from oneanddone.users.mixins import UserProfileRequiredMixin
 from oneanddone.users.models import UserProfile
@@ -56,6 +58,29 @@ class UpdateProfileView(UserProfileRequiredMixin, generic.UpdateView):
 
     def get_object(self):
         return self.request.user.profile
+
+class ProfileDetailsView(UserProfileRequiredMixin, generic.DetailView):
+    model = UserProfile
+    template_name = 'users/profile/detail.html'
+
+    def get_object(self):
+        return self.request.user.profile
+
+    def get_context_data(self, **kwargs):
+        all_attempts_finished = self.request.user.taskattempt_set.filter(state=TaskAttempt.FINISHED)
+        paginator = Paginator(all_attempts_finished, 20)
+        page = self.request.GET.get('page', 1)
+
+        try:
+            attempts_finished = paginator.page(page)
+        except PageNotAnInteger:
+            attempts_finished = paginator.page(1)
+        except EmptyPage:
+            attempts_finished = paginator.page(paginator.num_pages)
+
+        context = super(ProfileDetailsView, self).get_context_data(**kwargs)
+        context['attempts_finished'] = attempts_finished
+        return context
 
 
 class UserListAPI(generics.ListCreateAPIView):

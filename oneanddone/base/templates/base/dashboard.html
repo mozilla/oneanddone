@@ -1,16 +1,14 @@
 <section class="billboard content-container">
   <h3>
-    {% trans name=user.profile.name %}
-      {{ name }}'s Dashboard
-    {% endtrans %}
+    {% if request.path == url('users.profile.details')  %}
+      {% trans %}Dashboard{% endtrans %}
+    {% else %}
+      {{ _("{name}'s Dashboard")|fe(name=user.profile.name) }}
+    {% endif %}
   </h3>
 
-  <section class="task-status">
-    <h4>{{ _('Tasks completed') }}</h4>
-    <ul>
-      <li>{{ ngettext('{count} task', '{count} tasks', user.attempts_finished_count)|f(count=user.attempts_finished_count) }}</li>
-    </ul>
 
+  <section class="task-status">
     {% if user.attempts_in_progress %}
       <h4>{{ _('Tasks in progress') }}</h4>
       <ul>
@@ -18,7 +16,10 @@
           <li><a href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a></li>
         {% endfor %}
       </ul>
+    {% else %}
+      {{ _('No tasks in progress.') }}
     {% endif %}
+
   </section>
 
   <nav class="actions-container">
