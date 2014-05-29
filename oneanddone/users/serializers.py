@@ -5,9 +5,19 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
+from oneanddone.users.models import UserProfile
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+        fields = ('name',)
+
 
 class UserSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer(required=False, many=False)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'groups')
+        fields = ('id', 'username', 'email', 'groups', 'profile')
