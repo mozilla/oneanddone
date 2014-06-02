@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 import random
+import json
 
 from django.contrib.auth.models import Permission
 
@@ -24,9 +25,12 @@ class APITests(APITestCase):
     def setUp(self):
         self.client_user = UserFactory.create()
 
-        #Add delete user permission for client
+        #Add add/change/delete user permission for client
         delete_permission = Permission.objects.get(codename='delete_user')
-        self.client_user.user_permissions.add(delete_permission)
+        add_permission = Permission.objects.get(codename='add_user')
+        change_permission = Permission.objects.get(codename='change_user')
+        self.client_user.user_permissions.add(add_permission, change_permission,
+                                              delete_permission)
 
         self.token = Token.objects.create(user=self.client_user)
         self.uri = '/api/v1/user/'
@@ -101,6 +105,39 @@ class APITests(APITestCase):
         user_uri = self.uri + test_user.email + '/'
         response = self.client.get(user_uri)
         self.assert_response_status(response, status.HTTP_200_OK)
+
+    def test_create_new_user(self):
+        """
+        Test Create new user with Profile Name
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        user_data = {'username': 'testname', 'email': 'test@test.com',
+                     'profile': {'name': 'Test Name'}}
+        response = self.client.post(self.uri, user_data, format='json')
+        self.assert_response_status(response, status.HTTP_201_CREATED)
+        response_data = json.loads(response.content)
+        eq_(response_data['profile'], user_data['profile'])
+
+    def test_change_user_profile_data(self):
+        """
+        Test Change Profile Name of user
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+
+        # Create a new user
+        user_data = {'username': 'testname', 'email': 'test@test.com',
+                     'profile': {'name': 'Test Name'}}
+        response = self.client.post(self.uri, user_data, format='json')
+
+        # Change Profile Name
+        changed_data = {'username': 'testname', 'email': 'test@test.com',
+                        'profile': {'name': 'Changed Test Name'}}
+        user_uri = self.uri + user_data['email'] + '/'
+        response = self.client.patch(user_uri, changed_data, format='json')
+
+        self.assert_response_status(response, status.HTTP_200_OK)
+        response_data = json.loads(response.content)
+        eq_(response_data['profile'], changed_data['profile'])
 
     def test_delete_user(self):
         """
