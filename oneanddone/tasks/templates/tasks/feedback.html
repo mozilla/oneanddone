@@ -23,6 +23,13 @@
       start doing.
     {% endtrans %}
   </p>
+  <p>
+    {% trans %}
+      Your feedback will be shared with task administrators. We may email you
+      for information, if you consented to contact.
+    {% endtrans %}
+  </p>
+
   <form method="post" class="feedback-form">
     {{ csrf() }}
     {{ form.as_p() }}
