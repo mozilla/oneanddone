@@ -10,13 +10,12 @@
     <h4>{{ _('Contribute to Mozilla QA - One task at a time, One day at a time.') }}</h4>
     <p>
       {% trans %}
-        The &quot;One and Done&quot; initiative, previously known as &quot;QA Taskboard&quot;, is a workflow where Mozilla community contributors can pick tasks and work on them &#45; one at a time, one day at a time &#45; and feel good about doing them.
+      One and Done gives users a wide variety of ways to contribute to Mozilla. You can pick an easy task that only takes a few minutes &#45; or take on a bigger challenge. This includes working on manual testing, automation, bug verification, mobile testing and more. Tasks are from all QA teams &#45; so you can get involved with Automation, Firefox OS, Desktop Firefox, Mozilla websites, Services, or Thunderbird.
       {% endtrans %}
     </p>
     <p class="auth-menu">
       {% if not user.is_authenticated() %}
         {{ browserid_login(text=_('Sign in with Mozilla Persona'), color='blue') }}
-        <a href="//login.persona.org/about" class="about-persona">What is Mozilla Persona?</a>
       {% endif %}
     </p>
   </section>
