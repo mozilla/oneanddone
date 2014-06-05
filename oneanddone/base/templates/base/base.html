@@ -53,6 +53,9 @@
                     {{ _('Welcome!') }}
                   {% endif %}
                   | <a id="available-tasks" href="{{ url('tasks.available') }}">{{ _('Available Tasks') }}</a>
+                  {% if user.is_staff %}
+                    | <a href="{{ url('tasks.list') }}">{{ _('Task Admin') }}</a>
+                  {% endif %}
                   | {{ browserid_logout(text=_('Sign out')) }}
                 {% else %}
                   {{ browserid_login(text=_('Sign in'), color='blue') }}

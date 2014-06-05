@@ -9,21 +9,12 @@ from mock import patch
 from nose.tools import eq_, ok_
 
 from oneanddone.base.tests import TestCase
-from oneanddone.tasks.models import Task
-from oneanddone.tasks.tests import TaskAreaFactory, TaskFactory
+from oneanddone.tasks.models import Task, TaskKeyword
+from oneanddone.tasks.tests import TaskFactory, TaskKeywordFactory
 
 
 def aware_datetime(*args, **kwargs):
     return timezone.make_aware(datetime(*args, **kwargs), timezone.utc)
-
-
-class TaskAreaTests(TestCase):
-    def test_full_name(self):
-        root = TaskAreaFactory.create(name='root')
-        child1 = TaskAreaFactory.create(parent=root, name='child1')
-        child2 = TaskAreaFactory.create(parent=child1, name='child2')
-
-        eq_(child2.full_name, 'root > child1 > child2')
 
 
 class TaskTests(TestCase):
@@ -145,3 +136,12 @@ class TaskTests(TestCase):
         """
         tasks = Task.objects.filter(Task.is_available_filter(now=aware_datetime(2014, 1, 5)))
         ok_(self.task_range_jan_feb in tasks)
+
+    def test_keywords_list_returns_expected_string(self):
+        """
+        keywords_list should return a comma delimited list of keywords.
+        """
+        TaskKeywordFactory.create_batch(4, task=self.task_draft)
+        keywords = TaskKeyword.objects.filter(task=self.task_draft)
+        expected_keywords = ', '.join([keyword.name for keyword in keywords])
+        eq_(self.task_draft.keywords_list, expected_keywords)

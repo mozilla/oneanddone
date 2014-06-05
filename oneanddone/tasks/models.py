@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -10,19 +11,27 @@ from django.utils import timezone
 import bleach
 import jinja2
 from markdown import markdown
-from mptt.models import MPTTModel, TreeForeignKey
 
 from oneanddone.base.models import CreatedModifiedModel
 from oneanddone.base.models import CreatedByModel
 
 
-class TaskArea(MPTTModel, CreatedModifiedModel, CreatedByModel):
-    parent = TreeForeignKey('self', blank=True, null=True, related_name='children')
+class TaskProject(CreatedModifiedModel, CreatedByModel):
     name = models.CharField(max_length=255)
 
-    @property
-    def full_name(self):
-        return ' > '.join(area.name for area in self.get_ancestors(include_self=True))
+    def __unicode__(self):
+        return self.name
+
+
+class TaskTeam(CreatedModifiedModel, CreatedByModel):
+    name = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return self.name
+
+
+class TaskType(CreatedModifiedModel, CreatedByModel):
+    name = models.CharField(max_length=255)
 
     def __unicode__(self):
         return self.name
@@ -30,22 +39,43 @@ class TaskArea(MPTTModel, CreatedModifiedModel, CreatedByModel):
 
 class Task(CreatedModifiedModel, CreatedByModel):
     """
-    Task for a user to attempt to fulfill. Tasks are categorized by area
-    and include instructions and estimated execution times. Certain
-    tasks can also be completed multiple times.
+    Task for a user to attempt to fulfill.
     """
-    area = TreeForeignKey(TaskArea)
 
-    name = models.CharField(max_length=255)
-    short_description = models.CharField(max_length=255)
-    instructions = models.TextField()
+    project = models.ForeignKey(TaskProject, blank=True, null=True)
+    team = models.ForeignKey(TaskTeam)
+    type = models.ForeignKey(TaskType, blank=True, null=True)
 
-    execution_time = models.IntegerField()
-
-    start_date = models.DateTimeField(blank=True, null=True)
+    EASY = 1
+    INTERMEDIATE = 2
+    ADVANCED = 3
+    difficulty = models.IntegerField(
+        choices=(
+            (EASY, 'Easy'),
+            (INTERMEDIATE, 'Intermediate'),
+            (ADVANCED, 'Advanced')
+        ),
+        default=EASY,
+        verbose_name='task difficulty')
     end_date = models.DateTimeField(blank=True, null=True)
+    execution_time = models.IntegerField(
+        choices=((i, i) for i in (15, 30, 45, 60)),
+        blank=False,
+        default=15,
+        verbose_name='estimated time'
+    )
+    instructions = models.TextField()
+    is_draft = models.BooleanField(verbose_name='draft?')
+    name = models.CharField(max_length=255, verbose_name='title')
+    prerequisites = models.TextField(blank=True)
+    repeatable = models.BooleanField(default=False)
+    short_description = models.CharField(max_length=255, verbose_name='description')
+    start_date = models.DateTimeField(blank=True, null=True)
+    why_this_matters = models.TextField(blank=True)
 
-    is_draft = models.BooleanField()
+    @property
+    def keywords_list(self):
+        return ', '.join([keyword.name for keyword in self.keyword_set.all()])
 
     @property
     def is_available(self):
@@ -71,12 +101,14 @@ class Task(CreatedModifiedModel, CreatedByModel):
                                     attributes=settings.INSTRUCTIONS_ALLOWED_ATTRIBUTES)
         return jinja2.Markup(cleaned_html)
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('tasks.detail', (self.id,))
+        return reverse('tasks.detail', args=[self.id])
+
+    def get_edit_url(self):
+        return reverse('tasks.edit', args=[self.id])
 
     def __unicode__(self):
-        return u'{area} > {name}'.format(area=self.area, name=self.name)
+        return self.name
 
     @classmethod
     def is_available_filter(self, now=None, allow_expired=False, prefix=''):
@@ -127,6 +159,12 @@ class Task(CreatedModifiedModel, CreatedByModel):
         If you do not wish to publish the task yet, set it as a draft. Draft tasks will not
         be viewable by contributors.
     """
+
+
+class TaskKeyword(CreatedModifiedModel, CreatedByModel):
+    task = models.ForeignKey(Task, related_name='keyword_set')
+
+    name = models.CharField(max_length=255, verbose_name='keyword')
 
 
 class TaskAttempt(CreatedModifiedModel):

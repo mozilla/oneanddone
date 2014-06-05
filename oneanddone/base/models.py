@@ -20,7 +20,7 @@ class CreatedByModel(models.Model):
     """
     Abstract model that records the user that created it.
     """
-    creator = models.ForeignKey(User)
+    creator = models.ForeignKey(User, blank=True, null=True)
 
     class Meta:
         abstract = True

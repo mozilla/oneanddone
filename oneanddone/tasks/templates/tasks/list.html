@@ -3,8 +3,6 @@
  # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
 {% extends 'base/base.html' %}
 
-{% from 'tasks/macros.html' import task_area_tree %}
-
 {% set title = _('Tasks') %}
 
 {% block content %}
@@ -15,7 +13,7 @@
     <h3>Filters</h3>
     <form class="filters" method="get">
       <fieldset>
-        <legend class="visually-hidden">Select filters below to filter available tasks.</legend>
+        <legend class="visually-hidden">{{ _('Select filters below to filter tasks.') }}</legend>
         {{ filter.form.as_p() }}
       </fieldset>
       <button type="submit" class="button">{{ _('Filter tasks') }}</button>
@@ -25,10 +23,14 @@
   <div class="task-list-container">
     <h3>Tasks</h3>
     <ol class="task-list">
-      {% for task in available_tasks %}
+      {% for task in tasks %}
         <li>
-          <h4>{{ task_area_tree(task.area) }}</h4>
-          <p class="task-name"><a href="{{ task.get_absolute_url() }}">{{ task.name }}</a></p>
+          <p>
+            <a href="{{ task.get_absolute_url() }}">{{ task.name }}</a>
+            {% if user.is_staff %}
+              | <a href="{{ task.get_edit_url() }}">{{ _('Edit') }}</a>
+            {% endif %}
+          </p>
           <p>{{ task.short_description }}</p>
         </li>
       {% endfor %}
@@ -38,5 +40,12 @@
     {{ pagination.arrows(request, page_obj, paginator, is_paginated) }}
 
   </div>
+
+  {% if user.is_staff %}
+    <nav class="actions-container">
+      <a href="{{ url('tasks.create') }}" class="button">{{ _('Create task') }}</a>
+    </nav>
+  {% endif %}
+
 </main>
 {% endblock %}

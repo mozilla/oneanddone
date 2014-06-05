@@ -351,3 +351,46 @@ section[class *="-section"] {
     width: 1px;
     overflow: hidden;
 }
+
+/* Task edit form */
+
+.task-form {
+
+    width: 95%;
+
+    label {
+      display: inline;
+    }
+
+    textarea {
+        width: 100%;
+    }
+
+    /* Form layout classes */
+  
+    .span(@pct) {
+      float: left;
+      width: @pct;
+      margin: 0px 0px 10px;
+    }
+
+    .row {
+      div:not([class]) {
+        .span(100%)
+      }
+      .clearfix()
+    }
+
+    .two-fields {
+      .span(50%)
+    }
+
+    .three-fields {
+      .span(33%)
+    }
+
+    .four-fields {
+      .span(25%)
+    }
+
+}

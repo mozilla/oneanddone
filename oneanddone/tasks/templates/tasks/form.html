@@ -1,0 +1,70 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
+
+{% extends 'base/base.html' %}
+
+{% block site_css %}
+  {{ super() }}
+  {{ form.media['css'] }}
+{% endblock %}
+
+{% block site_js %}
+  {{ super() }}
+  {{ form.media['js'] }}
+{% endblock %}
+
+{% from 'tasks/macros.html' import form_field %}
+
+{% set title = _('{action} task {task_name}')|f(action=action, task_name=form['name'].value() or '') %}
+
+{% block content %}
+<main class="billboard content-container feedback">
+  <h4>{{ title }}</h4>
+
+  <form method="post" class="task-form">
+    {{ csrf() }}
+    <div class="row">
+      <div>{{ form_field(form['name'], True) }}</div>
+    </div>
+    <div class="row">
+      <div>{{ form_field(form['short_description'], True) }}</div>
+    </div>
+    <div class="row">
+      <div class="one-field">{{ form_field(form['keywords']) }}</div>
+    </div>
+    <div class="row">
+      <div class="two-fields">{{ form_field(form['execution_time']) }}</div>
+      <div class="two-fields">{{ form_field(form['difficulty']) }}</div>
+    </div>
+    <div class="row">
+      <div class="three-fields">{{ form_field(form['team'], True) }}</div>
+      <div class="three-fields">{{ form_field(form['project']) }}</div>
+      <div class="three-fields">{{ form_field(form['type']) }}</div>
+    </div>
+    <div class="row">
+      <div class="three-fields">{{ form_field(form['start_date']) }}</div>
+      <div class="three-fields">{{ form_field(form['end_date']) }}</div>
+      <div class="three-fields">{{ form_field(form['repeatable']) }}</div>
+    </div>
+    <div class="row">
+      <div class="one-field">{{ form_field(form['why_this_matters']) }}</div>
+    </div>
+    <div class="row">
+      <div class="one-field">{{ form_field(form['prerequisites']) }}</div>
+    </div>
+    <div class="row">
+      <div class="one-field">{{ form_field(form['instructions'], True) }}</div>
+    </div>
+    <div class="row">
+      <div class="one-field">{{ form_field(form['is_draft']) }}</div>
+    </div>
+
+    <div class="row">
+      <div class="actions-container">
+        <button type="submit" class="button">{{ _('{action} task')|f(action=action) }}</button>
+      </div>
+    </div>
+  </form>
+</main>
+{% endblock %}

@@ -14,13 +14,13 @@ urlpatterns = patterns('',
     url(r'^tasks/(?P<pk>\d+)/finish/$', views.FinishTaskView.as_view(), name='tasks.finish'),
     url(r'^tasks/(?P<pk>\d+)/abandon/$', views.AbandonTaskView.as_view(), name='tasks.abandon'),
     url(r'^tasks/feedback/(?P<pk>\d+)/$', views.CreateFeedbackView.as_view(), name='tasks.feedback'),
+    url(r'^tasks/list/$', views.ListTasksView.as_view(), name='tasks.list'),
+    url(r'^tasks/create/$', views.CreateTaskView.as_view(), name='tasks.create'),
+    url(r'^tasks/edit/(?P<pk>\d+)/$', views.UpdateTaskView.as_view(), name='tasks.edit'),
 
     # API for interacting with tasks and task areas
     url(r'^api/v1/task/$', views.TaskListAPI.as_view(), name='api-task'),
     url(r'^api/v1/task/(?P<pk>\d+)/$', views.TaskDetailAPI.as_view(),
         name='api-task-detail'),
-    url(r'^api/v1/taskarea/$', views.TaskAreaListAPI.as_view(), name='api-taskarea'),
-    url(r'^api/v1/taskarea/(?P<pk>\d+)/$', views.TaskAreaDetailAPI.as_view(),
-        name='api-taskarea-detail'),
 
 )
