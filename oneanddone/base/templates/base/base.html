@@ -44,7 +44,7 @@
               <li role="menuitem" class="auth-menu">
                 {% if user.is_authenticated() %}
                   {% if user.display_name %}
-                   <a href="{{ url('users.profile.details') }}">
+                   <a id="view-profile" href="{{ url('users.profile.details') }}">
                     {% trans name=user.display_name %}
                       Welcome, {{ name }}
                     {% endtrans %}
@@ -52,7 +52,7 @@
                   {% else %}
                     {{ _('Welcome!') }}
                   {% endif %}
-                  | <a href="{{ url('tasks.available') }}">{{ _('Available Tasks') }}</a>
+                  | <a id="available-tasks" href="{{ url('tasks.available') }}">{{ _('Available Tasks') }}</a>
                   | {{ browserid_logout(text=_('Sign out')) }}
                 {% else %}
                   {{ browserid_login(text=_('Sign in'), color='blue') }}
