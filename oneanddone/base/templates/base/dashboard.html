@@ -13,7 +13,7 @@
       <h4>{{ _('Tasks in progress') }}</h4>
       <ul>
         {% for attempt in user.attempts_in_progress %}
-          <li><a href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a></li>
+          <li><a id="task-in-progress" href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a></li>
         {% endfor %}
       </ul>
     {% else %}
@@ -24,7 +24,7 @@
 
   <nav class="actions-container">
     {% if not user.attempts_in_progress %}
-      <a href="{{ url('tasks.available') }}" class="button">{{ _('Pick a task to do') }}</a>
+      <a href="{{ url('tasks.available') }}" class="button" id="pick-a-task">{{ _('Pick a task to do') }}</a>
     {% endif %}
   </nav>
 </section>
