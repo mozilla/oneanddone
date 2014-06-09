@@ -23,7 +23,6 @@
   </section>
 
   <nav class="actions-container">
-    <a href="{{ url('users.profile.update') }}" class="button">{{ _('Edit profile') }}</a>
     {% if not user.attempts_in_progress %}
       <a href="{{ url('tasks.available') }}" class="button">{{ _('Pick a task to do') }}</a>
     {% endif %}
