@@ -201,6 +201,15 @@ footer {
         margin-left: .5rem;
         vertical-align: top;
     }
+    .without-message {
+        display: inline-block;
+        margin-left: .5rem;
+        vertical-align: top;
+        a {
+            padding-top: 7px;
+            padding-bottom: 6px;
+        }
+    }
     .with-message {
         display: inline-block;
         width: 200px;
@@ -354,7 +363,8 @@ section[class *="-section"] {
 
 /* Task edit form */
 
-.task-form {
+.task-form,
+.task-detail {
 
     width: 95%;
 
@@ -391,6 +401,10 @@ section[class *="-section"] {
 
     .four-fields {
       .span(25%)
+    }
+
+    .two-of-three-fields {
+      .span(66%)
     }
 
 }
