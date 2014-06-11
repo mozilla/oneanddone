@@ -6,7 +6,7 @@
 {% set title = _('User profile for {username}')|f(username=user.profile.name) %}
 
 {% block content %}
-<h1>{{ _("{name}'s Profile")|fe(name=user.profile.name) }}</h1>
+<h1><span id="user-profile-name">{{ _("{name}")|fe(name=user.profile.name) }}</span>{{_("'s Profile")}}</h1>
 
  {% include 'base/dashboard.html' %}
 
@@ -14,7 +14,10 @@
 
   <section class="task-status">
 
-    <h4>{{ ngettext('{count} task completed', '{count} tasks completed', attempts_finished)|f(count=user.attempts_finished_count) }}</h4>
+      <h4>
+          <span id="completed-tasks-count">{{ _('{count}')|f(count=user.attempts_finished_count) }}</span>
+          {{ ngettext('task completed', 'tasks completed', attempts_finished)}}
+      </h4>
     <ul>
       {% for attempt in attempts_finished %}
         <li><a href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a></li>
