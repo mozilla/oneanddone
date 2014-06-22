@@ -5,24 +5,25 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
 
+from braces.views import LoginRequiredMixin
 from django_filters.views import FilterView
 from rest_framework import generics
 from tower import ugettext as _
 
 from oneanddone.base.util import get_object_or_none
-from oneanddone.tasks.filters import AvailableTasksFilterSet
-from oneanddone.tasks.forms import FeedbackForm
+from oneanddone.tasks.filters import AvailableTasksFilterSet, TasksFilterSet
+from oneanddone.tasks.forms import FeedbackForm, TaskForm
 from oneanddone.tasks.mixins import APIRecordCreatorMixin, APIOnlyCreatorMayDeleteMixin
 from oneanddone.tasks.mixins import TaskMustBePublishedMixin
-from oneanddone.tasks.models import Feedback, Task, TaskArea, TaskAttempt
-from oneanddone.tasks.serializers import TaskSerializer, TaskAreaSerializer
-from oneanddone.users.mixins import UserProfileRequiredMixin
+from oneanddone.tasks.models import Feedback, Task, TaskAttempt
+from oneanddone.tasks.serializers import TaskSerializer
+from oneanddone.users.mixins import MyStaffUserRequiredMixin, UserProfileRequiredMixin
 
 
 class AvailableTasksView(TaskMustBePublishedMixin, FilterView):
     queryset = Task.objects.order_by('-execution_time')
-    context_object_name = 'available_tasks'
-    template_name = 'tasks/available.html'
+    context_object_name = 'tasks'
+    template_name = 'tasks/list.html'
     paginate_by = 10
     filterset_class = AvailableTasksFilterSet
 
@@ -118,6 +119,48 @@ class CreateFeedbackView(UserProfileRequiredMixin, TaskMustBePublishedMixin, gen
         return redirect('base.home')
 
 
+class ListTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
+    queryset = Task.objects.order_by('-modified')
+    context_object_name = 'tasks'
+    template_name = 'tasks/list.html'
+    paginate_by = 20
+    filterset_class = TasksFilterSet
+
+
+class CreateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.CreateView):
+    model = Task
+    form_class = TaskForm
+    template_name = 'tasks/form.html'
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(CreateTaskView, self).get_context_data(*args, **kwargs)
+        ctx['action'] = 'Add'
+        return ctx
+
+    def form_valid(self, form):
+        form.save(self.request.user)
+
+        messages.success(self.request, _('Your task has been created.'))
+        return redirect('tasks.list')
+
+
+class UpdateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.UpdateView):
+    model = Task
+    form_class = TaskForm
+    template_name = 'tasks/form.html'
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(UpdateTaskView, self).get_context_data(*args, **kwargs)
+        ctx['action'] = 'Update'
+        return ctx
+
+    def form_valid(self, form):
+        form.save(self.request.user)
+
+        messages.success(self.request, _('Your task has been updated.'))
+        return redirect('tasks.list')
+
+
 class TaskListAPI(APIRecordCreatorMixin, generics.ListCreateAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
@@ -127,14 +170,3 @@ class TaskDetailAPI(APIOnlyCreatorMayDeleteMixin,
                     generics.RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-
-
-class TaskAreaListAPI(APIRecordCreatorMixin, generics.ListCreateAPIView):
-    queryset = TaskArea.objects.all()
-    serializer_class = TaskAreaSerializer
-
-
-class TaskAreaDetailAPI(APIOnlyCreatorMayDeleteMixin,
-                        generics.RetrieveUpdateDestroyAPIView):
-    queryset = TaskArea.objects.all()
-    serializer_class = TaskAreaSerializer

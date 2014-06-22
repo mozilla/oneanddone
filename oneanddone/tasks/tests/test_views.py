@@ -135,3 +135,31 @@ class RandomTasksViewTests(TestCase):
             get_context_data.return_value = {'object_list': [i for i in range(0, 10)]}
             ctx = self.view.get_context_data()
             eq_(len(ctx['random_task_list']), 5)
+
+
+class CreateTaskViewTests(TestCase):
+    def setUp(self):
+        self.view = views.CreateTaskView()
+
+    def test_get_context_data_returns_add_action(self):
+        """
+        The 'Add' action should be included in the context data.
+        """
+        with patch('oneanddone.tasks.views.generic.CreateView.get_context_data') as get_context_data:
+            get_context_data.return_value = {}
+            ctx = self.view.get_context_data()
+            eq_(ctx['action'], 'Add')
+
+
+class UpdateTaskViewTests(TestCase):
+    def setUp(self):
+        self.view = views.UpdateTaskView()
+
+    def test_get_context_data_returns_update_action(self):
+        """
+        The 'Update' action should be included in the context data.
+        """
+        with patch('oneanddone.tasks.views.generic.UpdateView.get_context_data') as get_context_data:
+            get_context_data.return_value = {}
+            ctx = self.view.get_context_data()
+            eq_(ctx['action'], 'Update')

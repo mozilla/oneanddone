@@ -108,6 +108,7 @@ MINIFY_BUNDLES = {
             'css/sandstone/sandstone-resp.less',
             'css/one-and-done.less',
             'css/slider.css',
+            'css/smoothness/jquery-ui-1.10.4.custom.css'
         ),
     },
     'js': {
@@ -116,6 +117,7 @@ MINIFY_BUNDLES = {
             'browserid/browserid.js',
             'js/site.js',
             'js/slider.js',
+            'js/libs/jquery-ui-1.10.4.custom.js'
         ),
     }
 }

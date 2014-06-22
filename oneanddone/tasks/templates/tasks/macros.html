@@ -1,9 +1,11 @@
 {# This Source Code Form is subject to the terms of the Mozilla Public
  # License, v. 2.0. If a copy of the MPL was not distributed with this
  # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
-{% macro task_area_tree(task_area) -%}
-  {% for area in task_area.get_ancestors() %}
-    {{ area.name }} &gt;
-  {% endfor %}
-  {{ task_area.name }}
+{% macro form_field(field, required=False) -%}
+  {{ field.errors }}
+  {{ field.label_tag() }}
+  {% if required %}
+    *
+  {% endif %}
+  : {{ field }}
 {%- endmacro %}

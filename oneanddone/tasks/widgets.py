@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-from django.forms.widgets import Input
+from django.forms.widgets import DateInput, Input, RadioSelect
 from django.utils.safestring import mark_safe
 
 
@@ -25,3 +25,24 @@ class RangeInput(Input):
         """.format(input=super(RangeInput, self).render(name, value, attrs))
 
         return mark_safe(markup)
+
+
+class CalendarInput(DateInput):
+
+    def render(self, name, value, attrs={}):
+        if 'class' not in attrs:
+            attrs['class'] = 'datepicker'
+        return super(CalendarInput, self).render(name, value, attrs)
+
+
+class HorizRadioRenderer(RadioSelect.renderer):
+    """ this overrides widget method to put radio buttons horizontally
+        instead of vertically.
+    """
+    def render(self):
+            """Outputs radios"""
+            return mark_safe(u'\n'.join([u'%s\n' % w for w in self]))
+
+
+class HorizRadioSelect(RadioSelect):
+    renderer = HorizRadioRenderer

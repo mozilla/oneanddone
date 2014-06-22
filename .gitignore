@@ -17,4 +17,4 @@ build
 tmp/*
 *~
 *.mo
-static
+/static

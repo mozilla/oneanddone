@@ -1,11 +1,13 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+from django.core.exceptions import PermissionDenied
+
 from mock import Mock, patch
-from nose.tools import eq_
+from nose.tools import eq_, raises
 
 from oneanddone.base.tests import TestCase
-from oneanddone.users.mixins import BaseUserProfileRequiredMixin
+from oneanddone.users.mixins import BaseUserProfileRequiredMixin, MyStaffUserRequiredMixin
 from oneanddone.users.tests import UserFactory, UserProfileFactory
 
 
@@ -15,6 +17,10 @@ class FakeMixin(object):
 
 
 class FakeView(BaseUserProfileRequiredMixin, FakeMixin):
+    pass
+
+
+class FakeViewNeedsStaff(MyStaffUserRequiredMixin, FakeMixin):
     pass
 
 
@@ -41,5 +47,29 @@ class UserProfileRequiredMixinTests(TestCase):
         """
         request = Mock()
         request.user = UserProfileFactory.create().user
+
+        eq_(self.view.dispatch(request), 'fakemixin')
+
+
+class MyStaffUserRequiredMixinTests(TestCase):
+    def setUp(self):
+        self.view = FakeViewNeedsStaff()
+
+    @raises(PermissionDenied)
+    def test_not_staff(self):
+        """
+        If the user is not staff, raise a PermissionDenied exception.
+        """
+        request = Mock()
+        request.user = UserFactory.create(is_staff=False)
+        self.view.dispatch(request)
+
+    def test_is_staff(self):
+        """
+        If the user is staff, call the parent class's
+        dispatch method.
+        """
+        request = Mock()
+        request.user = UserFactory.create(is_staff=True)
 
         eq_(self.view.dispatch(request), 'fakemixin')

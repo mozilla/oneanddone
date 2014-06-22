@@ -16,15 +16,26 @@ class RecordCreatorMixin(object):
         super(RecordCreatorMixin, self).save_model(request, obj, form, change)
 
 
-class TaskAreaAdmin(RecordCreatorMixin, MPTTModelAdmin):
-    exclude = ('creator',)
+class TaskTeamAdmin(RecordCreatorMixin, admin.ModelAdmin):
+    list_display = ('name', 'creator', 'modified')
+    readonly_fields = ('creator', 'modified')
+
+
+class TaskProjectAdmin(RecordCreatorMixin, admin.ModelAdmin):
+    list_display = ('name', 'creator', 'modified')
+    readonly_fields = ('creator', 'modified')
+
+
+class TaskTypeAdmin(RecordCreatorMixin, admin.ModelAdmin):
+    list_display = ('name', 'creator', 'modified')
+    readonly_fields = ('creator', 'modified')
 
 
 class TaskAdmin(RecordCreatorMixin, admin.ModelAdmin):
     form = TaskModelForm
-    list_display = ('name', 'area_full_name', 'execution_time', 'is_available',
+    list_display = ('name', 'execution_time', 'is_available',
                     'start_date', 'end_date', 'is_draft')
-    list_filter = ('area', 'is_draft')
+    list_filter = ('is_draft',)
     search_fields = ('name', 'area__name', 'short_description')
 
     availability_desc = """
@@ -34,7 +45,7 @@ class TaskAdmin(RecordCreatorMixin, admin.ModelAdmin):
     """
     fieldsets = (
         (None, {
-            'fields': ('name', 'area', 'execution_time')
+            'fields': ('name', 'execution_time')
         }),
         ('Details', {
             'fields': ('short_description', 'instructions')
@@ -48,9 +59,6 @@ class TaskAdmin(RecordCreatorMixin, admin.ModelAdmin):
     def is_available(self, task):
         return task.is_available
     is_available.boolean = True
-
-    def area_full_name(self, task):
-        return task.area.full_name
 
 
 class TaskAttemptAdmin(admin.ModelAdmin):
@@ -75,7 +83,9 @@ class FeedbackAdmin(admin.ModelAdmin):
         return feedback.attempt.get_state_display()
 
 
-admin.site.register(models.TaskArea, TaskAreaAdmin)
+admin.site.register(models.TaskTeam, TaskTeamAdmin)
+admin.site.register(models.TaskProject, TaskProjectAdmin)
+admin.site.register(models.TaskType, TaskTeamAdmin)
 admin.site.register(models.Task, TaskAdmin)
 admin.site.register(models.TaskAttempt, TaskAttemptAdmin)
 admin.site.register(models.Feedback, FeedbackAdmin)

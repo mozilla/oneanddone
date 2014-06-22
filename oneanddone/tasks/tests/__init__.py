@@ -4,8 +4,8 @@ from oneanddone.tasks import models
 from oneanddone.users.tests import UserFactory
 
 
-class TaskAreaFactory(DjangoModelFactory):
-    FACTORY_FOR = models.TaskArea
+class TaskTeamFactory(DjangoModelFactory):
+    FACTORY_FOR = models.TaskTeam
 
     name = Sequence(lambda n: 'test{0}'.format(n))
     creator = SubFactory(UserFactory)
@@ -14,13 +14,13 @@ class TaskAreaFactory(DjangoModelFactory):
 class TaskFactory(DjangoModelFactory):
     FACTORY_FOR = models.Task
 
-    area = SubFactory(TaskAreaFactory)
     name = Sequence(lambda n: 'test{0}'.format(n))
     short_description = Sequence(lambda n: 'test_description{0}'.format(n))
     instructions = Sequence(lambda n: 'test_instructions{0}'.format(n))
-    execution_time = fuzzy.FuzzyInteger(0, 60)
+    execution_time = fuzzy.FuzzyChoice((15, 30, 45, 60))
     is_draft = False
     creator = SubFactory(UserFactory)
+    team = SubFactory(TaskTeamFactory)
 
 
 class TaskAttemptFactory(DjangoModelFactory):
@@ -29,6 +29,14 @@ class TaskAttemptFactory(DjangoModelFactory):
     user = SubFactory(UserFactory)
     task = SubFactory(TaskFactory)
     state = models.TaskAttempt.STARTED
+
+
+class TaskKeywordFactory(DjangoModelFactory):
+    FACTORY_FOR = models.TaskKeyword
+
+    creator = SubFactory(UserFactory)
+    task = SubFactory(TaskFactory)
+    name = Sequence(lambda n: 'test{0}'.format(n))
 
 
 class FeedbackFactory(DjangoModelFactory):

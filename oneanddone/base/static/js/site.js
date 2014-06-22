@@ -39,3 +39,14 @@
     init();
     window.site = site;
 })();
+
+// To support datepicker fields with jQuery-ui datepicker
+$(function() {
+  $(".datepicker").datepicker(
+    {
+      dateFormat: 'yy-mm-dd',
+      buttonImage: '/static/img/calendar.gif',
+      showOn: 'both'
+    });
+});
+
