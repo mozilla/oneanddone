@@ -36,7 +36,8 @@ class TaskForm(forms.ModelForm):
             for taskkeyword in self.instance.keyword_set.all():
                 taskkeyword.delete()
             for keyword in self.cleaned_data['keywords'].split(','):
-                self.instance.keyword_set.create(name=keyword.strip(), creator=creator)
+                if len(keyword.strip()):
+                    self.instance.keyword_set.create(name=keyword.strip(), creator=creator)
 
     class Meta:
         model = Task
