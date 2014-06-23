@@ -39,16 +39,23 @@ you don't have `pip` installed, you can install it with `easy_install pip`.
    $ source venv/bin/activate
    ```
 
-3. Install the compiled requirements:
+3. Install the compiled and development requirements:
 
    ```sh
    $ pip install -r requirements/compiled.txt
+   $ pip install -r requirements/dev.txt
    ```
 
-4. Set up a local MySQL database. The [MySQL Installation Documentation][mysql]
+4. Deploy the project in "development" mode:
+
+   ```sh
+   $ python setup.py develop
+   ```
+
+5. Set up a local MySQL database. The [MySQL Installation Documentation][mysql]
    explains how to do this. Make sure your DB is utf8.
 
-5. Configure your local settings by copying `oneanddone/settings/local.py-dist` to
+6. Configure your local settings by copying `oneanddone/settings/local.py-dist` to
    `oneanddone/settings/local.py` and customizing the settings in it:
 
    ```sh
@@ -126,6 +133,13 @@ $ python manage.py runserver
 
 If you are asked to create a super user, just enter no and let the process complete.
 
+Running Unit Tests
+------------------
+You can run the unit tests in verbose mode as follows:
+
+```sh
+$ python manage.py test -v 2
+```
 
 REST API Support
 ----------------
