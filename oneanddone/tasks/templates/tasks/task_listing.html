@@ -1,5 +1,12 @@
   <div class="task-list-container">
-    <h3>Tasks</h3>
+    <h3>
+      Tasks
+      {% if request.GET.get('keyword', '') %}
+        {% trans keyword=request.GET['keyword'] %}
+          for keyword: {{ keyword }}
+        {% endtrans %}
+      {% endif %}
+    </h3>
     <ol class="task-list">
       {% for task in tasks %}
         <li>

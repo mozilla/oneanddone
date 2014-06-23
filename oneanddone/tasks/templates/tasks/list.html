@@ -9,9 +9,8 @@
 <main class="billboard content-container">
   <h1>{{ _('Tasks') }}</h1>
 
-  {% include 'tasks/filtered-list-component.html' %}
-  {% include 'tasks/task-list-component.html' %}
-
+  {% include 'tasks/task_list_filters.html' %}
+  {% include 'tasks/task_listing.html' %}
 
   {% if user.is_staff %}
     <nav class="actions-container">

@@ -14,20 +14,20 @@
   <div class="row">
     <div class="three-fields">
       {{ _('Team') }}:
-      <a href="{{ url('tasks.available')|urlparams(team=task.team.name) }}">
+      <a href="{{ url('tasks.available')|urlparams(team=task.team.pk) }}">
         {{ task.team.name }}
       </a>
     </div>
     <div class="three-fields">
       {% if task.project.name %}
         {{ _('Project') }}:
-        <a href="{{ url('tasks.available')|urlparams(project=task.project.name) }}">{{ task.project.name }}</a>
+        <a href="{{ url('tasks.available')|urlparams(project=task.project.pk) }}">{{ task.project.name }}</a>
       {% endif %}
     </div>
     <div class="three-fields">
       {% if task.type.name %}
         {{ _('Type') }}:
-        <a href="{{ url('tasks.available')|urlparams(type=task.type.name) }}">{{ task.type.name }}</a>
+        <a href="{{ url('tasks.available')|urlparams(type=task.type.pk) }}">{{ task.type.name }}</a>
       {% endif %}
     </div>
   </div>
