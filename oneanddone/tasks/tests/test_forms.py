@@ -62,3 +62,22 @@ class TaskFormTests(TestCase):
 
         # double-check on the keywords_list property
         eq_(task.keywords_list, 'test3, new_keyword')
+
+    def test_save_does_not_add_a_blank_keyword(self):
+        """
+        Saving the form should not add a blank keyword when
+         keywords are empty.
+        """
+        user = UserFactory.create()
+        task = TaskFactory.create()
+        data = {
+            'keywords': ' ',
+            'team': task.team.id,
+        }
+        for field in ('name', 'short_description', 'execution_time', 'difficulty',
+                      'repeatable', 'instructions', 'is_draft'):
+            data[field] = getattr(task, field)
+        form = TaskForm(instance=task, data=data)
+        form.save(user)
+
+        eq_(task.keyword_set.count(), 0)
