@@ -95,5 +95,11 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'ssssshhhhhh')
 # LOGGING = dict(loggers=dict(playdoh={'level': logging.DEBUG}))
 
 # Common Event Format logging parameters
-#CEF_PRODUCT = 'Playdoh'
-#CEF_VENDOR = 'Mozilla'
+# CEF_PRODUCT = 'Playdoh'
+# CEF_VENDOR = 'Mozilla'
+
+# Email
+##############################################################################
+
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'localhost')
+SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'root@localhost')

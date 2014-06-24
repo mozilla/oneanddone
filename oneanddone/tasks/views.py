@@ -2,7 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.contrib import messages
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import get_template
 from django.views import generic
 
 from braces.views import LoginRequiredMixin
@@ -114,6 +116,28 @@ class CreateFeedbackView(UserProfileRequiredMixin, TaskMustBePublishedMixin, gen
         feedback = form.save(commit=False)
         feedback.attempt = self.attempt
         feedback.save()
+
+        # Send email to task owner
+        task_name = feedback.attempt.task.name
+        subject = 'Feedback on %s from One and Done' % task_name
+        template = get_template('tasks/emails/feedback_email.txt')
+
+        message = template.render({
+            'feedback_user': feedback.attempt.user.email,
+            'task_name': task_name,
+            'task_link': self.request.get_host() + feedback.attempt.task.get_absolute_url(),
+            'task_state': feedback.attempt.get_state_display(),
+            'feedback': feedback.text})
+
+        # Manually replace quotes and double-quotes as these get
+        # escaped by the template and this makes the message look bad.
+        filtered_message = message.replace('&#34;', '"').replace('&#39;', "'")
+
+        send_mail(
+            subject,
+            filtered_message,
+            'oneanddone@mozilla.com',
+            [feedback.attempt.task.creator.email])
 
         messages.success(self.request, _('Your feedback has been submitted. Thanks!'))
         return redirect('base.home')
