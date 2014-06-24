@@ -54,3 +54,6 @@ ignores:
   - "_coverage/*"
   - ".noseids"
   - "*settings/local.py"
+  - "*.sql"
+  - "mine/*"
+  - "stackato-*"

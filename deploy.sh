@@ -29,4 +29,4 @@ select yn in "Yes" "No"; do
     esac
 done
 
-$STACKATO_EXECUTABLE update
+$STACKATO_EXECUTABLE push
