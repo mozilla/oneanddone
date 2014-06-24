@@ -68,7 +68,7 @@ class Task(CreatedModifiedModel, CreatedByModel):
     is_draft = models.BooleanField(verbose_name='draft?')
     name = models.CharField(max_length=255, verbose_name='title')
     prerequisites = models.TextField(blank=True)
-    repeatable = models.BooleanField(default=False)
+    repeatable = models.BooleanField(default=True)
     short_description = models.CharField(max_length=255, verbose_name='description')
     start_date = models.DateTimeField(blank=True, null=True)
     why_this_matters = models.TextField(blank=True)
@@ -99,6 +99,11 @@ class Task(CreatedModifiedModel, CreatedByModel):
             (self.end_date and now > self.end_date) or
             (self.start_date and now < self.start_date)
         )
+
+    def is_available_to_user(self, user):
+        repeatable_filter = Q(~Q(user=user) & ~Q(state=TaskAttempt.ABANDONED))
+        return self.is_available and (
+            self.repeatable or not self.taskattempt_set.filter(repeatable_filter).exists())
 
     @property
     def instructions_html(self):
@@ -147,6 +152,11 @@ class Task(CreatedModifiedModel, CreatedByModel):
 
         if not allow_expired:
             q_filter = q_filter & (pQ(end_date__isnull=True) | pQ(end_date__gt=now))
+
+        q_filter = q_filter & (
+            pQ(repeatable=True) | (
+                ~pQ(taskattempt__state=TaskAttempt.STARTED) &
+                ~pQ(taskattempt__state=TaskAttempt.FINISHED)))
 
         return q_filter
 

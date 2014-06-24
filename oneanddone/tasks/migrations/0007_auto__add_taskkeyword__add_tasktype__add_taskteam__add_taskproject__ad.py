@@ -76,7 +76,7 @@ class Migration(SchemaMigration):
 
         # Adding field 'Task.repeatable'
         db.add_column('tasks_task', 'repeatable',
-                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      self.gf('django.db.models.fields.BooleanField')(default=True),
                       keep_default=False)
 
         # Adding field 'Task.why_this_matters'
@@ -186,7 +186,7 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'prerequisites': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'project': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tasks.TaskProject']", 'null': 'True', 'blank': 'True'}),
-            'repeatable': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'repeatable': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'short_description': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'start_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'team': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tasks.TaskTeam']", 'null': 'True', 'blank': 'True'}),

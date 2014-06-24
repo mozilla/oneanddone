@@ -77,7 +77,7 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'prerequisites': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'project': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tasks.TaskProject']", 'null': 'True', 'blank': 'True'}),
-            'repeatable': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'repeatable': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'short_description': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'start_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'team': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tasks.TaskTeam']"}),
