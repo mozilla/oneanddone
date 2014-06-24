@@ -21,85 +21,12 @@
   </section>
 
   <main class="main">
-
     {% if user.is_authenticated() %}
       {% include 'base/dashboard.html' %}
+      {% include 'tasks/filtered-list-component.html' %}
+    {% else %}
+      {% include 'tasks/task-list-component.html' %}
     {% endif %}
-
-    <section class="get-involved">
-        <h3>{{ _('Get Involved') }}</h3>
-        <p>
-          {% trans %}
-            Mozilla QA sees the "One and Done" initiative as a way for Mozilla community contributors to get introduced to various projects and then to become involved in an area of their interest. Contributors would be able to find their voice in the community, be able to engage meaningfully, and feel rewarded for their contribution.
-          {% endtrans %}
-        </p>
-    </section>
-
-    <h3 class="teams-heading">{{ _('Our Teams') }}</h3>
-    <div class="teams-top-row">
-      <section class="automation-section">
-        <h4 class="automation-heading">
-	  <a href="https://quality.mozilla.org/teams/automation/">{{ _('Automation') }}</a>
-	</h4>
-	<p>
-          {% trans %}
-            We build automated tests to run against Mozilla websites to make sure they are working as expected.
-          {% endtrans %}
-        </p>
-      </section>
-      <section class="desktopqa-section">
-        <h4 class="desktopqa-heading">
-	  <a href="https://quality.mozilla.org/teams/desktop-firefox/">{{ _('Desktop QA') }}</a>
-	</h4>
-        <p>
-          {% trans %}
-            We test Desktop Firefox for new features and resolved issues before release.
-          {% endtrans %}
-        </p>
-      </section>
-      <section class="webqa-section">
-        <h4 class="webqa-heading">
-	  <a href="https://quality.mozilla.org/teams/web-qa/">{{ _('Web QA') }}</a>
-	</h4>
-        <p>
-          {% trans %}
-            We ensure that all Mozilla websites are high quality, secure, and user friendly.
-          {% endtrans %}
-        </p>
-      </section>
-    </div>
-
-    <div class="teams-bottom-row">
-      <section class="thunderbird-section">
-        <h4 class="thunderbird-heading">
-	  <a href="https://quality.mozilla.org/teams/thunderbird/">Thunderbird</a>
-	</h4>
-        <p>
-          {% trans %}
-            We test the Thunderbird mail client for resolved issues before release.
-          {% endtrans %}
-        </p>
-      </section>
-      <section class="servicesqa-section">
-        <h4 class="servicesqa-heading">
-	  <a href="https://quality.mozilla.org/teams/services/">{{ _('Services QA') }}</a>
-	</h4>
-        <p>
-          {% trans %}
-            We test Mozilla's private and secure user-controlled services for Firefox, desktop and mobile.
-          {% endtrans %}
-        </p>
-      </section>
-      <section class="mobilefx-section">
-        <h4 class="mobilefx-heading">
-	  <a href="https://quality.mozilla.org/teams/mobile/">{{ _('Mobile Firefox') }}</a>
-	</h4>
-        <p>
-          {% trans %}
-            We test Firefox for Android and Firefox OS, a new mobile operating system.
-          {% endtrans %}
-        </p>
-      </section>
-    </div>
   </main>
+
   {% endblock %}

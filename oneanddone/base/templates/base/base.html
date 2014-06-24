@@ -58,6 +58,7 @@
                   {% endif %}
                   | {{ browserid_logout(text=_('Sign out')) }}
                 {% else %}
+                  <a id="available-tasks" href="{{ url('tasks.available') }}">{{ _('Available Tasks') }}</a> |
                   {{ browserid_login(text=_('Sign in'), color='blue') }}
                 {% endif %}
               </li>

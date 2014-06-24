@@ -1,0 +1,19 @@
+  <div class="task-list-container">
+    <h3>Tasks</h3>
+    <ol class="task-list">
+      {% for task in tasks %}
+        <li>
+          <p>
+            <a href="{{ task.get_absolute_url() }}">{{ task.name }}</a>
+            {% if user.is_staff %}
+              | <a href="{{ task.get_edit_url() }}">{{ _('Edit') }}</a>
+            {% endif %}
+          </p>
+          <p>{{ task.short_description }}</p>
+        </li>
+      {% endfor %}
+    </ol>
+
+    {% import 'base/pagination.html' as pagination %}
+    {{ pagination.arrows(request, page_obj, paginator, is_paginated) }}
+  </div>
