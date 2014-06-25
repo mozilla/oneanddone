@@ -44,7 +44,8 @@ def user_attempts_in_progress(self):
     return self.taskattempt_set.filter(state=TaskAttempt.STARTED)
 User.add_to_class('attempts_in_progress', user_attempts_in_progress)
 
-
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile')
-    name = models.CharField(_lazy(u'Name'), max_length=255)
+    username = models.CharField(_lazy(u'Username'), max_length=30, unique=True, null=True)
+    name = models.CharField(_lazy(u'Display Name:'), max_length=255)
+    privacy_policy_accepted = models.BooleanField(default=False)

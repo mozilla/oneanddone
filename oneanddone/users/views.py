@@ -11,9 +11,11 @@ from rest_framework import generics, permissions
 import django_browserid.views
 from funfactory.urlresolvers import reverse_lazy
 from tower import ugettext as _
+from random import randint
+import re
 
 from oneanddone.tasks.models import TaskAttempt
-from oneanddone.users.forms import UserProfileForm
+from oneanddone.users.forms import UserProfileForm, SignUpForm
 from oneanddone.users.mixins import UserProfileRequiredMixin
 from oneanddone.users.models import UserProfile
 from serializers import UserSerializer, UserProfileSerializer
@@ -32,9 +34,21 @@ class Verify(django_browserid.views.Verify):
         return super(Verify, self).login_failure(*args, **kwargs)
 
 
+def default_username(email, counter):
+    if not counter:
+        random_username = re.sub(r'[\W_]+', '', email.split('@')[0])
+    else:
+        random_username = re.sub(r'[\W_]+', '', email.split('@')[0] + str(randint(1,100)))
+
+    if not UserProfile.objects.filter(username=random_username).exists():
+        return random_username
+    else:
+        return default_username(email, counter + 1)
+
+
 class CreateProfileView(generic.CreateView):
     model = UserProfile
-    form_class = UserProfileForm
+    form_class = SignUpForm
     template_name = 'users/profile/edit.html'
 
     def dispatch(self, request, *args, **kwargs):
@@ -43,21 +57,42 @@ class CreateProfileView(generic.CreateView):
         else:
             return super(CreateProfileView, self).dispatch(request, *args, **kwargs)
 
+    def get_initial(self):
+        return {
+            'username': default_username(self.request.user.email, 0),
+        }
+
     def form_valid(self, form):
         profile = form.save(commit=False)
         profile.user = self.request.user
         profile.save()
+        messages.success(self.request, _('Your profile has been created.'))
         return redirect('base.home')
 
 
 class UpdateProfileView(UserProfileRequiredMixin, generic.UpdateView):
     model = UserProfile
-    form_class = UserProfileForm
     template_name = 'users/profile/edit.html'
     success_url = reverse_lazy('base.home')
 
+    def get_form_class(self):
+        if self.request.user.profile.privacy_policy_accepted:
+            return UserProfileForm
+        else:
+            return SignUpForm
+
+    def get_initial(self):
+        if not self.request.user.profile.username:
+            return {
+                'username': default_username(self.request.user.email, 0),
+            }
+
     def get_object(self):
         return self.request.user.profile
+
+    def form_valid(self, form):
+        messages.success(self.request, _('Your profile has been updated.'))
+        return redirect('base.home')
 
 class ProfileDetailsView(UserProfileRequiredMixin, generic.DetailView):
     model = UserProfile

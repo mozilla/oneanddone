@@ -10,7 +10,27 @@
   <h1>{{ _('Profile') }}</h1>
   <form method="post" class="edit-profile">
     {{ csrf() }}
-    {{ form.as_p() }}
+    {{ form.name.errors }}
+    <p>
+    {{ form.name.label }}
+    {{ form.name }}
+    </p>
+    {{ form.username.errors }}
+    <p>
+    {{ form.username.label }}
+     https://oneanddone.mozilla.org/profile/
+    {{ form.username }}
+    </p>
+    {% if form.privacy_policy_accepted %}
+    <p class="billboard content-container">
+    {{form.privacy_policy_accepted.label}}
+    </p>
+    {{form.privacy_policy_accepted.errors}}
+    <p>
+    {{form.privacy_policy_accepted}}
+    {{_("* I'm okay with you handling this info as you explain in <a href='https://www.mozilla.org/en-US/privacy/websites/' target='_blank'>Mozilla's Privacy Policy</a>.")}}
+    </p>
+    {% endif %}
     <div class="actions-container">
       <button type="submit" class="button">{{ _('Save') }}</button>
     </div>
