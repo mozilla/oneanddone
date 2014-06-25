@@ -14,5 +14,8 @@ class HomeView(generic.TemplateView):
         if (request.user.is_authenticated() and
                 not UserProfile.objects.filter(user=request.user).exists()):
             return redirect('users.profile.create')
+        elif (request.user.is_authenticated() and
+                not UserProfile.objects.get(user=request.user).privacy_policy_accepted):
+            return redirect('users.profile.update')
         else:
             return super(HomeView, self).dispatch(request, *args, **kwargs)
