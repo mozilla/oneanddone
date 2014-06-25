@@ -20,6 +20,7 @@ done
 $STACKATO_EXECUTABLE login
 $STACKATO_EXECUTABLE group oneanddone
 $STACKATO_EXECUTABLE info
+$STACKATO_EXECUTABLE env
 
 echo "Does everything look ok? Are you ready to continue to push?"
 select yn in "Yes" "No"; do
