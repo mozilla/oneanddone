@@ -24,9 +24,8 @@
     {% if user.is_authenticated() %}
       {% include 'base/dashboard.html' %}
       {% include 'tasks/filtered-list-component.html' %}
-    {% else %}
-      {% include 'tasks/task-list-component.html' %}
     {% endif %}
+    {% include 'tasks/task-list-component.html' %}
   </main>
 
   {% endblock %}

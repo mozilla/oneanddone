@@ -10,6 +10,8 @@
   <h1>{{ _('Tasks') }}</h1>
 
   {% include 'tasks/filtered-list-component.html' %}
+  {% include 'tasks/task-list-component.html' %}
+
 
   {% if user.is_staff %}
     <nav class="actions-container">
