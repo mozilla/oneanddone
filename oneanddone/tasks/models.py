@@ -73,6 +73,17 @@ class Task(CreatedModifiedModel, CreatedByModel):
     start_date = models.DateTimeField(blank=True, null=True)
     why_this_matters = models.TextField(blank=True)
 
+    def _yield_html(self, field):
+        """
+        Return the requested field for a task after parsing them as
+        markdown and bleaching/linkifying them.
+        """
+        linkified_field = bleach.linkify(field, parse_email=True)
+        html = markdown(linkified_field, output_format='html5')
+        cleaned_html = bleach.clean(html, tags=settings.INSTRUCTIONS_ALLOWED_TAGS,
+                                    attributes=settings.INSTRUCTIONS_ALLOWED_ATTRIBUTES)
+        return jinja2.Markup(cleaned_html)
+
     @property
     def keywords_list(self):
         return ', '.join([keyword.name for keyword in self.keyword_set.all()])
@@ -91,15 +102,15 @@ class Task(CreatedModifiedModel, CreatedByModel):
 
     @property
     def instructions_html(self):
-        """
-        Return the instructions for a task after parsing them as
-        markdown and bleaching/linkifying them.
-        """
-        linkified_instructions = bleach.linkify(self.instructions, parse_email=True)
-        html = markdown(linkified_instructions, output_format='html5')
-        cleaned_html = bleach.clean(html, tags=settings.INSTRUCTIONS_ALLOWED_TAGS,
-                                    attributes=settings.INSTRUCTIONS_ALLOWED_ATTRIBUTES)
-        return jinja2.Markup(cleaned_html)
+        return self._yield_html(self.instructions)
+
+    @property
+    def prerequisites_html(self):
+        return self._yield_html(self.prerequisites)
+
+    @property
+    def why_this_matters_html(self):
+        return self._yield_html(self.why_this_matters)
 
     def get_absolute_url(self):
         return reverse('tasks.detail', args=[self.id])

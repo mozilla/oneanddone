@@ -6,14 +6,82 @@
 {% set title = task.name %}
 
 {% block content %}
-<main class="billboard content-container">
+<main class="billboard content-container task-detail">
   <h1>{{ task.name }}</h1>
-  <div class="markdown">{{ task.instructions_html }}</div>
-  <p>
-    {% trans execution_time=task.execution_time %}
-      Estimated time needed for completion: {{ execution_time }} minutes
-    {% endtrans %}
-  </p>
+  <div class="row">
+    <div>{{ task.short_description }}</div>
+  </div>
+  <div class="row">
+    <div class="three-fields">
+      {{ _('Team') }}:
+      <a href="{{ url('tasks.available')|urlparams(team=task.team.name) }}">
+        {{ task.team.name }}
+      </a>
+    </div>
+    <div class="three-fields">
+      {% if task.project.name %}
+        {{ _('Project') }}:
+        <a href="{{ url('tasks.available')|urlparams(project=task.project.name) }}">{{ task.project.name }}</a>
+      {% endif %}
+    </div>
+    <div class="three-fields">
+      {% if task.type.name %}
+        {{ _('Type') }}:
+        <a href="{{ url('tasks.available')|urlparams(type=task.type.name) }}">{{ task.type.name }}</a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="three-fields">
+      {% trans execution_time=task.execution_time %}
+        Estimated time: {{ execution_time }} minutes
+      {% endtrans %}
+    </div>
+    <div class="two-of-three-fields">
+      {% if task.keyword_set.exists() %}
+        {{ _('Tags:') }}
+        {% for keyword in task.keyword_set.all() %}
+          <a href="{{ url('tasks.available')|urlparams(keyword=keyword.name) }}">{{ keyword.name }}</a>{% if keyword != task.keyword_set.all()|last %}, {% endif %}
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="three-fields">
+      {% if task.start_date %}
+        {{ _('Start date') }}: {{ task.start_date.strftime('%Y-%m-%d') }}
+      {% elif task.end_date %}
+        {{ _('Expiration date') }}: {{ task.end_date.strftime('%Y-%m-%d') }}
+      {% endif %}
+    </div>
+    <div class="two-of-three-fields">
+      {% if task.start_date and task.end_date %}
+        {{ _('Expiration date') }}: {{ task.end_date.strftime('%Y-%m-%d') }}
+      {% endif %}
+    </div>
+  </div>
+  {% if task.why_this_matters %}
+    <div class="row">
+      <div>
+        <h2>{{ _('Why this matters') }}</h2>
+        <div class="markdown">{{ task.why_this_matters_html }}</div>
+      </div>
+    </div>
+  {% endif %}
+  {% if task.prerequisites %}
+    <div class="row">
+      <div>
+        <h2>{{ _('Prerequisites') }}</h2>
+        <div class="markdown">{{ task.prerequisites_html }}</div>
+      </div>
+    </div>
+  {% endif %}
+  <div class="row">
+    <div>
+      <h2>{{ _('Steps') }}</h2>
+      <div class="markdown">{{ task.instructions_html }}</div>
+    </div>
+  </div>
 
   <div class="actions-container">
     {% if attempt %}
@@ -51,6 +119,11 @@
           </form>
         {% endif %}
       {% endif %}
+    {% endif %}
+    {% if user.is_staff %}
+      <div class="without-message">
+          <a href="{{ task.get_edit_url() }}" class="button" id="edit-task">{{ _('Edit task') }}</a>
+      </div>
     {% endif %}
   </div>
 </main>
