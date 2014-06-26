@@ -41,16 +41,31 @@ class RandomTasksView(TaskMustBeAvailableMixin, generic.ListView):
         return ctx
 
 
-class TaskDetailView(HideNonRepeatableTaskMixin, generic.DetailView):
+class TaskDetailView(generic.DetailView):
     model = Task
     template_name = 'tasks/detail.html'
     allow_expired_tasks = True
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(TaskDetailView, self).get_context_data(*args, **kwargs)
+        task = self.object
         if self.request.user.is_authenticated():
             ctx['attempt'] = get_object_or_none(TaskAttempt, user=self.request.user,
-                                                task=self.object, state=TaskAttempt.STARTED)
+                                                task=task, state=TaskAttempt.STARTED)
+
+        # determine label for Get Started button
+        if task.is_taken:
+            gs_button_label = _('Taken')
+            gs_button_disabled = True
+        elif task.is_completed:
+            gs_button_label = _('Completed')
+            gs_button_disabled = True
+        else:
+            gs_button_label = _('Get Started')
+            gs_button_disabled = False
+        ctx['gs_button_label'] = gs_button_label
+        ctx['gs_button_disabled'] = gs_button_disabled
+
         return ctx
 
 

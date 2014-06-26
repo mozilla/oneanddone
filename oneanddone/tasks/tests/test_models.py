@@ -210,3 +210,59 @@ class TaskTests(TestCase):
         task = TaskFactory.create(repeatable=False)
         TaskAttemptFactory.create(user=other_user, state=TaskAttempt.STARTED, task=task)
         eq_(task.is_available_to_user(user), False)
+
+    def test_is_taken_taken_task(self):
+        """
+        If there is a started attempt,
+        the task should be taken.
+        """
+        eq_(self.task_not_repeatable_started_attempt.is_taken, True)
+
+    def test_isnt_taken_finished_task(self):
+        """
+        If there is a finished attempt,
+        the task should not be taken.
+        """
+        eq_(self.task_not_repeatable_finished_attempt.is_taken, False)
+
+    def test_isnt_taken_abandoned_task(self):
+        """
+        If there is an abandoned attempt,
+        the task should not be taken.
+        """
+        eq_(self.task_not_repeatable_abandoned_attempt.is_taken, False)
+
+    def test_isnt_taken_no_attempts_task(self):
+        """
+        If there are no attempts,
+        the task should not be taken.
+        """
+        eq_(self.task_not_repeatable_no_attempts.is_taken, False)
+
+    def test_is_completed_finished_task(self):
+        """
+        If there is a finished attempt,
+        the task should be completed.
+        """
+        eq_(self.task_not_repeatable_finished_attempt.is_completed, True)
+
+    def test_isnt_completed_taken_task(self):
+        """
+        If there is a started attempt,
+        the task should not be completed.
+        """
+        eq_(self.task_not_repeatable_started_attempt.is_completed, False)
+
+    def test_isnt_completed_abandoned_task(self):
+        """
+        If there is an abandoned attempt,
+        the task should not be completed.
+        """
+        eq_(self.task_not_repeatable_abandoned_attempt.is_completed, False)
+
+    def test_isnt_completed_no_attempts_task(self):
+        """
+        If there are no attempts,
+        the task should not be completed.
+        """
+        eq_(self.task_not_repeatable_no_attempts.is_completed, False)
