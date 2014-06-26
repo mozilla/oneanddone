@@ -38,7 +38,7 @@ def default_username(email, counter):
     if not counter:
         random_username = re.sub(r'[\W_]+', '', email.split('@')[0])
     else:
-        random_username = re.sub(r'[\W_]+', '', email.split('@')[0] + str(randint(1,100)))
+        random_username = re.sub(r'[\W_]+', '', email.split('@')[0] + str(randint(1, 100)))
 
     if not UserProfile.objects.filter(username=random_username).exists():
         return random_username
@@ -91,8 +91,10 @@ class UpdateProfileView(UserProfileRequiredMixin, generic.UpdateView):
         return self.request.user.profile
 
     def form_valid(self, form):
+        form.save()
         messages.success(self.request, _('Your profile has been updated.'))
         return redirect('base.home')
+
 
 class ProfileDetailsView(UserProfileRequiredMixin, generic.DetailView):
     model = UserProfile
