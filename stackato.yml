@@ -1,6 +1,6 @@
-name: oneanddone
+name: oneanddone-dev
 url:
-  - oneanddone.mozilla.org
+  - oneanddone-dev.paas.allizom.org
 mem: 256M
 disk: 2G
 framework:
