@@ -17,3 +17,4 @@ class UserProfileFactory(DjangoModelFactory):
 
     user = SubFactory(UserFactory)
     name = Sequence(lambda n: 'test{0}'.format(n))
+    username = Sequence(lambda n: 'testuser%d' % n)

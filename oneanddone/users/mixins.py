@@ -18,7 +18,10 @@ class BaseUserProfileRequiredMixin(object):
         if not UserProfile.objects.filter(user=request.user).exists():
             return redirect('users.profile.create')
         else:
-            return super(BaseUserProfileRequiredMixin, self).dispatch(request, *args, **kwargs)
+            if not UserProfile.objects.get(user=request.user).privacy_policy_accepted:
+                return redirect('users.profile.update')
+            else:
+                return super(BaseUserProfileRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
 class UserProfileRequiredMixin(LoginRequiredMixin, BaseUserProfileRequiredMixin):

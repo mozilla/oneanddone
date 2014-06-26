@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from rest_framework import generics, permissions
+from braces.views import LoginRequiredMixin
 import django_browserid.views
 from funfactory.urlresolvers import reverse_lazy
 from tower import ugettext as _
@@ -70,7 +71,7 @@ class CreateProfileView(generic.CreateView):
         return redirect('base.home')
 
 
-class UpdateProfileView(UserProfileRequiredMixin, generic.UpdateView):
+class UpdateProfileView(LoginRequiredMixin, generic.UpdateView):
     model = UserProfile
     template_name = 'users/profile/edit.html'
     success_url = reverse_lazy('base.home')

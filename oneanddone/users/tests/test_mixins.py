@@ -40,13 +40,25 @@ class UserProfileRequiredMixinTests(TestCase):
             eq_(self.view.dispatch(request), redirect.return_value)
             redirect.assert_called_with('users.profile.create')
 
-    def test_has_profile(self):
+    def test_has_profile_without_accepting_privacy_policy(self):
         """
-        If the user has created a profile, call the parent class's
-        dispatch method.
+        If the user has created a profile, but has not accepted
+        the privacy policyredirect them to the profile updation view.
         """
         request = Mock()
         request.user = UserProfileFactory.create().user
+
+        with patch('oneanddone.users.mixins.redirect') as redirect:
+            eq_(self.view.dispatch(request), redirect.return_value)
+            redirect.assert_called_with('users.profile.update')
+
+    def test_has_profile_and_accepts_privacy_policy(self):
+        """
+        If the user has created a profile, and has accepted privacy policy
+        call the parent class's dispatch method.
+        """
+        request = Mock()
+        request.user = UserProfileFactory.create(privacy_policy_accepted=True).user
 
         eq_(self.view.dispatch(request), 'fakemixin')
 
