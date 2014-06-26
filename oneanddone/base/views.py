@@ -4,17 +4,18 @@
 from django.shortcuts import redirect
 from django_filters.views import FilterView
 
-from oneanddone.tasks.filters import AvailableTasksFilterSet
+from oneanddone.tasks.filters import TasksFilterSet
 from oneanddone.tasks.models import Task
 from oneanddone.tasks.mixins import TaskMustBePublishedMixin
 from oneanddone.users.models import UserProfile
+
 
 class HomeView(TaskMustBePublishedMixin, FilterView):
     template_name = 'base/home.html'
     queryset = Task.objects.filter(difficulty=Task.EASY).order_by('?')
     context_object_name = 'tasks'
     paginate_by = 10
-    filterset_class = AvailableTasksFilterSet
+    filterset_class = TasksFilterSet
 
     def dispatch(self, request, *args, **kwargs):
         if (request.user.is_authenticated() and

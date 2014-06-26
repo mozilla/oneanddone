@@ -177,6 +177,9 @@ class TaskKeyword(CreatedModifiedModel, CreatedByModel):
 
     name = models.CharField(max_length=255, verbose_name='keyword')
 
+    def __unicode__(self):
+        return self.name
+
 
 class TaskAttempt(CreatedModifiedModel):
     user = models.ForeignKey(User)

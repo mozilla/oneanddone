@@ -1,6 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+from django.forms import CheckboxSelectMultiple
 from django.forms.widgets import DateInput, Input, RadioSelect
 from django.utils.safestring import mark_safe
 
@@ -46,3 +47,10 @@ class HorizRadioRenderer(RadioSelect.renderer):
 
 class HorizRadioSelect(RadioSelect):
     renderer = HorizRadioRenderer
+
+
+class HorizCheckboxSelect(CheckboxSelectMultiple):
+
+    def render(self, *args, **kwargs):
+        output = super(HorizCheckboxSelect, self).render(*args, **kwargs)
+        return mark_safe(output.replace(u'<ul>', u'').replace(u'</ul>', u'').replace(u'<li>', u'').replace(u'</li>', u''))

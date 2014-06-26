@@ -23,9 +23,9 @@
   <main class="main">
     {% if user.is_authenticated() %}
       {% include 'base/dashboard.html' %}
-      {% include 'tasks/filtered-list-component.html' %}
+      {% include 'tasks/task_list_filters.html' %}
     {% endif %}
-    {% include 'tasks/task-list-component.html' %}
+    {% include 'tasks/task_listing.html' %}
   </main>
 
   {% endblock %}

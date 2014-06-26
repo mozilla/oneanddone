@@ -11,7 +11,7 @@ from rest_framework import generics
 from tower import ugettext as _
 
 from oneanddone.base.util import get_object_or_none
-from oneanddone.tasks.filters import AvailableTasksFilterSet, TasksFilterSet
+from oneanddone.tasks.filters import TasksFilterSet
 from oneanddone.tasks.forms import FeedbackForm, TaskForm
 from oneanddone.tasks.mixins import APIRecordCreatorMixin, APIOnlyCreatorMayDeleteMixin
 from oneanddone.tasks.mixins import TaskMustBePublishedMixin
@@ -25,7 +25,7 @@ class AvailableTasksView(TaskMustBePublishedMixin, FilterView):
     context_object_name = 'tasks'
     template_name = 'tasks/list.html'
     paginate_by = 10
-    filterset_class = AvailableTasksFilterSet
+    filterset_class = TasksFilterSet
 
 
 class RandomTasksView(TaskMustBePublishedMixin, generic.ListView):
