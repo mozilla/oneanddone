@@ -21,8 +21,10 @@ env:
   HTTPS: on
   UWSGI_SCHEME: https
   GOOGLE_ANALYTICS_ID: ''
+  EMAIL_HOST: 'smtp.mozilla.org'
+  SERVER_EMAIL: 'stage@oneanddone.allizom.org'
 requirements:
-  pypm:
+  pip:
     - MySQL-python==1.2.3
     - jinja2==2.5.5
     - py-bcrypt==0.3
