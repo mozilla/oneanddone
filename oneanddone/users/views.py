@@ -76,6 +76,11 @@ class UpdateProfileView(LoginRequiredMixin, generic.UpdateView):
     template_name = 'users/profile/edit.html'
     success_url = reverse_lazy('base.home')
 
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(UpdateProfileView, self).get_context_data(*args, **kwargs)
+        ctx['action'] = 'Update'
+        return ctx
+
     def get_form_class(self):
         if self.request.user.profile.privacy_policy_accepted:
             return UserProfileForm
@@ -95,6 +100,15 @@ class UpdateProfileView(LoginRequiredMixin, generic.UpdateView):
         form.save()
         messages.success(self.request, _('Your profile has been updated.'))
         return redirect('base.home')
+
+
+class DeleteProfileView(UserProfileRequiredMixin, generic.DeleteView):
+    model = UserProfile
+    success_url = reverse_lazy('base.home')
+    template_name = 'users/profile/delete.html'
+
+    def get_object(self):
+        return self.request.user.profile
 
 
 class ProfileDetailsView(UserProfileRequiredMixin, generic.DetailView):

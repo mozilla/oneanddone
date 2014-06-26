@@ -19,7 +19,7 @@ from oneanddone.tasks.mixins import APIRecordCreatorMixin, APIOnlyCreatorMayDele
 from oneanddone.tasks.mixins import TaskMustBeAvailableMixin, HideNonRepeatableTaskMixin
 from oneanddone.tasks.models import Feedback, Task, TaskAttempt
 from oneanddone.tasks.serializers import TaskSerializer
-from oneanddone.users.mixins import MyStaffUserRequiredMixin, UserProfileRequiredMixin
+from oneanddone.users.mixins import MyStaffUserRequiredMixin, PrivacyPolicyRequiredMixin
 
 
 class AvailableTasksView(TaskMustBeAvailableMixin, FilterView):
@@ -54,7 +54,7 @@ class TaskDetailView(HideNonRepeatableTaskMixin, generic.DetailView):
         return ctx
 
 
-class StartTaskView(UserProfileRequiredMixin, HideNonRepeatableTaskMixin,
+class StartTaskView(PrivacyPolicyRequiredMixin, HideNonRepeatableTaskMixin,
                     generic.detail.SingleObjectMixin, generic.View):
     model = Task
 
@@ -74,7 +74,7 @@ class StartTaskView(UserProfileRequiredMixin, HideNonRepeatableTaskMixin,
         return redirect(task)
 
 
-class TaskAttemptView(UserProfileRequiredMixin, generic.detail.SingleObjectMixin, generic.View):
+class TaskAttemptView(PrivacyPolicyRequiredMixin, generic.detail.SingleObjectMixin, generic.View):
     def get_queryset(self):
         return TaskAttempt.objects.filter(user=self.request.user, state=TaskAttempt.STARTED)
 
@@ -97,7 +97,7 @@ class FinishTaskView(TaskAttemptView):
         return redirect('tasks.feedback', attempt.pk)
 
 
-class CreateFeedbackView(UserProfileRequiredMixin, HideNonRepeatableTaskMixin, generic.CreateView):
+class CreateFeedbackView(PrivacyPolicyRequiredMixin, HideNonRepeatableTaskMixin, generic.CreateView):
     model = Feedback
     form_class = FeedbackForm
     template_name = 'tasks/feedback.html'

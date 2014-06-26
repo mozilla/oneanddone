@@ -192,7 +192,7 @@ class TaskKeyword(CreatedModifiedModel, CreatedByModel):
 
 
 class TaskAttempt(CreatedModifiedModel):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     task = models.ForeignKey(Task)
 
     STARTED = 0

@@ -32,6 +32,13 @@
     </p>
     {% endif %}
     <div class="actions-container">
+    {% if action == 'Update' %}
+        {% if form.privacy_policy_accepted %}
+            <a href="{{ url('users.profile.delete') }}" id="delete-profile" class="button">{{ _('I Disagree, Delete Profile') }}</a>
+        {% else %}
+            <a href="{{ url('users.profile.delete') }}" id="delete-profile" class="button">{{ _('Delete Profile') }}</a>
+        {% endif %}
+    {% endif %}
       <button type="submit" class="button">{{ _('Save') }}</button>
     </div>
   </form>

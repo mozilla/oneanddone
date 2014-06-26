@@ -18,10 +18,7 @@ class BaseUserProfileRequiredMixin(object):
         if not UserProfile.objects.filter(user=request.user).exists():
             return redirect('users.profile.create')
         else:
-            if not UserProfile.objects.get(user=request.user).privacy_policy_accepted:
-                return redirect('users.profile.update')
-            else:
-                return super(BaseUserProfileRequiredMixin, self).dispatch(request, *args, **kwargs)
+            return super(BaseUserProfileRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
 class UserProfileRequiredMixin(LoginRequiredMixin, BaseUserProfileRequiredMixin):
@@ -29,6 +26,21 @@ class UserProfileRequiredMixin(LoginRequiredMixin, BaseUserProfileRequiredMixin)
     Require a user to be both logged in and have a UserProfile before
     they can interact with the view.
     """
+
+
+class PrivacyPolicyRequiredMixin(object):
+    """
+    Require users to have a UserProfile and sign privacy policy
+    before they can interact with the view.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        if not UserProfile.objects.filter(user=request.user).exists():
+            return redirect('users.profile.create')
+        else:
+            if not UserProfile.objects.get(user=request.user).privacy_policy_accepted:
+                return redirect('users.profile.update')
+            else:
+                return super(PrivacyPolicyRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
 class MyStaffUserRequiredMixin(object):
