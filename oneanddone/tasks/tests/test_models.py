@@ -9,8 +9,9 @@ from mock import patch
 from nose.tools import eq_, ok_
 
 from oneanddone.base.tests import TestCase
-from oneanddone.tasks.models import Task, TaskKeyword
-from oneanddone.tasks.tests import TaskFactory, TaskKeywordFactory
+from oneanddone.tasks.models import Task, TaskKeyword, TaskAttempt
+from oneanddone.tasks.tests import TaskFactory, TaskKeywordFactory, TaskAttemptFactory
+from oneanddone.users.tests import UserFactory
 
 
 def aware_datetime(*args, **kwargs):
@@ -19,6 +20,23 @@ def aware_datetime(*args, **kwargs):
 
 class TaskTests(TestCase):
     def setUp(self):
+        user = UserFactory.create()
+        self.task_not_repeatable_no_attempts = TaskFactory.create(repeatable=False)
+        self.task_not_repeatable_abandoned_attempt = TaskFactory.create(repeatable=False)
+        TaskAttemptFactory.create(
+            user=user,
+            state=TaskAttempt.ABANDONED,
+            task=self.task_not_repeatable_abandoned_attempt)
+        self.task_not_repeatable_started_attempt = TaskFactory.create(repeatable=False)
+        TaskAttemptFactory.create(
+            user=user,
+            state=TaskAttempt.STARTED,
+            task=self.task_not_repeatable_started_attempt)
+        self.task_not_repeatable_finished_attempt = TaskFactory.create(repeatable=False)
+        TaskAttemptFactory.create(
+            user=user,
+            state=TaskAttempt.FINISHED,
+            task=self.task_not_repeatable_finished_attempt)
         self.task_draft = TaskFactory.create(is_draft=True)
         self.task_no_draft = TaskFactory.create(is_draft=False)
         self.task_start_jan = TaskFactory.create(
@@ -83,11 +101,18 @@ class TaskTests(TestCase):
         """
         If no timezone is given, is_available_filter should use
         timezone.now to determine the current datetime.
+        This also tests the repeatable aspect of the filter by
+        ensuring that tasks with attempts that are started or
+        finished are not included, but those with no attempts
+        or abandoned attempts are included.
         """
         with patch('oneanddone.tasks.models.timezone.now') as now:
             now.return_value = aware_datetime(2014, 1, 5)
             tasks = Task.objects.filter(Task.is_available_filter())
-            expected = [self.task_no_draft, self.task_start_jan, self.task_range_jan_feb]
+            expected = [self.task_not_repeatable_no_attempts,
+                        self.task_not_repeatable_abandoned_attempt,
+                        self.task_no_draft, self.task_start_jan,
+                        self.task_range_jan_feb]
             eq_(set(tasks), set(expected))
 
     def test_is_available_filter_draft(self):
@@ -145,3 +170,43 @@ class TaskTests(TestCase):
         keywords = TaskKeyword.objects.filter(task=self.task_draft)
         expected_keywords = ', '.join([keyword.name for keyword in keywords])
         eq_(self.task_draft.keywords_list, expected_keywords)
+
+    def test_is_available_to_user_no_attempts(self):
+        """
+        If there are no attempts,
+        the task should be available.
+        """
+        user = UserFactory.create()
+        eq_(self.task_not_repeatable_no_attempts.is_available_to_user(user), True)
+
+    def test_is_available_to_user_user_attempt(self):
+        """
+        If there is an attempt by the current user,
+        the task should be available.
+        """
+        user = UserFactory.create()
+        task = TaskFactory.create(repeatable=False)
+        TaskAttemptFactory.create(user=user, state=TaskAttempt.STARTED, task=task)
+        eq_(task.is_available_to_user(user), True)
+
+    def test_is_available_to_user_other_user_abandoned_attempt(self):
+        """
+        If there is a non-abandoned attempt by a different user,
+        the task should not be available.
+        """
+        user = UserFactory.create()
+        other_user = UserFactory.create()
+        task = TaskFactory.create(repeatable=False)
+        TaskAttemptFactory.create(user=other_user, state=TaskAttempt.ABANDONED, task=task)
+        eq_(task.is_available_to_user(user), True)
+
+    def test_isnt_available_to_user_other_user_non_abandoned_attempt(self):
+        """
+        If there is a non-abandoned attempt by a different user,
+        the task should not be available.
+        """
+        user = UserFactory.create()
+        other_user = UserFactory.create()
+        task = TaskFactory.create(repeatable=False)
+        TaskAttemptFactory.create(user=other_user, state=TaskAttempt.STARTED, task=task)
+        eq_(task.is_available_to_user(user), False)

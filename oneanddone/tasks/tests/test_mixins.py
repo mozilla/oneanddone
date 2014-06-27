@@ -8,7 +8,7 @@ from oneanddone.base.tests import TestCase
 from oneanddone.tasks import mixins
 
 
-class TaskMustBePublishedMixinTests(TestCase):
+class TaskMustBeAvailableMixinTests(TestCase):
     def make_view(self, queryset, allow_expired_tasks_attr):
         """
         Create a fake view that applies the mixin to the given queryset
@@ -18,7 +18,7 @@ class TaskMustBePublishedMixinTests(TestCase):
             def get_queryset(self):
                 return queryset
 
-        class View(mixins.TaskMustBePublishedMixin, BaseView):
+        class View(mixins.TaskMustBeAvailableMixin, BaseView):
             allow_expired_tasks = allow_expired_tasks_attr
 
         return View()

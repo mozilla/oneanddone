@@ -16,13 +16,13 @@ from oneanddone.base.util import get_object_or_none
 from oneanddone.tasks.filters import TasksFilterSet
 from oneanddone.tasks.forms import FeedbackForm, TaskForm
 from oneanddone.tasks.mixins import APIRecordCreatorMixin, APIOnlyCreatorMayDeleteMixin
-from oneanddone.tasks.mixins import TaskMustBePublishedMixin
+from oneanddone.tasks.mixins import TaskMustBeAvailableMixin, HideNonRepeatableTaskMixin
 from oneanddone.tasks.models import Feedback, Task, TaskAttempt
 from oneanddone.tasks.serializers import TaskSerializer
 from oneanddone.users.mixins import MyStaffUserRequiredMixin, UserProfileRequiredMixin
 
 
-class AvailableTasksView(TaskMustBePublishedMixin, FilterView):
+class AvailableTasksView(TaskMustBeAvailableMixin, FilterView):
     queryset = Task.objects.order_by('-execution_time')
     context_object_name = 'tasks'
     template_name = 'tasks/list.html'
@@ -30,7 +30,7 @@ class AvailableTasksView(TaskMustBePublishedMixin, FilterView):
     filterset_class = TasksFilterSet
 
 
-class RandomTasksView(TaskMustBePublishedMixin, generic.ListView):
+class RandomTasksView(TaskMustBeAvailableMixin, generic.ListView):
     queryset = Task.objects.order_by('?')
     template_name = 'tasks/random.html'
 
@@ -41,7 +41,7 @@ class RandomTasksView(TaskMustBePublishedMixin, generic.ListView):
         return ctx
 
 
-class TaskDetailView(TaskMustBePublishedMixin, generic.DetailView):
+class TaskDetailView(HideNonRepeatableTaskMixin, generic.DetailView):
     model = Task
     template_name = 'tasks/detail.html'
     allow_expired_tasks = True
@@ -54,7 +54,7 @@ class TaskDetailView(TaskMustBePublishedMixin, generic.DetailView):
         return ctx
 
 
-class StartTaskView(UserProfileRequiredMixin, TaskMustBePublishedMixin,
+class StartTaskView(UserProfileRequiredMixin, HideNonRepeatableTaskMixin,
                     generic.detail.SingleObjectMixin, generic.View):
     model = Task
 
@@ -97,7 +97,7 @@ class FinishTaskView(TaskAttemptView):
         return redirect('tasks.feedback', attempt.pk)
 
 
-class CreateFeedbackView(UserProfileRequiredMixin, TaskMustBePublishedMixin, generic.CreateView):
+class CreateFeedbackView(UserProfileRequiredMixin, HideNonRepeatableTaskMixin, generic.CreateView):
     model = Feedback
     form_class = FeedbackForm
     template_name = 'tasks/feedback.html'

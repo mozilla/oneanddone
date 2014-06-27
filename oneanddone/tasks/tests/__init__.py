@@ -21,6 +21,7 @@ class TaskFactory(DjangoModelFactory):
     is_draft = False
     creator = SubFactory(UserFactory)
     team = SubFactory(TaskTeamFactory)
+    repeatable = True
 
 
 class TaskAttemptFactory(DjangoModelFactory):
