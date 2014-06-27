@@ -1,6 +1,6 @@
-name: oneanddone
+name: oneanddone-dev
 url:
-  - oneanddone.paas.allizom.org
+  - oneanddone-dev.paas.allizom.org
 mem: 256M
 disk: 2G
 framework:
@@ -21,8 +21,8 @@ env:
   HTTPS: on
   UWSGI_SCHEME: https
   GOOGLE_ANALYTICS_ID: ''
-  EMAIL_HOST: 'smtp.mozilla.org'
-  SERVER_EMAIL: 'stage@oneanddone.allizom.org'
+  EMAIL_HOST: ''
+  SERVER_EMAIL: ''
 requirements:
   pip:
     - MySQL-python==1.2.3
