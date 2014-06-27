@@ -132,6 +132,7 @@ class ProfileDetailsView(UserProfileRequiredMixin, generic.DetailView):
 
         context = super(ProfileDetailsView, self).get_context_data(**kwargs)
         context['attempts_finished'] = attempts_finished
+        context['page'] = 'ProfileDetails'
         return context
 
 

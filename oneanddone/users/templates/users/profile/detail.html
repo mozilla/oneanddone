@@ -6,17 +6,18 @@
 {% set title = _('User profile for {username}')|f(username=user.profile.name) %}
 
 {% block content %}
-<h1><span id="user-profile-name">{{ _("{name}")|fe(name=user.profile.name) }}</span>{{_("'s Profile")}}</h1>
-
- {% include 'base/dashboard.html' %}
 
 <main class="billboard content-container">
+<h1><span id="user-profile-name">{{ _("{name}")|fe(name=user.profile.name) }}</span>{{_("'s Profile")}}</h1>
+ {% include 'base/dashboard.html' %}
+
+<div class="billboard content-container">
 
   <section class="task-status">
 
       <h4>
           <span id="completed-tasks-count">{{ _('{count}')|f(count=user.attempts_finished_count) }}</span>
-          {{ ngettext('task completed', 'tasks completed', attempts_finished)}}
+          {{ ngettext('Task Completed', 'Tasks Completed', attempts_finished)}}
       </h4>
     <ul>
       {% for attempt in attempts_finished %}
@@ -29,9 +30,12 @@
 
   </section>
 
+  </div>
   <div class="actions-container">
+      {% if not user.attempts_in_progress %}
+      <a href="{{ url('tasks.available') }}" class="button" id="pick-a-task">{{ _('Pick a task to do') }}</a>
+      {% endif %}
     <a href="{{ url('users.profile.update') }}" id="edit-profile" class="button">{{ _('Edit profile') }}</a>
   </div>
-
 </main>
 {% endblock %}
