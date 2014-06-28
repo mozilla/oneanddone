@@ -104,7 +104,9 @@
     {% else %}
       {% if task.is_available %}
         {% if not user.is_authenticated() %}
-          <a href="{{ url('users.login')|urlparams(next=request.path) }}" class="button" id="get-started">{{ gs_button_label }}</a>
+          <a href="{{ url('users.login')|urlparams(next=request.path) }}"
+             class="button{% if gs_button_disabled %} insensitive" disabled="disabled{% endif %}"
+             id="get-started">{{ gs_button_label }}</a>
         {% elif user.attempts_in_progress.exists() %}
           <div class="with-message">
             <button class="button insensitive" disabled="disabled" id="get-started">{{ gs_button_label }}</button>
@@ -115,7 +117,9 @@
         {% else %}
           <form method="post" action="{{ url('tasks.start', task.id) }}">
             {{ csrf() }}
-            <button type="submit" class="button{% if gs_button_disabled %} insensitive" disabled="disabled{% endif %}" id="get-started">{{ gs_button_label }}</button>
+            <button type="submit"
+                    class="button{% if gs_button_disabled %} insensitive" disabled="disabled{% endif %}"
+                    id="get-started">{{ gs_button_label }}</button>
           </form>
         {% endif %}
       {% endif %}
