@@ -106,6 +106,14 @@ class Task(CreatedModifiedModel, CreatedByModel):
             self.repeatable or not self.taskattempt_set.filter(repeatable_filter).exists())
 
     @property
+    def is_taken(self):
+        return not self.repeatable and self.taskattempt_set.filter(state=TaskAttempt.STARTED).exists()
+
+    @property
+    def is_completed(self):
+        return not self.repeatable and self.taskattempt_set.filter(state=TaskAttempt.FINISHED).exists()
+
+    @property
     def instructions_html(self):
         return self._yield_html(self.instructions)
 

@@ -5,6 +5,7 @@ from django.http import Http404
 
 from mock import Mock, patch
 from nose.tools import eq_, ok_
+from tower import ugettext as _
 
 from oneanddone.base.tests import TestCase
 from oneanddone.tasks import views
@@ -24,6 +25,7 @@ class TaskDetailViewTests(TestCase):
         """
         self.view.request = Mock()
         self.view.request.user.is_authenticated.return_value = False
+        self.view.object = Mock()
 
         with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
             get_context_data.return_value = {}
@@ -48,6 +50,53 @@ class TaskDetailViewTests(TestCase):
             eq_(ctx['attempt'], get_object_or_none.return_value)
             get_object_or_none.assert_called_with(TaskAttempt, user=self.view.request.user,
                                                   task=self.view.object, state=TaskAttempt.STARTED)
+
+    def test_get_context_data_taken_task(self):
+        """
+        If the task is taken, correct values should be added to the context.
+        """
+        self.view.request = Mock()
+        self.view.request.user.is_authenticated.return_value = False
+        self.view.object = Mock()
+        self.view.object.is_taken = True
+
+        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
+            get_context_data.return_value = {}
+            ctx = self.view.get_context_data()
+            eq_(ctx['gs_button_label'], _('Taken'))
+            eq_(ctx['gs_button_disabled'], True)
+
+    def test_get_context_data_completed_task(self):
+        """
+        If the task is taken, correct values should be added to the context.
+        """
+        self.view.request = Mock()
+        self.view.request.user.is_authenticated.return_value = False
+        self.view.object = Mock()
+        self.view.object.is_taken = False
+        self.view.object.is_completed = True
+
+        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
+            get_context_data.return_value = {}
+            ctx = self.view.get_context_data()
+            eq_(ctx['gs_button_label'], _('Completed'))
+            eq_(ctx['gs_button_disabled'], True)
+
+    def test_get_context_data_available_task(self):
+        """
+        If the task is taken, correct values should be added to the context.
+        """
+        self.view.request = Mock()
+        self.view.request.user.is_authenticated.return_value = False
+        self.view.object = Mock()
+        self.view.object.is_taken = False
+        self.view.object.is_completed = False
+
+        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
+            get_context_data.return_value = {}
+            ctx = self.view.get_context_data()
+            eq_(ctx['gs_button_label'], _('Get Started'))
+            eq_(ctx['gs_button_disabled'], False)
 
 
 class StartTaskViewTests(TestCase):
