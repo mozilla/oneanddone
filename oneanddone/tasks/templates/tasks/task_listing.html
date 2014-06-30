@@ -7,7 +7,7 @@
         {% endtrans %}
       {% endif %}
     </h3>
-    {% if tasks.exists() %}
+    {% if tasks.count() %}
       <ol class="task-list">
         {% for task in tasks %}
           <li>
