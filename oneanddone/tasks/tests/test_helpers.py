@@ -33,3 +33,15 @@ class PageUrlTests(TestCase):
         url = urlparse.urlsplit(page_url(request, 4))
         args = urlparse.parse_qs(url.query)
         eq_(args, {'foo': ['bar'], 'page': ['4']})
+
+    def test_repeats(self):
+        """
+        GET parameters with multiple values should have all their
+        values preserved
+        """
+        request = Mock(GET=QueryDict('foo=bar&baz=5&foo=ok'))
+        url = urlparse.urlsplit(page_url(request, 4))
+        args = urlparse.parse_qs(url.query)
+        eq_(args, {'foo': ['bar', 'ok'], 'baz': ['5'], 'page': ['4']})
+
+
