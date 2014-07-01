@@ -12,7 +12,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ('name',)
+        fields = ('name', 'username', 'privacy_policy_accepted')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -20,4 +20,4 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'groups', 'profile')
+        fields = ('id', 'email', 'groups', 'profile')
