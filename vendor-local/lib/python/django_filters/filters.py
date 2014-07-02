@@ -103,7 +103,15 @@ class MultipleChoiceFilter(Filter):
 
     def filter(self, qs, value):
         value = value or ()
-        if len(value) == len(self.field.choices):
+        """
+        This is a local change which differs from the version of
+        django-filter on PyPI.
+
+        The released version has a bug where if a user selects all
+        available choices it will not do any filtering, even
+        if the model field is allowed to be null.
+        """
+        if self.required and len(value) == len(self.field.choices):
             return qs
         q = Q()
         for v in value:

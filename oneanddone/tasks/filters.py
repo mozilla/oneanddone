@@ -21,8 +21,7 @@ class TasksFilterSet(django_filters.FilterSet):
     execution_time = django_filters.MultipleChoiceFilter(
         choices=((15, 15), (30, 30), (45, 45), (60, 60)),
         widget=HorizCheckboxSelect,
-        label=_lazy(u'Estimated minutes'),
-        lookup_type='lte')
+        label=_lazy(u'Estimated minutes'))
 
     team = django_filters.ModelMultipleChoiceFilter(
         label=_lazy(u'Team'),
