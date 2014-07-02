@@ -111,7 +111,7 @@ class APITests(APITestCase):
         Test Create new user with Profile Data(name, username and privacy_policy_accepted)
         """
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-        user_data = {'email': 'test@test.com',
+        user_data = {'username': 'testuser', 'email': 'test@test.com',
                      'profile': {'name': 'Test Name', 'username': 'testuser', 'privacy_policy_accepted': True}}
         response = self.client.post(self.uri, user_data, format='json')
         self.assert_response_status(response, status.HTTP_201_CREATED)
@@ -125,11 +125,11 @@ class APITests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
 
         # Create a new user
-        user_data = {'email': 'test@test.com',
+        user_data = {'username':'testname', 'email': 'test@test.com',
                      'profile': {'name': 'Test Name', 'username': 'testname', 'privacy_policy_accepted': True}}
         response = self.client.post(self.uri, user_data, format='json')
 
-        # Change Profile Name
+        # Change Profile Data(name, username, privacy_policy_accepted)
         changed_data = {'username': 'testname', 'email': 'test@test.com',
                         'profile': {'name': 'Changed Test Name', 'username': 'testname123', 'privacy_policy_accepted': False}}
         user_uri = self.uri + user_data['email'] + '/'
