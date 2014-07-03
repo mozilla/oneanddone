@@ -7,12 +7,12 @@ time, one day at a time - and feel good about doing them.
 
 One and Done is written with [Playdoh][playdoh] and [Django][django].
 
-If you're interested in helping us out, please read through
-[the blog post][blogpost] and reach out to us!
+If you're interested in helping us out, please read through the
+[project wiki][wiki] and reach out to us!
 
 [django]: http://www.djangoproject.com/
 [playdoh]: https://github.com/mozilla/playdoh
-[blogpost]: https://quality.mozilla.org/2013/10/qa-taskboard-development-call-for-participation/
+[wiki]: https://wiki.mozilla.org/QA/OneandDone
 
 
 Development Setup
@@ -39,23 +39,40 @@ you don't have `pip` installed, you can install it with `easy_install pip`.
    $ source venv/bin/activate
    ```
 
-3. Install the compiled and development requirements:
+3. Set up MySQL locally. The [MySQL Installation Documentation][mysql] explains how to do this.
+   
+
+4. Create the initial empty database; make sure it's utf8:
+   ``` 
+   # Start the MySQL server
+   $ mysql.server start
+   # Once successfully started, log into the console
+   # using your username and password
+   $ mysql -uroot -p
+   ```
+   In the mysql console:
+   ```mysql
+   CREATE DATABASE oneanddone 
+   DEFAULT CHARACTER SET utf8 
+   DEFAULT COLLATE utf8_general_ci;
+   ```
+   To run all parts of the application, you will eventually need to populate this empty database with some example data, especially Tasks.
+
+5. Install the compiled and development requirements:
 
    ```sh
    $ pip install -r requirements/compiled.txt
    $ pip install -r requirements/dev.txt
    ```
 
-4. Deploy the project in "development" mode:
+6. Deploy the project in "development" mode:
 
    ```sh
    $ python setup.py develop
    ```
 
-5. Set up a local MySQL database. The [MySQL Installation Documentation][mysql]
-   explains how to do this. Make sure your DB is utf8.
 
-6. Configure your local settings by copying `oneanddone/settings/local.py-dist` to
+7. Configure your local settings by copying `oneanddone/settings/local.py-dist` to
    `oneanddone/settings/local.py` and customizing the settings in it:
 
    ```sh
@@ -69,23 +86,16 @@ you don't have `pip` installed, you can install it with `easy_install pip`.
    Open up local.py, find and uncomment SESSION_COOKIE_SECURE = False
 
 
-7. Create the initial empty database:
-
-   ```sh
-   # Start the MySQL server
-   $ mysql.server start
-   # Once successfully started, log into the console
-   # using your username and password
-   $ mysql -uroot -p
-   # Create the database
-   mysql> create database oneanddone;
-   ```
-
 8. Initialize your database structure:
 
    ```sh
    $ python manage.py syncdb
    ```
+
+9. Apply Migrations
+
+See instructions below.
+
 
 Applying Migrations
 -------------------
