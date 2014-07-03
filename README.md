@@ -145,10 +145,18 @@ If you are asked to create a super user, just enter no and let the process compl
 
 Running Unit Tests
 ------------------
-You can run the unit tests in verbose mode as follows:
+You can run all the unit tests in verbose mode as follows:
 
 ```sh
 $ python manage.py test -v 2
+```
+You can also run spefic tests. Examples:
+```sh
+# All tests in test_helpers module.
+$ python ./manage.py test oneanddone.tasks.tests.test_helpers -v 2
+# Just one test (PageUrlTests.test_basic)
+$ python ./manage.py test oneanddone.tasks.tests.test_helpers:PageUrlTests.test_basic -v 2
+
 ```
 
 REST API Support
