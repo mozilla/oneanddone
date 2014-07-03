@@ -135,12 +135,18 @@ class CreateFeedbackView(PrivacyPolicyRequiredMixin, HideNonRepeatableTaskMixin,
         # Send email to task owner
         task_name = feedback.attempt.task.name
         subject = 'Feedback on %s from One and Done' % task_name
+        task_link = 'http'
+        if self.request.is_secure():
+            task_link += 's'
+        task_link += '://%s%s' % (
+            self.request.get_host(),
+            feedback.attempt.task.get_absolute_url())
         template = get_template('tasks/emails/feedback_email.txt')
 
         message = template.render({
             'feedback_user': feedback.attempt.user.email,
             'task_name': task_name,
-            'task_link': self.request.get_host() + feedback.attempt.task.get_absolute_url(),
+            'task_link': task_link,
             'task_state': feedback.attempt.get_state_display(),
             'feedback': feedback.text})
 
