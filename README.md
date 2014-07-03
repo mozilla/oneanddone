@@ -150,12 +150,12 @@ You can run all the unit tests in verbose mode as follows:
 ```sh
 $ python manage.py test -v 2
 ```
-You can also run spefic tests. Examples:
+You can also run spefic tests:
 ```sh
 # All tests in test_helpers module.
-$ python ./manage.py test oneanddone.tasks.tests.test_helpers -v 2
+$ python manage.py test oneanddone.tasks.tests.test_helpers -v 2
 # Just one test (PageUrlTests.test_basic)
-$ python ./manage.py test oneanddone.tasks.tests.test_helpers:PageUrlTests.test_basic -v 2
+$ python manage.py test oneanddone.tasks.tests.test_helpers:PageUrlTests.test_basic -v 2
 
 ```
 
