@@ -4,6 +4,7 @@
 from django import forms
 
 from django_ace import AceWidget
+from tower import ugettext as _
 
 from oneanddone.tasks.models import Feedback, Task
 from oneanddone.tasks.widgets import CalendarInput, HorizRadioSelect
@@ -38,6 +39,15 @@ class TaskForm(forms.ModelForm):
             for keyword in self.cleaned_data['keywords'].split(','):
                 if len(keyword.strip()):
                     self.instance.keyword_set.create(name=keyword.strip(), creator=creator)
+
+    def clean(self):
+        cleaned_data = super(TaskForm, self).clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        if start_date and end_date:
+            if start_date >= end_date:
+                raise forms.ValidationError(_("'End date' must be after 'Start date'"))
+        return cleaned_data
 
     class Meta:
         model = Task
