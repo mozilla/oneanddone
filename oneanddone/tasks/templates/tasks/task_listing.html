@@ -12,12 +12,12 @@
         {% for task in tasks %}
           <li>
             <p>
-              <a href="{{ task.get_absolute_url() }}">{{ task.name }}</a>
+              <a class="task-name" href="{{ task.get_absolute_url() }}">{{ task.name }}</a>
               {% if user.is_staff %}
-                | <a href="{{ task.get_edit_url() }}">{{ _('Edit') }}</a>
+                | <a class="edit-task" href="{{ task.get_edit_url() }}">{{ _('Edit') }}</a>
               {% endif %}
             </p>
-            <p>{{ task.short_description }}</p>
+            <p class="task-desc">{{ task.short_description }}</p>
           </li>
         {% endfor %}
       </ol>
