@@ -13,6 +13,8 @@ If you're interested in helping us out, please read through the
 [django]: http://www.djangoproject.com/
 [playdoh]: https://github.com/mozilla/playdoh
 [wiki]: https://wiki.mozilla.org/QA/OneandDone
+[persona]: https://developer.mozilla.org/Persona/The_implementor_s_guide/Testing
+[django-browserid]: https://github.com/mozilla/django-browserid
 
 
 Development Setup
@@ -56,7 +58,14 @@ you don't have `pip` installed, you can install it with `easy_install pip`.
    DEFAULT CHARACTER SET utf8 
    DEFAULT COLLATE utf8_general_ci;
    ```
-   To run all parts of the application, you will eventually need to populate this empty database with some example data, especially Tasks.
+   To run all parts of the application, you will eventually need to populate this empty database with some example data, especially Tasks. There are many ways to do this.
+      * Use the create/edit features of your local One and Done instance. For example sign in with an administrator account and go to the `/tasks/create/` URL of the app
+      
+      * Use the Django admin section of your local One and Done instance by going to the `/admin` URL -- this also relies on an admin account.
+      
+      * Use an external tool like MySQL Workbench.
+      
+      * Ask another active developer for a mysqldump of their local database.
 
 5. Install the compiled and development requirements:
 
@@ -92,9 +101,25 @@ you don't have `pip` installed, you can install it with `easy_install pip`.
    $ python manage.py syncdb
    ```
 
-9. Apply Migrations
+If you are asked to create a superuser, do so. Don't worry if you miss this step: see the [Users](#users) section below for more information.
 
-See instructions below.
+Once finished, the `syncdb` command should produce a message about which models have been synced. At the bottom, the message will include something like this:
+
+   ```
+   Not synced (use migrations):
+    - oneanddone.tasks
+    - oneanddone.users
+    - rest_framework.authtoken
+   ```
+
+This means that you must also run `./manage.py migrate [model]` for each model that is not synced with `syncdb`. More information about South migrations is included under the [Applying Migrations](#applying-migrations) section below.
+
+Users
+-----
+
+Playdoh uses [BrowserID][django-browserid], a.k.a. Mozilla Persona, for user authentication. To add users to your local database, simply sign into your local One and Done instance. You may want to use dummy email accounts as described in Mozilla's guide to [testing Persona][persona].
+
+You need at least one superuser to be able to develop and test administrative features of the project. You can create as many superusers as you like with `python manage.py createsuperuser`. After that, sign into your local One and Done instance with the superuser's email address as usual. 
 
 
 Applying Migrations
@@ -107,22 +132,24 @@ run the following:
    $ ./manage.py migrate oneanddone.tasks && ./manage.py migrate oneanddone.users
    ```
 
-If you make changes to an existing model you will need to regeneratre the schema migration as follows:
+If you make changes to an existing model, say `oneanddone.tasks`, you will need to regeneratre the schema migration as follows:
 
    ```sh
    $ ./manage.py schemamigration oneanddone.tasks --auto
    ```
 
-To generate a blank schema migration:
+To generate a blank data migration:
 
    ```sh
-   $ ./manage.py datamigration oneanddone.mymodel data_migration_name
+   # ./manage.py datamigration [model] [data_migration_name]
+   # Example:
+   $ ./manage.py datamigration oneanddone.tasks task_data 
    ```
 
 Then fill in the generated file with logic, fixtures, etc. You can then apply this migration as above with:
 
    ```sh
-   $ ./manage.py migrate oneanddone.mymodel
+   $ ./manage.py migrate oneanddone.tasks
    ```
 
 
@@ -141,8 +168,6 @@ You can launch the development server like so:
 $ python manage.py runserver
 ```
 
-If you are asked to create a super user, just enter no and let the process complete.
-
 Running Unit Tests
 ------------------
 You can run all the unit tests in verbose mode as follows:
@@ -152,7 +177,7 @@ $ python manage.py test -v 2
 ```
 You can also run spefic tests:
 ```sh
-# All tests in test_helpers module.
+# All tests in tasks/tests/test_helpers module.
 $ python manage.py test oneanddone.tasks.tests.test_helpers -v 2
 # Just one test (PageUrlTests.test_basic)
 $ python manage.py test oneanddone.tasks.tests.test_helpers:PageUrlTests.test_basic -v 2
