@@ -1,14 +1,20 @@
 oneanddone
 ==========
 
-The "One and Done" initiative, previously known as "QA Taskboard", is a workflow
-where Mozilla community contributors can pick tasks and work on them - one at a
-time, one day at a time - and feel good about doing them.
-
 One and Done is written with [Playdoh][playdoh] and [Django][django].
 
 If you're interested in helping us out, please read through the
 [project wiki][wiki] and reach out to us!
+
+About the project:
+>Contribute to Mozilla QA - One task at a time, One day at a time.
+>
+>One and Done gives users a wide variety of ways to contribute to Mozilla. 
+>You can pick an easy task that only takes a few minutes - or take on a 
+>bigger challenge. This includes working on manual testing, automation, bug 
+>verification, mobile testing and more. Tasks are from all QA teams - so you 
+>can get involved with Automation, Firefox OS, Desktop Firefox, Mozilla 
+>websites, Services, or Thunderbird.
 
 [django]: http://www.djangoproject.com/
 [playdoh]: https://github.com/mozilla/playdoh
