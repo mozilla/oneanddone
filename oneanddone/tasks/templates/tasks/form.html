@@ -62,6 +62,9 @@
 
     <div class="row">
       <div class="actions-container">
+        <div class="without-message">
+          <a href="{{ cancel_url }}" class="button" id="cancel">{{ _('Cancel') }}</a>
+        </div>
         <button type="submit" class="button">{{ _('{action} task')|f(action=action) }}</button>
       </div>
     </div>

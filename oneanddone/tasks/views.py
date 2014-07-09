@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.contrib import messages
 from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import get_template
 from django.views import generic
@@ -180,6 +181,7 @@ class CreateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Creat
     def get_context_data(self, *args, **kwargs):
         ctx = super(CreateTaskView, self).get_context_data(*args, **kwargs)
         ctx['action'] = 'Add'
+        ctx['cancel_url'] = reverse('tasks.list')
         return ctx
 
     def form_valid(self, form):
@@ -197,6 +199,7 @@ class UpdateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Updat
     def get_context_data(self, *args, **kwargs):
         ctx = super(UpdateTaskView, self).get_context_data(*args, **kwargs)
         ctx['action'] = 'Update'
+        ctx['cancel_url'] = reverse('tasks.detail', args=[self.get_object().id])
         return ctx
 
     def form_valid(self, form):

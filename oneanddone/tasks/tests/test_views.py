@@ -1,6 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+from django.core.urlresolvers import reverse
 from django.http import Http404
 
 from mock import Mock, patch
@@ -190,25 +191,32 @@ class CreateTaskViewTests(TestCase):
     def setUp(self):
         self.view = views.CreateTaskView()
 
-    def test_get_context_data_returns_add_action(self):
+    def test_get_context_data_returns_add_action_and_url(self):
         """
-        The 'Add' action should be included in the context data.
+        The 'Add' action and correct cancel_url
+        should be included in the context data.
         """
         with patch('oneanddone.tasks.views.generic.CreateView.get_context_data') as get_context_data:
             get_context_data.return_value = {}
             ctx = self.view.get_context_data()
             eq_(ctx['action'], 'Add')
+            eq_(ctx['cancel_url'], reverse('tasks.list'))
 
 
 class UpdateTaskViewTests(TestCase):
     def setUp(self):
         self.view = views.UpdateTaskView()
 
-    def test_get_context_data_returns_update_action(self):
+    def test_get_context_data_returns_update_action_and_url(self):
         """
-        The 'Update' action should be included in the context data.
+        The 'Update' action and correct cancel_url
+        should be included in the context data.
         """
-        with patch('oneanddone.tasks.views.generic.UpdateView.get_context_data') as get_context_data:
+        get_object_patch = patch('oneanddone.tasks.views.generic.UpdateView.get_object')
+        context_patch = patch('oneanddone.tasks.views.generic.UpdateView.get_context_data')
+        with get_object_patch as get_object, context_patch as get_context_data:
+            get_object.return_value = Mock(id=1)
             get_context_data.return_value = {}
             ctx = self.view.get_context_data()
             eq_(ctx['action'], 'Update')
+            eq_(ctx['cancel_url'], reverse('tasks.detail', args=[1]))
