@@ -64,10 +64,10 @@ you don't have `pip` installed, you can install it with `easy_install pip`.
    DEFAULT CHARACTER SET utf8 
    DEFAULT COLLATE utf8_general_ci;
    ```
-   To run all parts of the application, you will eventually need to populate this empty database with some example data, especially Tasks. There are many ways to do this.
-      * Use the create/edit features of your local One and Done instance. For example sign in with an administrator account and go to the `/tasks/create/` URL of the app
+   To run all parts of the application, you will eventually need to populate this empty database with some example data, especially Tasks. There are many ways to populate the database. The method you choose may depend on the kind of data you want to add.
+      * Use the create/edit features of your local One and Done instance. For example sign in with an administrator account and go to the `/tasks/create/` URL of the app to create Tasks.
       
-      * Use the Django admin section of your local One and Done instance by going to the `/admin` URL -- this also relies on an admin account.
+      * Use the Django admin section of your local One and Done instance by going to the `/admin` URL -- this also relies on an admin account. You can define Task Teams here, for example.
       
       * Use an external tool like MySQL Workbench.
       
