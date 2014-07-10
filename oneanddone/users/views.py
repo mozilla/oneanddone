@@ -2,10 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.contrib import messages
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import Http404
 from django.shortcuts import redirect
 from django.views import generic
-from django.contrib.auth.models import User
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from rest_framework import generics, permissions
 from braces.views import LoginRequiredMixin
@@ -112,15 +114,35 @@ class DeleteProfileView(UserProfileRequiredMixin, generic.DeleteView):
         return self.request.user.profile
 
 
-class ProfileDetailsView(UserProfileRequiredMixin, generic.DetailView):
+class ProfileDetailsView(generic.DetailView):
     model = UserProfile
     template_name = 'users/profile/detail.html'
 
-    def get_object(self):
-        return self.request.user.profile
+    def dispatch(self, request, *args, **kwargs):
+        username = kwargs.get('username', None)
+        if request.user.is_authenticated() or username:
+            return super(ProfileDetailsView, self).dispatch(request, *args, **kwargs)
+        else:
+            return redirect('base.home')
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object(request, *args, **kwargs)
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def get_object(self, request, *args, **kwargs):
+        username = kwargs.get('username', None)
+        if username:
+            queryset = self.get_queryset().filter(username=username)
+            try:
+                obj = queryset.get()
+            except ObjectDoesNotExist:
+                raise Http404(_(u'No UserProfiles found matching the username'))
+            return obj
+        return request.user.profile
 
     def get_context_data(self, **kwargs):
-        all_attempts_finished = self.request.user.taskattempt_set.filter(state=TaskAttempt.FINISHED)
+        all_attempts_finished = self.object.user.taskattempt_set.filter(state=TaskAttempt.FINISHED)
         paginator = Paginator(all_attempts_finished, 20)
         page = self.request.GET.get('page', 1)
 
