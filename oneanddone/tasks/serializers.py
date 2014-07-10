@@ -3,13 +3,26 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from rest_framework import serializers
 
-from oneanddone.tasks.models import Task
+from oneanddone.tasks.models import Task, TaskKeyword
+
+
+class TaskKeywordSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TaskKeyword
+        fields = ('name',)
 
 
 class TaskSerializer(serializers.ModelSerializer):
 
+    project = serializers.SlugRelatedField(many=False, slug_field='name')
+    team = serializers.SlugRelatedField(many=False, slug_field='name')
+    type = serializers.SlugRelatedField(many=False, slug_field='name')
+    keyword_set = TaskKeywordSerializer(required=False, many=True)
+
     class Meta:
         model = Task
         fields = ('id', 'name', 'short_description', 'instructions',
-                  'execution_time', 'start_date', 'end_date',
-                  'is_draft')
+                  'prerequisites', 'execution_time', 'start_date', 'end_date',
+                  'is_draft', 'project', 'team', 'type', 'repeatable', 'difficulty',
+                  'why_this_matters', 'keyword_set')

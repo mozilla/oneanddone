@@ -4,8 +4,22 @@ from oneanddone.tasks import models
 from oneanddone.users.tests import UserFactory
 
 
+class TaskProjectFactory(DjangoModelFactory):
+    FACTORY_FOR = models.TaskProject
+
+    name = Sequence(lambda n: 'test{0}'.format(n))
+    creator = SubFactory(UserFactory)
+
+
 class TaskTeamFactory(DjangoModelFactory):
     FACTORY_FOR = models.TaskTeam
+
+    name = Sequence(lambda n: 'test{0}'.format(n))
+    creator = SubFactory(UserFactory)
+
+
+class TaskTypeFactory(DjangoModelFactory):
+    FACTORY_FOR = models.TaskType
 
     name = Sequence(lambda n: 'test{0}'.format(n))
     creator = SubFactory(UserFactory)
@@ -20,7 +34,9 @@ class TaskFactory(DjangoModelFactory):
     execution_time = fuzzy.FuzzyChoice((15, 30, 45, 60))
     is_draft = False
     creator = SubFactory(UserFactory)
+    project = SubFactory(TaskProjectFactory)
     team = SubFactory(TaskTeamFactory)
+    type = SubFactory(TaskTypeFactory)
     repeatable = True
 
 
