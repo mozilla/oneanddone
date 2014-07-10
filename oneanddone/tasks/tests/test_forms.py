@@ -11,6 +11,19 @@ from oneanddone.tasks.models import TaskKeyword
 from oneanddone.tasks.tests import TaskFactory, TaskKeywordFactory
 from oneanddone.users.tests import UserFactory
 
+def get_filled_taskform(task, **kwargs):
+    """
+    Returns a TaskForm populated with initial task fields and additional
+    fields provided as keyword arguments.
+    Additional fields overwrite any matching initial fields.
+    """
+    data = {'team': task.team.id}
+    for field in ('name', 'short_description', 'execution_time', 'difficulty',
+                      'repeatable', 'instructions', 'is_draft'):
+            data[field] = getattr(task, field)
+    data.update(kwargs)
+    return TaskForm(instance=task, data=data)
+
 
 class TaskFormTests(TestCase):
 
@@ -41,14 +54,7 @@ class TaskFormTests(TestCase):
         user = UserFactory.create()
         task = TaskFactory.create()
         TaskKeywordFactory.create_batch(3, task=task)
-        data = {
-            'keywords': 'test3, new_keyword',
-            'team': task.team.id,
-        }
-        for field in ('name', 'short_description', 'execution_time', 'difficulty',
-                      'repeatable', 'instructions', 'is_draft'):
-            data[field] = getattr(task, field)
-        form = TaskForm(instance=task, data=data)
+        form = get_filled_taskform(task, keywords='test3, new_keyword')
         form.save(user)
 
         removed_keyword = TaskKeyword.objects.filter(task=task, name='test1')
@@ -70,14 +76,41 @@ class TaskFormTests(TestCase):
         """
         user = UserFactory.create()
         task = TaskFactory.create()
-        data = {
-            'keywords': ' ',
-            'team': task.team.id,
-        }
-        for field in ('name', 'short_description', 'execution_time', 'difficulty',
-                      'repeatable', 'instructions', 'is_draft'):
-            data[field] = getattr(task, field)
-        form = TaskForm(instance=task, data=data)
+        form = get_filled_taskform(task, keywords=' ')
+
         form.save(user)
 
         eq_(task.keyword_set.count(), 0)
+
+    def test_validation_start_date_before_end_date(self):
+        """
+        The form is valid if start date is before end date and all other
+        field requirements are respected.
+        """
+        form = get_filled_taskform(TaskFactory.create(),
+                                    start_date='2013-07-01',
+                                    end_date='2013-08-15')
+
+        self.assertTrue(form.is_valid())
+
+    def test_validation_start_date_after_end_date(self):
+        """
+        The form is not valid if start date is after end date.
+        """
+        form = get_filled_taskform(TaskFactory.create(),
+                                    start_date='2014-07-01',
+                                    end_date='2013-08-15')
+
+        self.assertFalse(form.is_valid())
+        eq_(form.non_field_errors(), ["'End date' must be after 'Start date'"])
+
+    def test_validation_same_start_date_as_end_date(self):
+        """
+        The form is not valid if start date is same as end date.
+        """
+        form = get_filled_taskform(TaskFactory.create(),
+                                    start_date='2013-08-15',
+                                    end_date='2013-08-15')
+
+        self.assertFalse(form.is_valid())
+        eq_(form.non_field_errors(), ["'End date' must be after 'Start date'"])
