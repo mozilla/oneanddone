@@ -53,7 +53,8 @@ class CreateProfileView(generic.CreateView):
     template_name = 'users/profile/edit.html'
 
     def dispatch(self, request, *args, **kwargs):
-        if UserProfile.objects.filter(user=request.user).exists():
+        if (not request.user.is_authenticated() or
+                UserProfile.objects.filter(user=request.user).exists()):
             return redirect('base.home')
         else:
             return super(CreateProfileView, self).dispatch(request, *args, **kwargs)
