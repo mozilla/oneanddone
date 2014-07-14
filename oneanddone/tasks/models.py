@@ -12,32 +12,31 @@ import bleach
 import jinja2
 from markdown import markdown
 
-from oneanddone.base.models import CreatedModifiedModel
-from oneanddone.base.models import CreatedByModel
+from oneanddone.base.models import CachedModel, CreatedByModel, CreatedModifiedModel
 
 
-class TaskProject(CreatedModifiedModel, CreatedByModel):
+class TaskProject(CachedModel, CreatedModifiedModel, CreatedByModel):
     name = models.CharField(max_length=255)
 
     def __unicode__(self):
         return self.name
 
 
-class TaskTeam(CreatedModifiedModel, CreatedByModel):
+class TaskTeam(CachedModel, CreatedModifiedModel, CreatedByModel):
     name = models.CharField(max_length=255)
 
     def __unicode__(self):
         return self.name
 
 
-class TaskType(CreatedModifiedModel, CreatedByModel):
+class TaskType(CachedModel, CreatedModifiedModel, CreatedByModel):
     name = models.CharField(max_length=255)
 
     def __unicode__(self):
         return self.name
 
 
-class Task(CreatedModifiedModel, CreatedByModel):
+class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     """
     Task for a user to attempt to fulfill.
     """
@@ -156,7 +155,8 @@ class Task(CreatedModifiedModel, CreatedByModel):
         pQ = lambda **kwargs: Q(**dict((prefix + key, value) for key, value in kwargs.items()))
 
         now = now or timezone.now()
-        q_filter = pQ(is_draft=False) & (pQ(start_date__isnull=True) | pQ(start_date__lt=now))
+        now = now.replace(hour=0, minute=0, second=0)  # Use just the date to allow caching
+        q_filter = pQ(is_draft=False) & (pQ(start_date__isnull=True) | pQ(start_date__lte=now))
 
         if not allow_expired:
             q_filter = q_filter & (pQ(end_date__isnull=True) | pQ(end_date__gt=now))
@@ -190,7 +190,7 @@ class Task(CreatedModifiedModel, CreatedByModel):
     """
 
 
-class TaskKeyword(CreatedModifiedModel, CreatedByModel):
+class TaskKeyword(CachedModel, CreatedModifiedModel, CreatedByModel):
     task = models.ForeignKey(Task, related_name='keyword_set')
 
     name = models.CharField(max_length=255, verbose_name='keyword')
@@ -199,7 +199,7 @@ class TaskKeyword(CreatedModifiedModel, CreatedByModel):
         return self.name
 
 
-class TaskAttempt(CreatedModifiedModel):
+class TaskAttempt(CachedModel, CreatedModifiedModel):
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     task = models.ForeignKey(Task)
 
@@ -219,7 +219,7 @@ class TaskAttempt(CreatedModifiedModel):
         ordering = ['-modified']
 
 
-class Feedback(CreatedModifiedModel):
+class Feedback(CachedModel, CreatedModifiedModel):
     attempt = models.ForeignKey(TaskAttempt)
     text = models.TextField()
 

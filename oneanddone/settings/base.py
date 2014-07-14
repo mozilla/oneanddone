@@ -188,6 +188,8 @@ def _request_args():
     }
 BROWSERID_REQUEST_ARGS = lazy(_request_args, dict)()
 
+# CacheMachine config
+CACHE_COUNT_TIMEOUT = 60  # seconds, not too long.
 
 # Project-specific Settings
 ##############################################################################
