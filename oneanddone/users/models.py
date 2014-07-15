@@ -1,11 +1,13 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, UserManager
 from django.db import models
 
+from caching.base import CachingManager, CachingMixin
 from tower import ugettext_lazy as _lazy
 
+from oneanddone.base.models import CachedModel
 from oneanddone.tasks.models import TaskAttempt
 
 
@@ -45,7 +47,17 @@ def user_attempts_in_progress(self):
 User.add_to_class('attempts_in_progress', user_attempts_in_progress)
 
 
-class UserProfile(models.Model):
+class OneAndDoneUserManager(CachingManager, UserManager):
+    # UserManager that prefetches user profiles when getting users.
+    def get_query_set(self):
+        return super(OneAndDoneUserManager, self).get_query_set().select_related('profile')
+User.add_to_class('objects', OneAndDoneUserManager())
+
+# Add CachingMixin to User's base classes so that it can be cached.
+User.__bases__ = (CachingMixin,) + User.__bases__
+
+
+class UserProfile(CachedModel, models.Model):
     user = models.OneToOneField(User, related_name='profile')
     username = models.CharField(_lazy(u'Username'), max_length=30, unique=True, null=True)
     name = models.CharField(_lazy(u'Display Name:'), max_length=255)

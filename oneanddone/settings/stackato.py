@@ -22,6 +22,14 @@ DATABASES = {
 # Environment-specific Settings
 ##############################################################################
 
+# Caching
+CACHES = {
+    'default': {
+        'BACKEND': 'caching.backends.memcached.MemcachedCache',
+        'LOCATION': os.environ.get('MEMCACHE_URL'),
+    }
+}
+
 # Debugging displays nice error messages, but leaks memory. Set this to False
 # on all server instances and True only for development.
 DEBUG = os.environ.get('DJANGO_DEBUG', False)

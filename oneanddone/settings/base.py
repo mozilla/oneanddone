@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'commonware.response.cookies',
     'django_ace',
     'django_browserid',
+    'django_memcached',
     'django_nose',
     'funfactory',
     'jingo_minify',
@@ -94,6 +95,7 @@ JINGO_EXCLUDE_APPS = [
     'admin',
     'registration',
     'browserid',
+    'memcached',
 ]
 
 # Accepted locales
@@ -188,6 +190,10 @@ def _request_args():
     }
 BROWSERID_REQUEST_ARGS = lazy(_request_args, dict)()
 
+# CacheMachine config
+CACHE_COUNT_TIMEOUT = 60  # seconds, not too long.
+
+DJANGO_MEMCACHED_REQUIRE_STAFF = True
 
 # Project-specific Settings
 ##############################################################################

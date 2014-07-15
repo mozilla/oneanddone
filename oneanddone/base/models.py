@@ -4,6 +4,19 @@
 from django.contrib.auth.models import User
 from django.db import models
 
+import caching.base
+
+
+class CachedModel(caching.base.CachingMixin, models.Model):
+    """
+    Base class for models which adds caching via django-cache-machine.
+    """
+
+    objects = caching.base.CachingManager()
+
+    class Meta:
+        abstract = True
+
 
 class CreatedModifiedModel(models.Model):
     """
