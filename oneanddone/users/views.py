@@ -125,13 +125,13 @@ class ProfileDetailsView(generic.DetailView):
         else:
             return redirect('base.home')
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object(request, *args, **kwargs)
-        context = self.get_context_data(object=self.object)
-        return self.render_to_response(context)
-
-    def get_object(self, request, *args, **kwargs):
-        username = kwargs.get('username', None)
+    # def get(self, request, *args, **kwargs):
+    #     self.object = self.get_object(request, *args, **kwargs)
+    #     context = self.get_context_data(object=self.object)
+    #     return self.render_to_response(context)
+    #
+    def get_object(self, *args, **kwargs):
+        username = self.kwargs.get('username', None)
         if username:
             queryset = self.get_queryset().filter(username=username)
             try:
@@ -139,7 +139,7 @@ class ProfileDetailsView(generic.DetailView):
             except ObjectDoesNotExist:
                 raise Http404(_(u'No UserProfiles found matching the username'))
             return obj
-        return request.user.profile
+        return self.request.user.profile
 
     def get_context_data(self, **kwargs):
         all_attempts_finished = self.object.user.taskattempt_set.filter(state=TaskAttempt.FINISHED)

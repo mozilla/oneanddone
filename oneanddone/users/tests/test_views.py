@@ -55,6 +55,7 @@ class CreateProfileViewTests(TestCase):
 class ProfileDetailsViewTests(TestCase):
     def setUp(self):
         self.view = views.ProfileDetailsView()
+        self.view.kwargs = {}
         self.request = Mock()
 
     def test_dispatch_not_logged_in_no_username(self):
@@ -75,22 +76,24 @@ class ProfileDetailsViewTests(TestCase):
         If an existing username is passed in, return that user's profile.
         """
         user = UserProfileFactory.create().user
+        self.view.kwargs['username'] = user.profile.username
 
-        eq_(self.view.get_object(self.request, username=user.profile.username), user.profile)
+        eq_(self.view.get_object(), user.profile)
 
     def test_get_object_non_existent_username(self):
         """
         If a non-existent username is passed in, throw a 404.
         """
         user = UserProfileFactory.create().user
-        bad_username = user.profile.username + str(datetime.today())
+        self.view.kwargs['username'] = user.profile.username + str(datetime.today())
 
         with self.assertRaises(Http404):
-            self.view.get_object(self.request, username=bad_username)
+            self.view.get_object()
 
     def test_get_object_no_username(self):
         """
         If no username is passed in, return the current user's profile.
         """
         self.request.user = UserProfileFactory.create().user
-        eq_(self.view.get_object(self.request), self.request.user.profile)
+        self.view.request = self.request
+        eq_(self.view.get_object(), self.request.user.profile)
