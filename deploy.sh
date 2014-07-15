@@ -9,16 +9,23 @@ fi
 python manage.py collectstatic
 python manage.py compress_assets
 
-echo "Do you want to deploy to Dev or Prod?"
-select env in "Dev" "Prod"; do
+echo "Do you want to deploy to Dev, Stage or Prod?"
+select env in "Dev" "Stage" "Prod"; do
     case $env in
-        Dev ) $STACKATO_EXECUTABLE target api.paas.allizom.org; break;;
-        Prod ) $STACKATO_EXECUTABLE target api.paas.mozilla.org; break;;
+        Dev ) $STACKATO_EXECUTABLE target api.paas.allizom.org; cp stackato-dev.yml stackato.yml; break;;
+        Stage ) $STACKATO_EXECUTABLE target api.paas.allizom.org; cp stackato-stage.yml stackato.yml; break;;
+        Prod ) $STACKATO_EXECUTABLE target api.paas.mozilla.org; cp stackato-prod.yml stackato.yml; break;;
     esac
 done
 
-$STACKATO_EXECUTABLE login
-$STACKATO_EXECUTABLE group oneanddone
+echo "Do you need to log in?"
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) $STACKATO_EXECUTABLE login; $STACKATO_EXECUTABLE group oneanddone; break;;
+        No ) break;;
+    esac
+done
+
 $STACKATO_EXECUTABLE info
 $STACKATO_EXECUTABLE env
 
@@ -31,3 +38,5 @@ select yn in "Yes" "No"; do
 done
 
 $STACKATO_EXECUTABLE push
+
+cp stackato-plain.yml stackato.yml
