@@ -25,10 +25,24 @@ class CreateProfileViewTests(TestCase):
             redirect.assert_called_with('base.home')
 
     def test_dispatch_no_profile(self):
-        """If the user has no profile, dispatch the request normally."""
+        """
+        If the user has no profile, dispatch the request normally.
+        """
         request = Mock()
         request.user = UserFactory.create()
 
         with patch('oneanddone.users.views.generic.CreateView.dispatch') as dispatch:
             eq_(self.view.dispatch(request), dispatch.return_value)
             dispatch.assert_called_with(request)
+
+    def test_dispatch_not_logged_in(self):
+        """
+        If the user is not logged in, redirect them to the home page.
+        """
+        user = Mock()
+        user.is_authenticated.return_value = False
+        request = Mock(user=user)
+
+        with patch('oneanddone.users.views.redirect') as redirect:
+            eq_(self.view.dispatch(request), redirect.return_value)
+            redirect.assert_called_with('base.home')
