@@ -21,7 +21,7 @@ from oneanddone.tasks.models import TaskAttempt
 from oneanddone.users.forms import UserProfileForm, SignUpForm
 from oneanddone.users.mixins import UserProfileRequiredMixin
 from oneanddone.users.models import UserProfile
-from serializers import UserSerializer, UserProfileSerializer
+from serializers import UserSerializer
 
 
 class LoginView(generic.TemplateView):

@@ -74,6 +74,14 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     start_date = models.DateTimeField(blank=True, null=True)
     why_this_matters = models.TextField(blank=True)
 
+    def save(self, *args, **kwargs):
+        super(Task, self).save(*args, **kwargs)
+        if not self.is_available:
+            # Close any open attempts
+            self.taskattempt_set.filter(state=TaskAttempt.STARTED).update(
+                state=TaskAttempt.CLOSED,
+                requires_notification=True)
+
     def _yield_html(self, field):
         """
         Return the requested field for a task after parsing them as
@@ -215,6 +223,7 @@ class TaskAttempt(CachedModel, CreatedModifiedModel):
         (ABANDONED, 'Abandoned'),
         (CLOSED, 'Closed')
     ))
+    requires_notification = models.BooleanField(default=False)
 
     def __unicode__(self):
         return u'{user} attempt [{task}]'.format(user=self.user, task=self.task)
@@ -232,7 +241,9 @@ class TaskAttempt(CachedModel, CreatedModifiedModel):
             state=self.STARTED,
             created__lte=compare_date,
             task__repeatable=False)
-        return expired_onetime_attempts.update(state=self.CLOSED)
+        return expired_onetime_attempts.update(
+            state=self.CLOSED,
+            requires_notification=True)
 
 
 class Feedback(CachedModel, CreatedModifiedModel):

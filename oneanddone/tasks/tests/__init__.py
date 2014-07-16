@@ -46,6 +46,7 @@ class TaskAttemptFactory(DjangoModelFactory):
     user = SubFactory(UserFactory)
     task = SubFactory(TaskFactory)
     state = models.TaskAttempt.STARTED
+    requires_notification = False
 
 
 class TaskKeywordFactory(DjangoModelFactory):

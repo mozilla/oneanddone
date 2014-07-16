@@ -1,7 +1,10 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+from django.contrib import messages
 from django.utils import timezone
+
+from tower import ugettext as _
 
 
 class TimezoneMiddleware(object):
@@ -13,3 +16,18 @@ class TimezoneMiddleware(object):
     """
     def process_request(self, request):
         timezone.activate(timezone.utc)
+
+
+class ClosedTaskNotificationMiddleware(object):
+    """
+    Add messages to the request if required.
+    """
+    def process_request(self, request):
+        if request.user.is_authenticated():
+            for attempt in request.user.attempts_requiring_notification:
+                messages.warning(request,
+                                 _('The task that you were working on, "%s", has expired or become invalid '
+                                   'and therefore has been closed.' % attempt.task.name),
+                                 extra_tags='modal-message')
+                attempt.requires_notification = False
+                attempt.save()

@@ -74,7 +74,11 @@
         </header>
 
         {% for message in messages %}
-          <div class="alert {{ message.tags }}">
+          <div class="alert {{ message.tags }}"
+            {% if 'modal' in message.tags %}
+              title="{{ _('One and Done Notification') }}"
+            {% endif %}
+            >
             {% if 'safe' in message.tags %}
               {{ message|safe }}
             {% else %}

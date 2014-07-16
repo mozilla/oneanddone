@@ -47,6 +47,13 @@ def user_attempts_in_progress(self):
 User.add_to_class('attempts_in_progress', user_attempts_in_progress)
 
 
+@property
+def user_attempts_requiring_notification(self):
+    """Any task attempts that require notification."""
+    return self.taskattempt_set.filter(requires_notification=True)
+User.add_to_class('attempts_requiring_notification', user_attempts_requiring_notification)
+
+
 class OneAndDoneUserManager(CachingManager, UserManager):
     # UserManager that prefetches user profiles when getting users.
     def get_query_set(self):

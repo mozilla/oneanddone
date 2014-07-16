@@ -50,3 +50,14 @@ $(function() {
     });
 });
 
+// To support modal messages
+$(function() {
+  $(".modal-message").dialog({
+    modal: true,
+    buttons: {
+      Ok: function() {
+        $( this ).dialog( "close" );
+      }
+    }
+  });
+});
