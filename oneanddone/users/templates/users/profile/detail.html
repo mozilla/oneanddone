@@ -8,34 +8,32 @@
 {% block content %}
 
 <main class="billboard content-container">
-  <h1><span id="user-profile-name">{{ _("{name}")|fe(name=userprofile.name) }}</span>{{_("'s Profile")}}</h1>
+  <h1>
+    {{ _("<span id=""user-profile-name"">{name}</span>'s Profile")|fe(name=userprofile.name) }}
+  </h1>
 
-  {% if userprofile.user.id == user.id %}
+  {% if userprofile.user == user %}
     {% include 'base/dashboard.html' %}
   {% endif %}
 
-  <div class="billboard content-container">
+  <section class="task-status">
 
-    <section class="task-status">
+    <h4>
+        <span id="completed-tasks-count">{{ _('{count}')|f(count=userprofile.user.attempts_finished_count) }}</span>
+        {{ ngettext('Task Completed', 'Tasks Completed', attempts_finished)}}
+    </h4>
+    <ul>
+      {% for attempt in attempts_finished %}
+        <li><a href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a></li>
+      {% endfor %}
+    </ul>
 
-        <h4>
-            <span id="completed-tasks-count">{{ _('{count}')|f(count=userprofile.user.attempts_finished_count) }}</span>
-            {{ ngettext('Task Completed', 'Tasks Completed', attempts_finished)}}
-        </h4>
-      <ul>
-        {% for attempt in attempts_finished %}
-          <li><a href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a></li>
-        {% endfor %}
-      </ul>
+    {% import 'base/pagination.html' as pagination %}
+    {{ pagination.arrows(request, attempts_finished, attempts_finished.paginator) }}
 
-      {% import 'base/pagination.html' as pagination %}
-      {{ pagination.arrows(request, attempts_finished, attempts_finished.paginator) }}
+  </section>
 
-    </section>
-
-  </div>
-
-  {% if userprofile.user.id == user.id %}
+  {% if userprofile.user == user %}
     <div class="actions-container">
         {% if not user.attempts_in_progress %}
         <a href="{{ url('tasks.available') }}" class="button" id="pick-a-task">{{ _('Pick a task to do') }}</a>

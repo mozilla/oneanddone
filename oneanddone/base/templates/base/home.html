@@ -22,7 +22,9 @@
 
   <main class="main">
     {% if user.is_authenticated() %}
-      {% include 'base/dashboard.html' %}
+      <div class="billboard">
+        {% include 'base/dashboard.html' %}
+      </div>
       {% include 'tasks/task_list_filters.html' %}
     {% endif %}
     {% include 'tasks/task_listing.html' %}

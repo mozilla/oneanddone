@@ -118,28 +118,14 @@ class ProfileDetailsView(generic.DetailView):
     model = UserProfile
     template_name = 'users/profile/detail.html'
 
-    def dispatch(self, request, *args, **kwargs):
-        username = kwargs.get('username', None)
-        if request.user.is_authenticated() or username:
-            return super(ProfileDetailsView, self).dispatch(request, *args, **kwargs)
-        else:
-            return redirect('base.home')
-
-    # def get(self, request, *args, **kwargs):
-    #     self.object = self.get_object(request, *args, **kwargs)
-    #     context = self.get_context_data(object=self.object)
-    #     return self.render_to_response(context)
-    #
     def get_object(self, *args, **kwargs):
-        username = self.kwargs.get('username', None)
-        if username:
-            queryset = self.get_queryset().filter(username=username)
-            try:
-                obj = queryset.get()
-            except ObjectDoesNotExist:
-                raise Http404(_(u'No UserProfiles found matching the username'))
-            return obj
-        return self.request.user.profile
+        username = self.kwargs.get('username')
+        queryset = self.get_queryset().filter(username=username)
+        try:
+            obj = queryset.get()
+        except ObjectDoesNotExist:
+            raise Http404(_(u'No UserProfiles found matching the username'))
+        return obj
 
     def get_context_data(self, **kwargs):
         all_attempts_finished = self.object.user.taskattempt_set.filter(state=TaskAttempt.FINISHED)
@@ -157,6 +143,16 @@ class ProfileDetailsView(generic.DetailView):
         context['attempts_finished'] = attempts_finished
         context['page'] = 'ProfileDetails'
         return context
+
+
+class MyProfileDetailsView(ProfileDetailsView):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated():
+            return redirect('base.home')
+        return super(MyProfileDetailsView, self).dispatch(request, *args, **kwargs)
+
+    def get_object(self, *args, **kwargs):
+        return self.request.user.profile
 
 
 class UserListAPI(generics.ListCreateAPIView):

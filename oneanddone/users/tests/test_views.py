@@ -58,19 +58,6 @@ class ProfileDetailsViewTests(TestCase):
         self.view.kwargs = {}
         self.request = Mock()
 
-    def test_dispatch_not_logged_in_no_username(self):
-        """
-        If the user is not logged in and does not provide a username on the url,
-        redirect them to the home page.
-        """
-        user = Mock()
-        user.is_authenticated.return_value = False
-        self.request.user = user
-
-        with patch('oneanddone.users.views.redirect') as redirect:
-            eq_(self.view.dispatch(self.request), redirect.return_value)
-            redirect.assert_called_with('base.home')
-
     def test_get_object_existing_username(self):
         """
         If an existing username is passed in, return that user's profile.
@@ -90,9 +77,28 @@ class ProfileDetailsViewTests(TestCase):
         with self.assertRaises(Http404):
             self.view.get_object()
 
-    def test_get_object_no_username(self):
+
+class MyProfileDetailsViewTests(TestCase):
+    def setUp(self):
+        self.view = views.MyProfileDetailsView()
+        self.request = Mock()
+
+    def test_dispatch_not_logged_in(self):
         """
-        If no username is passed in, return the current user's profile.
+        If the user is not logged in,
+        redirect them to the home page.
+        """
+        user = Mock()
+        user.is_authenticated.return_value = False
+        self.request.user = user
+
+        with patch('oneanddone.users.views.redirect') as redirect:
+            eq_(self.view.dispatch(self.request), redirect.return_value)
+            redirect.assert_called_with('base.home')
+
+    def test_get_object(self):
+        """
+        Return the current user's profile.
         """
         self.request.user = UserProfileFactory.create().user
         self.view.request = self.request
