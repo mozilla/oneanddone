@@ -66,28 +66,17 @@ you don't have `pip` installed, you can install it with `easy_install pip`.
    ```
    To run all parts of the application, you will eventually need to populate this empty database with some example data, especially Tasks. There are many ways to populate the database. The method you choose may depend on the kind of data you want to add.
       * Use the create/edit features of your local One and Done instance. For example sign in with an administrator account and go to the `/tasks/create/` URL of the app to create Tasks.
-      
       * Use the Django admin section of your local One and Done instance by going to the `/admin` URL -- this also relies on an admin account. You can define Task Teams here, for example.
-      
       * Use an external tool like MySQL Workbench.
-      
       * Ask another active developer for a mysqldump of their local database.
-
 5. Install the compiled and development requirements:
-
    ```sh
    $ pip install -r requirements/compiled.txt
    $ pip install -r requirements/dev.txt
    ```
+   _Note_: On OS X (in particular 10.8.5, Xcode 5.1), you may encounter the following error: `clang: error: unknown argument. '-mno-fused-madd'`. Try running pip with the `ARCHFLAGS` environment variable set, as follows: `ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future pip install -r requirements/compiled.txt` 
 
-6. Deploy the project in "development" mode:
-
-   ```sh
-   $ python setup.py develop
-   ```
-
-
-7. Configure your local settings by copying `oneanddone/settings/local.py-dist` to
+6. Configure your local settings by copying `oneanddone/settings/local.py-dist` to
    `oneanddone/settings/local.py` and customizing the settings in it:
 
    ```sh
@@ -95,18 +84,16 @@ you don't have `pip` installed, you can install it with `easy_install pip`.
    ```
 
    The file is commented to explain what each setting does and how to customize
-   them. One item in the local.py settings file you are going to want to change, if
-   you are running this locally and not over HTTPS, is the following.
+   them. Here are some highlights:
+   * If you are running this locally and not over HTTPS, uncomment `SESSION_COOKIE_SECURE = False`
+   * The `HMAC_KEYS` dictionary should not be empty. 
+   * Provide a value for `SECRET_KEY`.
 
-   Open up local.py, find and uncomment SESSION_COOKIE_SECURE = False
 
-
-8. Initialize your database structure:
-
+7. Initialize your database structure:
    ```sh
    $ python manage.py syncdb
    ```
-
 If you are asked to create a superuser, do so. Don't worry if you miss this step: see the [Users](#users) section below for more information.
 
 Once finished, the `syncdb` command should produce a message about which models have been synced. At the bottom, the message will include something like this:
@@ -232,7 +219,5 @@ Functional (Selenium) tests for oneanddone are maintained by the Web QA team and
 
 License
 -------
-This software is licensed under the `Mozilla Public License v. 2.0`_. For more
+This software is licensed under the [Mozilla Public License v. 2.0](http://mozilla.org/MPL/2.0/). For more
 information, read the file ``LICENSE``.
-
-.. _Mozilla Public License v. 2.0: http://mozilla.org/MPL/2.0/
