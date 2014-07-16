@@ -21,19 +21,19 @@
      https://oneanddone.mozilla.org/profile/
     {{ form.username }}
     </p>
-    {% if form.privacy_policy_accepted %}
+    {% if form.pp_checkbox %}
     <p class="billboard content-container">
-    {{form.privacy_policy_accepted.label}}
+    {{form.pp_checkbox.label}}
     </p>
-    {{form.privacy_policy_accepted.errors}}
+    {{form.pp_checkbox.errors}}
     <p>
-    {{form.privacy_policy_accepted}}
+    {{form.pp_checkbox}}
     {{_("* I'm okay with you handling this info as you explain in <a href='https://www.mozilla.org/en-US/privacy/websites/' target='_blank'>Mozilla's Privacy Policy</a>.")}}
     </p>
     {% endif %}
     <div class="actions-container">
     {% if action == 'Update' %}
-        {% if form.privacy_policy_accepted %}
+        {% if form.pp_checkbox %}
             <a href="{{ url('users.profile.delete') }}" id="delete-profile" class="button">{{ _('I Disagree, Delete Profile') }}</a>
         {% else %}
             <a href="{{ url('users.profile.delete') }}" id="delete-profile" class="button">{{ _('Delete Profile') }}</a>
