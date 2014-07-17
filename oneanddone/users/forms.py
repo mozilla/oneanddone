@@ -22,7 +22,7 @@ class SignUpForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         # We will only reach the save() method if the pp_checkbox was checked
         self.instance.privacy_policy_accepted = True
-        super(SignUpForm, self).save(*args, **kwargs)
+        return super(SignUpForm, self).save(*args, **kwargs)
 
 
 class UserProfileForm(forms.ModelForm):
