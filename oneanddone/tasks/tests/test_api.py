@@ -13,7 +13,7 @@ from rest_framework.authtoken.models import Token
 from nose.tools import eq_, assert_true, assert_greater
 
 from oneanddone.users.tests import UserFactory
-from oneanddone.tasks.tests import TaskFactory, TaskProjectFactory, TaskTeamFactory, TaskTypeFactory
+from oneanddone.tasks.tests import TaskFactory, TaskProjectFactory, TaskTeamFactory, TaskTypeFactory, TaskAttemptFactory
 
 
 class APITests(APITestCase):
@@ -100,13 +100,15 @@ class APITests(APITestCase):
         header = {'HTTP_AUTHORIZATION': 'Token {}'.format(self.token)}
 
         test_task = self.create_task(self.client_user)
+        task_attempt = TaskAttemptFactory.create(user=self.client_user, task=test_task)
         task_data = {"id": test_task.id, "name": test_task.name, "short_description": test_task.short_description,
                      "instructions": test_task.instructions, "prerequisites":test_task.prerequisites,
                      "execution_time": test_task.execution_time, "is_draft": test_task.is_draft, "project": test_task.project.name,
                      "team": test_task.team.name, "type": test_task.type.name, "repeatable": test_task.repeatable,
                      "start_date": test_task.start_date, "end_date": test_task.end_date, "difficulty": test_task.difficulty,
                      "why_this_matters": test_task.why_this_matters,
-                     "keyword_set": [{"name": keyword.name} for keyword in test_task.keyword_set.all()]}
+                     "keyword_set": [{"name": keyword.name} for keyword in test_task.keyword_set.all()],
+                     "taskattempt_set": [{"user":self.client_user.email, "state":task_attempt.state}]}
 
         response = self.client.get(reverse('api-task'), {}, **header)
         self.assert_response_status(response, status.HTTP_200_OK)
@@ -120,6 +122,7 @@ class APITests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
 
         test_task = self.create_task(self.client_user)
+        task_attempt = TaskAttemptFactory.create(user=self.client_user, task=test_task)
         task_uri = self.uri + str(test_task.id) + '/'
 
         task_data = {"id": test_task.id, "name": test_task.name, "short_description": test_task.short_description,
@@ -128,7 +131,8 @@ class APITests(APITestCase):
                      "team": test_task.team.name, "type": test_task.type.name, "repeatable": test_task.repeatable,
                      "start_date": test_task.start_date, "end_date": test_task.end_date, "difficulty": test_task.difficulty,
                      "why_this_matters": test_task.why_this_matters,
-                     "keyword_set": [{"name": keyword.name} for keyword in test_task.keyword_set.all()]}
+                     "keyword_set": [{"name": keyword.name} for keyword in test_task.keyword_set.all()],
+                     "taskattempt_set": [{"user":self.client_user.email, "state":task_attempt.state}]}
 
         response = self.client.get(task_uri)
         self.assert_response_status(response, status.HTTP_200_OK)
@@ -150,7 +154,8 @@ class APITests(APITestCase):
                      "team": team.name, "type": type.name, "repeatable": False,
                      "start_date": None, "end_date": None, "difficulty": 1,
                      "why_this_matters": "Task matters",
-                     "keyword_set": [{"name":"testing"},{"name":"mozwebqa"}]}
+                     "keyword_set": [{"name":"testing"},{"name":"mozwebqa"}],
+                     "taskattempt_set": [{"user":self.client_user.email, "state":0}]}
 
         response = self.client.post(self.uri, task_data, format='json')
         self.assert_response_status(response, status.HTTP_201_CREATED)
