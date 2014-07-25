@@ -163,8 +163,8 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
 
         q_filter = q_filter & (
             pQ(repeatable=True) | (
-                ~pQ(taskattempt__state=TaskAttempt.STARTED) &
-                ~pQ(taskattempt__state=TaskAttempt.FINISHED)))
+                ~pQ(taskattempt_set__state=TaskAttempt.STARTED) &
+                ~pQ(taskattempt_set__state=TaskAttempt.FINISHED)))
 
         return q_filter
 
@@ -201,7 +201,7 @@ class TaskKeyword(CachedModel, CreatedModifiedModel, CreatedByModel):
 
 class TaskAttempt(CachedModel, CreatedModifiedModel):
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
-    task = models.ForeignKey(Task)
+    task = models.ForeignKey(Task, related_name='taskattempt_set')
 
     STARTED = 0
     FINISHED = 1
