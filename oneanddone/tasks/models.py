@@ -6,6 +6,8 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
@@ -17,6 +19,80 @@ from markdown import markdown
 from tower import ugettext as _
 
 from oneanddone.base.models import CachedModel, CreatedByModel, CreatedModifiedModel
+
+
+class TaskInvalidationCriterion(CreatedModifiedModel, CreatedByModel):
+    """
+    Condition that should cause a Task to become invalid.
+    """
+
+    class Meta(CreatedModifiedModel.Meta):
+        verbose_name_plural = "task invalidation criteria"
+
+    EQUAL = 0
+    NOT_EQUAL = 1
+    choices = {EQUAL: '==', NOT_EQUAL: '!='}
+
+    field_name = models.CharField(max_length=80)
+    relation = models.IntegerField(choices=choices.items(),
+                                   default=EQUAL)
+    field_value = models.CharField(max_length=80)
+    batches = models.ManyToManyField('TaskImportBatch')
+
+    def __unicode__(self):
+        return ' '.join([str(self.field_name),
+                         self.choices[self.relation],
+                         self.field_value])
+
+    field_name.help_text = """
+        Name of field recognized by Bugzilla@Mozilla REST API. Examples:
+        status, resolution, component.
+    """
+    field_value.help_text = """
+        Target value of the field to be checked.
+    """
+    relation.help_text = """
+        Relationship (equality/inequality) between name and value.
+    """
+
+
+class TaskImportBatch(CreatedModifiedModel, CreatedByModel):
+    """
+        Set of Tasks created in one step based on an external search query.
+        One Task is created per query result.
+    """
+    description = models.CharField(max_length=255,
+                                   verbose_name='batch summary')
+    query = models.TextField(verbose_name='query URL')
+    # other sources might be Moztrap, etc.
+    BUGZILLA = 0
+    OTHER = 1
+    source = models.IntegerField(
+        choices=(
+            (BUGZILLA, 'Bugzilla@Mozilla'),
+            (OTHER, 'Other')
+        ),
+        default=BUGZILLA)
+
+    def __unicode__(self):
+        return self.description
+
+    query.help_text = """
+        The URL to the Bugzilla@Mozilla search query that yields the items you
+        want to create tasks from.
+    """
+    description.help_text = """
+        A summary of what items are being imported.
+    """
+
+
+class BugzillaBug(models.Model):
+    summary = models.CharField(max_length=255)
+    bugzilla_id = models.IntegerField(max_length=20, unique=True)
+    tasks = generic.GenericRelation('Task')
+
+    def __unicode__(self):
+        return ' '.join(['Bug', str(self.bugzilla_id)])
 
 
 class TaskProject(CachedModel, CreatedModifiedModel, CreatedByModel):
@@ -52,6 +128,15 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     team = models.ForeignKey(TaskTeam)
     type = models.ForeignKey(TaskType, blank=True, null=True)
 
+    # imported_item may be BugzillaBug for now. In future, other sources such
+    # as Moztrap may be possible
+    content_type = models.ForeignKey(ContentType, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    imported_item = generic.GenericForeignKey('content_type', 'object_id')
+
+    # batch that created this Task
+    batch = models.ForeignKey(TaskImportBatch, blank=True, null=True)
+
     BEGINNER = 1
     INTERMEDIATE = 2
     ADVANCED = 3
@@ -63,6 +148,7 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
         ),
         default=BEGINNER,
         verbose_name='task difficulty')
+
     P1 = 1
     P2 = 2
     P3 = 3
@@ -114,6 +200,12 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     def keywords_list(self):
         return ', '.join([keyword.name for keyword in self.keyword_set.all()])
 
+    def replace_keywords(self, keywords, creator):
+        self.keyword_set.all().delete()
+        for keyword in keywords:
+            if len(keyword):
+                self.keyword_set.create(name=keyword, creator=creator)
+
     @property
     def is_available(self):
         """Whether this task is available for users to attempt."""
@@ -133,11 +225,15 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
 
     @property
     def is_taken(self):
-        return not self.repeatable and self.taskattempt_set.filter(state=TaskAttempt.STARTED).exists()
+        return (not self.repeatable and
+                self.taskattempt_set.filter(state=
+                                            TaskAttempt.STARTED).exists())
 
     @property
     def is_completed(self):
-        return not self.repeatable and self.taskattempt_set.filter(state=TaskAttempt.FINISHED).exists()
+        return (not self.repeatable and
+                self.taskattempt_set.filter(state=
+                                            TaskAttempt.FINISHED).exists())
 
     @property
     def instructions_html(self):
@@ -182,8 +278,10 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
         pQ = lambda **kwargs: Q(**dict((prefix + key, value) for key, value in kwargs.items()))
 
         now = now or timezone.now()
-        now = now.replace(hour=0, minute=0, second=0)  # Use just the date to allow caching
-        q_filter = pQ(is_draft=False) & pQ(is_invalid=False) & (pQ(start_date__isnull=True) | pQ(start_date__lte=now))
+        # Use just the date to allow caching
+        now = now.replace(hour=0, minute=0, second=0)
+        q_filter = (pQ(is_draft=False) & pQ(is_invalid=False) &
+                    (pQ(start_date__isnull=True) | pQ(start_date__lte=now)))
 
         if not allow_expired:
             q_filter = q_filter & (pQ(end_date__isnull=True) | pQ(end_date__gt=now))

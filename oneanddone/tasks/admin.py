@@ -51,8 +51,17 @@ class FeedbackAdmin(admin.ModelAdmin):
         return feedback.attempt.get_state_display()
 
 
+class TaskInvalidationCriterionAdmin(RecordCreatorMixin, admin.ModelAdmin):
+    list_display = ('field_name', 'relation', 'field_value',
+                    'creator', 'modified')
+    readonly_fields = ('creator', 'modified')
+    exclude = ('batches',)
+
+
 admin.site.register(models.TaskTeam, TaskTeamAdmin)
 admin.site.register(models.TaskProject, TaskProjectAdmin)
 admin.site.register(models.TaskType, TaskTeamAdmin)
 admin.site.register(models.TaskAttempt, TaskAttemptAdmin)
 admin.site.register(models.Feedback, FeedbackAdmin)
+admin.site.register(models.TaskInvalidationCriterion,
+                    TaskInvalidationCriterionAdmin)

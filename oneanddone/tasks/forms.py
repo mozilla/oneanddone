@@ -4,10 +4,15 @@
 from django import forms
 
 from django_ace import AceWidget
+from requests.exceptions import RequestException
 from tower import ugettext as _
+from urlparse import urlparse, parse_qs
 
-from oneanddone.tasks.models import Feedback, Task
 from oneanddone.base.widgets import CalendarInput, HorizRadioSelect
+from oneanddone.tasks.bugzilla_utils import BugzillaUtils
+from oneanddone.tasks.models import (BugzillaBug, Feedback, Task,
+                                     TaskImportBatch,
+                                     TaskInvalidationCriterion)
 
 
 class FeedbackForm(forms.ModelForm):
@@ -16,9 +21,119 @@ class FeedbackForm(forms.ModelForm):
         fields = ('text',)
 
 
+class PreviewConfirmationForm(forms.Form):
+    """ Used to create a multi-step object-creation/update process, with a
+        chance to preview and cancel changes before committing them.
+    """
+    submission_stages = ('fill', 'preview', 'confirm')
+    stage = forms.CharField(widget=forms.HiddenInput())
+
+    def clean(self):
+        cleaned_data = super(PreviewConfirmationForm, self).clean()
+        if cleaned_data.get('stage') not in self.submission_stages:
+            raise forms.ValidationError(_('Form data is missing or has been '
+                                          'tampered.'))
+        return cleaned_data
+
+
+class TaskInvalidationCriterionForm(forms.Form):
+    criterion = forms.ModelChoiceField(queryset=
+                                       TaskInvalidationCriterion.objects.all())
+
+
+class BaseTaskInvalidCriteriaFormSet(forms.formsets.BaseFormSet):
+    # make it impossible to submit an empty form as part of the formset
+    def __init__(self, *args, **kwargs):
+        super(BaseTaskInvalidCriteriaFormSet, self).__init__(*args, **kwargs)
+        for form in self.forms:
+            form.empty_permitted = False
+
+
+TaskInvalidCriteriaFormSet = forms.formsets.formset_factory(
+    TaskInvalidationCriterionForm,
+    formset=BaseTaskInvalidCriteriaFormSet)
+
+
+class TaskImportBatchForm(forms.ModelForm):
+    def save(self, creator, *args, **kwargs):
+        self.instance.creator = creator
+        super(TaskImportBatchForm, self).save(*args, **kwargs)
+        return self.instance
+
+    def clean(self):
+        max_results = 100
+        max_batch_size = 20
+        cleaned_data = super(TaskImportBatchForm, self).clean()
+        query_url = cleaned_data.get('query', '')
+        query = parse_qs(urlparse(query_url).query)
+        if not query:
+            raise forms.ValidationError(_('For the query URL, please provide '
+                                          'a full URL that includes search '
+                                          'parameters.'))
+
+        try:
+            bugcount = BugzillaUtils().request_bugcount(query)
+        except ValueError as e:
+            raise forms.ValidationError(_(' '.join(['External error:', str(e)])))
+        except (RuntimeError, RequestException):
+            raise forms.ValidationError(_('Sorry. we cannot retrieve any '
+                                          'data from Bugzilla at this time. '
+                                          'Please report this to the One and '
+                                          'Done team.'))
+
+        if not bugcount:
+            raise forms.ValidationError(_('Your query does not return any results.'))
+        elif bugcount > max_results:
+            message = _('Your query returns more than '
+                        '{num} items.').format(num=str(max_results))
+            raise forms.ValidationError(message)
+
+        fresh_bugs = self._get_fresh_bugs(query_url, query, bugcount, max_batch_size)
+
+        if not fresh_bugs:
+            message = _('The results of this query have all been imported '
+                        'before. To import these results again as different '
+                        'tasks, please use a different query.')
+            raise forms.ValidationError(message)
+
+        cleaned_data['_fresh_bugs'] = fresh_bugs
+
+        return cleaned_data
+
+    @staticmethod
+    def _get_fresh_bugs(query_url, query, max_results, max_batch_size):
+        ''' Returns at most first `max_batch_size` bugs (ordered by bug id)
+            that have not already been imported via `query`.
+        '''
+        existing_bug_ids = BugzillaBug.objects.filter(
+            tasks__batch__query__exact=query_url).values_list('bugzilla_id',
+                                                              flat=True)
+
+        def fetch(query, limit, offset):
+            new_bugs = BugzillaUtils().request_bugs(query, limit=limit, offset=offset)
+            return [bug for bug in new_bugs if bug['id'] not in existing_bug_ids]
+
+        fresh_bugs = []
+        for offset in range(0, max_results, max_batch_size):
+            fresh_bugs.extend(fetch(query, max_batch_size, offset))
+            if len(fresh_bugs) >= max_batch_size:
+                return fresh_bugs[:max_batch_size]
+        return fresh_bugs
+
+    class Meta:
+        model = TaskImportBatch
+        fields = ('description', 'query')
+        widgets = {
+            'query': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),
+            'description': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'})
+            }
+
+
 class TaskForm(forms.ModelForm):
-    keywords = forms.CharField(required=False, widget=forms.TextInput(
-        attrs={'class': 'medium-field'}))
+    keywords = (forms.CharField(
+                help_text=_('Please use commas to separate your keywords.'),
+                required=False,
+                widget=forms.TextInput(attrs={'class': 'medium-field'})))
 
     def __init__(self, *args, **kwargs):
         if kwargs['instance']:
@@ -31,15 +146,14 @@ class TaskForm(forms.ModelForm):
     def save(self, creator, *args, **kwargs):
         self.instance.creator = creator
         super(TaskForm, self).save(*args, **kwargs)
-        self._process_keywords(creator)
+        if kwargs.get('commit', True):
+            self._process_keywords(creator)
+        return self.instance
 
     def _process_keywords(self, creator):
         if 'keywords' in self.changed_data:
-            for taskkeyword in self.instance.keyword_set.all():
-                taskkeyword.delete()
-            for keyword in self.cleaned_data['keywords'].split(','):
-                if len(keyword.strip()):
-                    self.instance.keyword_set.create(name=keyword.strip(), creator=creator)
+            kw = [k.strip() for k in self.cleaned_data['keywords'].split(',')]
+            self.instance.replace_keywords(kw, creator)
 
     def clean(self):
         cleaned_data = super(TaskForm, self).clean()
@@ -75,8 +189,9 @@ class TaskForm(forms.ModelForm):
 
 
 class TaskModelForm(forms.ModelForm):
-    instructions = forms.CharField(widget=AceWidget(mode='markdown', theme='textmate', width='800px',
-                                                    height='600px', wordwrap=True))
+    instructions = (forms.CharField(widget=AceWidget(mode='markdown',
+                    theme='textmate', width='800px', height='600px',
+                    wordwrap=True)))
 
     class Meta:
         model = Task
@@ -86,4 +201,6 @@ class TaskModelForm(forms.ModelForm):
             'all': ('css/admin_ace.css',)
         }
 
-    instructions.help_text = ('Instructions are written in <a href="http://markdowntutorial.com/" target="_blank">Markdown</a>.')
+    instructions.help_text = ('Instructions are written in '
+                              '<a href="http://markdowntutorial.com/" '
+                              'target="_blank">Markdown</a>.')

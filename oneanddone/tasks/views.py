@@ -9,19 +9,26 @@ from django.template.loader import get_template
 from django.views import generic
 
 from braces.views import LoginRequiredMixin
+from datetime import date, timedelta
 from django_filters.views import FilterView
 from rest_framework import generics
 from tower import ugettext as _
 
-from oneanddone.base.util import SortHeaders, get_object_or_none
+from oneanddone.base.util import get_object_or_none, SortHeaders
 from oneanddone.tasks.filters import ActivityFilterSet, TasksFilterSet
-from oneanddone.tasks.forms import FeedbackForm, TaskForm
-from oneanddone.tasks.mixins import APIRecordCreatorMixin, APIOnlyCreatorMayDeleteMixin
-from oneanddone.tasks.mixins import TaskMustBeAvailableMixin, HideNonRepeatableTaskMixin
+from oneanddone.tasks.forms import (FeedbackForm, PreviewConfirmationForm,
+                                    TaskImportBatchForm,
+                                    TaskInvalidCriteriaFormSet, TaskForm)
+from oneanddone.tasks.mixins import (APIRecordCreatorMixin,
+                                     APIOnlyCreatorMayDeleteMixin)
+from oneanddone.tasks.mixins import (TaskMustBeAvailableMixin,
+                                     HideNonRepeatableTaskMixin)
 from oneanddone.tasks.mixins import GetUserAttemptMixin
-from oneanddone.tasks.models import Feedback, Task, TaskAttempt
+from oneanddone.tasks.models import (BugzillaBug, Feedback, Task, TaskAttempt,
+                                     TaskInvalidationCriterion)
 from oneanddone.tasks.serializers import TaskSerializer
-from oneanddone.users.mixins import MyStaffUserRequiredMixin, PrivacyPolicyRequiredMixin
+from oneanddone.users.mixins import (MyStaffUserRequiredMixin,
+                                     PrivacyPolicyRequiredMixin)
 
 
 class AvailableTasksView(TaskMustBeAvailableMixin, FilterView):
@@ -198,6 +205,108 @@ class ActivityView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
         return qs.order_by(self.sort_headers.get_order_by())
 
 
+class ImportTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.TemplateView):
+
+    def get_template_names(self):
+        if self.stage == 'preview':
+            # After initial form submission
+            return ['tasks/confirmation.html']
+        else:
+            # Initial form load, error or after cancelling from confirmation
+            return ['tasks/form.html']
+
+    def get_forms(self):
+        kwargs = {'initial': None}
+        if self.request.method == 'POST':
+            kwargs['data'] = self.request.POST
+        batch_form = TaskImportBatchForm(instance=None, prefix='batch',
+                                         **kwargs)
+        criterion_formset = TaskInvalidCriteriaFormSet(prefix='criterion',
+                                                       **kwargs)
+        kwargs['initial'] = {'end_date': date.today() + timedelta(days=30),
+                             'repeatable': False}
+        task_form = TaskForm(instance=None, prefix='task', **kwargs)
+
+        forms = {'criterion_formset': criterion_formset,
+                 'batch_form': batch_form,
+                 'task_form': task_form}
+
+        # Create a hidden form for each possible PreviewConfirmationForm stage.
+        # These forms are used to signal what the next stage should be.
+        make_stage = lambda x: PreviewConfirmationForm(data={'stage': x})
+        stages = PreviewConfirmationForm.submission_stages
+        forms.update({'stage_form__' + s: make_stage(s) for s in stages})
+        return forms
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ImportTasksView, self).get_context_data(**kwargs)
+        ctx.update(kwargs)
+        ctx['action'] = 'Import'
+        ctx['cancel_url'] = reverse('tasks.list')
+        return ctx
+
+    def forms_valid(self, forms):
+        if self.stage == 'confirm':
+            return self.done(forms)
+        else:
+            assert self.stage == 'preview'
+            bugs = forms['batch_form'].cleaned_data['_fresh_bugs']
+            ctx = forms
+            ctx['basename'] = forms['task_form'].cleaned_data['name']
+            ctx['bugs'] = bugs
+            ctx['num_tasks'] = len(bugs)
+            ctx['bugzilla_url'] = 'https://bugzilla.mozilla.org/show_bug.cgi?id='
+            return self.render_to_response(self.get_context_data(**ctx))
+
+    def forms_invalid(self, forms):
+        self.stage = 'fill'
+        return self.render_to_response(self.get_context_data(**forms))
+
+    def get(self, request, *args, **kwargs):
+        # Assume this is a fresh start to the import process
+        self.stage = 'fill'
+        forms = self.get_forms()
+        assert forms['criterion_formset'].total_form_count() == 1
+        return self.render_to_response(self.get_context_data(**forms))
+
+    def post(self, request, *args, **kwargs):
+        self.stage = self.request.POST.get('stage', 'fill')
+        forms = self.get_forms()
+        if self.stage == 'fill':
+            return self.render_to_response(self.get_context_data(**forms))
+
+        if all([form.is_valid() for form in forms.values()]):
+            return self.forms_valid(forms)
+        else:
+            return self.forms_invalid(forms)
+
+    def done(self, forms):
+        bugs = forms['batch_form'].cleaned_data['_fresh_bugs']
+        import_batch = forms['batch_form'].save(self.request.user)
+        criterion_objs = [criterion_form.cleaned_data['criterion'] for
+                          criterion_form in forms['criterion_formset'].forms]
+        for criterion in criterion_objs:
+            criterion.batches.add(import_batch)
+            criterion.save()
+
+        task = forms['task_form'].save(self.request.user, commit=False)
+        keywords = [k.strip() for k in forms['task_form'].cleaned_data['keywords'].split(',')]
+        task.batch = import_batch
+        basename = task.name
+        for bug in bugs:
+            bug_obj, _created = BugzillaBug.objects.get_or_create(bugzilla_id=bug['id'])
+            bug_obj.summary = bug['summary']
+            bug_obj.save()
+            task.pk = None
+            task.name = ' '.join([basename, str(bug_obj)])
+            task.imported_item = bug_obj
+            task.save()
+            task.replace_keywords(keywords, self.request.user)
+
+        messages.success(self.request, _('{num} tasks created.').format(num=str(len(bugs))))
+        return redirect('tasks.list')
+
+
 class CreateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.CreateView):
     model = Task
     form_class = TaskForm
@@ -205,6 +314,7 @@ class CreateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Creat
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(CreateTaskView, self).get_context_data(*args, **kwargs)
+        ctx['task_form'] = ctx.get('form')
         ctx['action'] = 'Add'
         ctx['cancel_url'] = reverse('tasks.list')
         return ctx
@@ -223,6 +333,7 @@ class UpdateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Updat
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(UpdateTaskView, self).get_context_data(*args, **kwargs)
+        ctx['task_form'] = ctx.get('form')
         ctx['action'] = 'Update'
         ctx['cancel_url'] = reverse('tasks.detail', args=[self.get_object().id])
         return ctx

@@ -1,10 +1,16 @@
 {# This Source Code Form is subject to the terms of the Mozilla Public
  # License, v. 2.0. If a copy of the MPL was not distributed with this
  # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
-{% macro form_field(field, class=None) -%}
+{% macro form_field(field, class=None, help_text=False, custom_text=None) -%}
   <div class="field{% if field.field.required %} required{% endif %}{% if class %} {{ class }}{% endif %}">
     {{ field.errors }}
     {{ field.label_tag() }}
+    <div>
+    {% if help_text %}
+      {{ field.help_text }}
+    {% endif %}
+    {{ custom_text }}
+    </div>
     {{ field }}
   </div>
 {%- endmacro %}
@@ -15,3 +21,20 @@
     {{ field }}
   </div>
 {%- endmacro %}
+
+{% macro hiddenform(forms, formsets) -%}
+  {% for form in forms %}
+    {% for field in form %}
+      {{ field.as_hidden() }}
+    {% endfor %}
+  {% endfor %}
+  {% for formset in formsets %}
+    {{ formset.management_form }}
+    {% for form in formset %}
+      {% for field in form %}
+        {{ field.as_hidden() }}
+      {% endfor %}
+    {% endfor %}
+  {% endfor %}
+{%- endmacro %}
+

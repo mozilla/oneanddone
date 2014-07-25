@@ -6,79 +6,112 @@
 
 {% block site_css %}
   {{ super() }}
-  {{ form.media['css'] }}
+  {{ task_form.media['css'] }}
 {% endblock %}
 
 {% block site_js %}
   {{ super() }}
-  {{ form.media['js'] }}
+  {{ task_form.media['js'] }}
 {% endblock %}
 
 {% from 'tasks/macros.html' import form_field %}
-
-{% set title = _('{action} task {task_name}')|f(action=action, task_name=form['name'].value() or '') %}
+{% if action == 'Import' %}
+  {% set title = _('{action} task batch')|f(action=action) %}
+{% else %}
+  {% set title = _('{action} task {task_name}')|f(action=action,task_name=task_form['name'].value() or '') %}
+{% endif %}
 
 {% block content %}
 <main class="billboard content-container feedback">
+
+{% if action == 'Add' %}
+  <div style="float:right">
+    <a href="{{ url('tasks.import') }}" class="button">{{ _('Import Tasks') }}</a>
+  </div>
+{% endif %}
+
   <h4>{{ title }}</h4>
 
-  {{ form.non_field_errors() }}
+{% if action == 'Import' %}
+  {{ batch_form.non_field_errors() }}
+  {{ criterion_formset.non_form_errors() }}
+{% endif %}
+  {{ task_form.non_field_errors() }}
 
   <form method="post" class="task-form">
     {{ csrf() }}
-    {% if form.instance.pk %}
+    {% if task_form.instance.pk %}
       <div class="field">
         <label for="id_owner">{{ _('Owner') }}</label>
-        <p id="id_owner">{{ form.instance.creator }}</p>
+        <p id="id_owner">{{ task_form.instance.creator }}</p>
       </div>
     {% endif %}
-    {{ form_field(form['name']) }}
-    {{ form_field(form['short_description']) }}
-    {{ form_field(form['keywords']) }}
+    {% if action == 'Import' %}
+      {{ stage_form__preview }}
+      {{ form_field(batch_form['description'], help_text=True) }}
+      {{ form_field(batch_form['query'], help_text=True) }}
+      <div class="subsection content-container">
+        <h5>{{ _('Invalidation Criteria') }}</h5>
+        <p>{{_('Under what conditions should the tasks imported by this batch become invalid? (If any one condition is satisfied, the tasks will become invalid.)')}}</p>
+        {% include 'tasks/criterion_formset.html' %}
+      </div>
+      <h5>{{ _('Base Task Description') }}</h5>
+    {% endif %}
+    {% if action == 'Import' %}
+      {{ form_field(task_form['name'], custom_text=_('The task title will be suffixed with "Bug [id]" for each imported bug.')) }}
+    {% else %}
+      {{ form_field(task_form['name']) }}
+    {% endif %}
+    {{ form_field(task_form['short_description']) }}
+    {{ form_field(task_form['keywords'], help_text=True) }}
     <fieldset class="task-category first">
-      {{ form_field(form['team']) }}
-      {{ form_field(form['project']) }}
-      {{ form_field(form['type']) }}
+      {{ form_field(task_form['team']) }}
+      {{ form_field(task_form['project']) }}
+      {{ form_field(task_form['type']) }}
     </fieldset>
     <fieldset class="task-info">
-      {{ form_field(form['execution_time']) }}
-      {{ form_field(form['difficulty']) }}
-      {{ form_field(form['priority']) }}
+      {{ form_field(task_form['execution_time']) }}
+      {{ form_field(task_form['difficulty']) }}
+      {{ form_field(task_form['priority']) }}
     </fieldset>
     <fieldset class="task-dates">
-      {{ form_field(form['start_date']) }}
-      {{ form_field(form['end_date']) }}
+      {{ form_field(task_form['start_date']) }}
+      {{ form_field(task_form['end_date']) }}
+      {% if action != 'Import' %}
+        <div class="field">
+          {{ task_form['repeatable'].errors }}
+          <label for="id_repeatable">
+            {{ task_form['repeatable'] }}
+            Repeatable
+          </label>
+        </div>
+      {% endif %}
       <div class="field">
-        {{ form['repeatable'].errors }}
-        <label for="id_repeatable">
-          {{ form['repeatable'] }}
-          Repeatable
-        </label>
-      </div>
-      <div class="field">
-        {{ form['is_draft'].errors }}
+        {{ task_form['is_draft'].errors }}
         <label for="id_is_draft">
-          {{ form['is_draft'] }}
+          {{ task_form['is_draft'] }}
           {{ _('Draft') }}
         </label>
       </div>
       <div class="field">
-        {{ form['is_invalid'].errors }}
+        {{ task_form['is_invalid'].errors }}
         <label for="id_is_invalid">
-          {{ form['is_invalid'] }}
+          {{ task_form['is_invalid'] }}
           {{ _('Invalid') }}
         </label>
       </div>
     </fieldset>
-    {{ form_field(form['why_this_matters'], 'why-this-matters') }}
-    {{ form_field(form['prerequisites']) }}
-    {{ form_field(form['instructions']) }}
+    {{ form_field(task_form['why_this_matters'], 'why-this-matters') }}
+    {{ form_field(task_form['prerequisites']) }}
+    {{ form_field(task_form['instructions']) }}
 
     <div class="actions-container">
       <div class="without-message">
         <a href="{{ cancel_url }}" class="button" id="cancel">{{ _('Cancel') }}</a>
       </div>
-      <button type="submit" class="button">{{ _('{action} task')|f(action=action) }}</button>
+       <button type="submit" class="button">
+          {{ _('{action} {import_obj}')|f(action=action, import_obj=import_obj or 'task') }}
+        </button>
     </div>
   </form>
 </main>
