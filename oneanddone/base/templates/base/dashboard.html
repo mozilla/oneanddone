@@ -1,9 +1,9 @@
 <section>
   <h3>
-    {% if 'profile' in request.path  %}
-      {{ _('Dashboard') }}
-    {% else %}
+    {% if not page == 'ProfileDetails' %}
       {{ _("{name}'s Dashboard")|fe(name=user.profile.name) }}
+    {% else %}
+      {{ _('Dashboard') }}
     {% endif %}
   </h3>
 

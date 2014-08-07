@@ -8,8 +8,8 @@
 {% block content %}
 
 <main class="billboard content-container">
-  <h1>
-    {{ _("<span id=""user-profile-name"">{name}</span>'s Profile")|fe(name=userprofile.name) }}
+  <h1 id="user-profile-name">
+    {{ _("<span>{name}</span>'s Profile")|fe(name=userprofile.name) }}
   </h1>
 
   {% if userprofile.user == user %}
@@ -18,9 +18,12 @@
 
   <section class="task-status">
 
-    <h4>
-        <span id="completed-tasks-count">{{ _('{count}')|f(count=userprofile.user.attempts_finished_count) }}</span>
-        {{ ngettext('Task Completed', 'Tasks Completed', attempts_finished)}}
+    <h4 id="completed-tasks-count">
+      {% trans count=userprofile.user.attempts_finished_count %}
+        <span>{{ count }}</span> Task Completed
+      {% pluralize %}
+        <span>{{ count }}</span> Tasks Completed
+      {% endtrans %}
     </h4>
     <ul>
       {% for attempt in attempts_finished %}

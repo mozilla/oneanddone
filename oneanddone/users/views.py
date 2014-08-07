@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import Http404
 from django.shortcuts import redirect
@@ -120,12 +120,10 @@ class ProfileDetailsView(generic.DetailView):
 
     def get_object(self, *args, **kwargs):
         username = self.kwargs.get('username')
-        queryset = self.get_queryset().filter(username=username)
         try:
-            obj = queryset.get()
-        except ObjectDoesNotExist:
+            return self.get_queryset().get(username=username)
+        except (ObjectDoesNotExist, MultipleObjectsReturned):
             raise Http404(_(u'No UserProfiles found matching the username'))
-        return obj
 
     def get_context_data(self, **kwargs):
         all_attempts_finished = self.object.user.taskattempt_set.filter(state=TaskAttempt.FINISHED)
