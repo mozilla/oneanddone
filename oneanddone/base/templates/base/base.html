@@ -44,7 +44,7 @@
               <li role="menuitem" class="auth-menu">
                 {% if user.is_authenticated() %}
                   {% if user.display_name %}
-                   <a id="view-profile" href="{{ url('users.profile.details') }}">
+                   <a id="view-profile" href="{{ url('users.profile.mydetails') }}">
                     {% trans name=user.display_name %}
                       Welcome, {{ name }}
                     {% endtrans %}

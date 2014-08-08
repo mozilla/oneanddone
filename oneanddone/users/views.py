@@ -2,10 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.contrib import messages
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import Http404
 from django.shortcuts import redirect
 from django.views import generic
-from django.contrib.auth.models import User
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from rest_framework import generics, permissions
 from braces.views import LoginRequiredMixin
@@ -112,15 +114,19 @@ class DeleteProfileView(UserProfileRequiredMixin, generic.DeleteView):
         return self.request.user.profile
 
 
-class ProfileDetailsView(UserProfileRequiredMixin, generic.DetailView):
+class ProfileDetailsView(generic.DetailView):
     model = UserProfile
     template_name = 'users/profile/detail.html'
 
-    def get_object(self):
-        return self.request.user.profile
+    def get_object(self, *args, **kwargs):
+        username = self.kwargs.get('username')
+        try:
+            return self.get_queryset().get(username=username)
+        except (ObjectDoesNotExist, MultipleObjectsReturned):
+            raise Http404(_(u'No UserProfiles found matching the username'))
 
     def get_context_data(self, **kwargs):
-        all_attempts_finished = self.request.user.taskattempt_set.filter(state=TaskAttempt.FINISHED)
+        all_attempts_finished = self.object.user.taskattempt_set.filter(state=TaskAttempt.FINISHED)
         paginator = Paginator(all_attempts_finished, 20)
         page = self.request.GET.get('page', 1)
 
@@ -135,6 +141,16 @@ class ProfileDetailsView(UserProfileRequiredMixin, generic.DetailView):
         context['attempts_finished'] = attempts_finished
         context['page'] = 'ProfileDetails'
         return context
+
+
+class MyProfileDetailsView(ProfileDetailsView):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated():
+            return redirect('base.home')
+        return super(MyProfileDetailsView, self).dispatch(request, *args, **kwargs)
+
+    def get_object(self, *args, **kwargs):
+        return self.request.user.profile
 
 
 class UserListAPI(generics.ListCreateAPIView):

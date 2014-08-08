@@ -3,22 +3,28 @@
  # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
 {% extends 'base/base.html' %}
 
-{% set title = _('User profile for {username}')|f(username=user.profile.name) %}
+{% set title = _('User profile for {username}')|f(username=userprofile.name) %}
 
 {% block content %}
 
 <main class="billboard content-container">
-<h1><span id="user-profile-name">{{ _("{name}")|fe(name=user.profile.name) }}</span>{{_("'s Profile")}}</h1>
- {% include 'base/dashboard.html' %}
+  <h1 id="user-profile-name">
+    {{ _("<span>{name}</span>'s Profile")|fe(name=userprofile.name) }}
+  </h1>
 
-<div class="billboard content-container">
+  {% if userprofile.user == user %}
+    {% include 'base/dashboard.html' %}
+  {% endif %}
 
   <section class="task-status">
 
-      <h4>
-          <span id="completed-tasks-count">{{ _('{count}')|f(count=user.attempts_finished_count) }}</span>
-          {{ ngettext('Task Completed', 'Tasks Completed', attempts_finished)}}
-      </h4>
+    <h4 id="completed-tasks-count">
+      {% trans count=userprofile.user.attempts_finished_count %}
+        <span>{{ count }}</span> Task Completed
+      {% pluralize %}
+        <span>{{ count }}</span> Tasks Completed
+      {% endtrans %}
+    </h4>
     <ul>
       {% for attempt in attempts_finished %}
         <li><a href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a></li>
@@ -30,12 +36,13 @@
 
   </section>
 
-  </div>
-  <div class="actions-container">
-      {% if not user.attempts_in_progress %}
-      <a href="{{ url('tasks.available') }}" class="button" id="pick-a-task">{{ _('Pick a task to do') }}</a>
-      {% endif %}
-    <a href="{{ url('users.profile.update') }}" id="edit-profile" class="button">{{ _('Edit profile') }}</a>
-  </div>
+  {% if userprofile.user == user %}
+    <div class="actions-container">
+        {% if not user.attempts_in_progress %}
+        <a href="{{ url('tasks.available') }}" class="button" id="pick-a-task">{{ _('Pick a task to do') }}</a>
+        {% endif %}
+      <a href="{{ url('users.profile.update') }}" id="edit-profile" class="button">{{ _('Edit profile') }}</a>
+    </div>
+  {% endif %}
 </main>
 {% endblock %}
