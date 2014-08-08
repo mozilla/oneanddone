@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.utils import timezone
 
@@ -266,3 +266,29 @@ class TaskTests(TestCase):
         the task should not be completed.
         """
         eq_(self.task_not_repeatable_no_attempts.is_completed, False)
+
+    def test_close_expired_onetime_attempts(self):
+        """
+        The close_expired_onetime_attempts routine should close all
+        expired one-time attempts and return the number that were closed.
+        """
+        user = UserFactory.create()
+        recent_attempt, expired_attempt_1, expired_attempt_2 = TaskAttemptFactory.create_batch(
+            3,
+            user=user,
+            state=TaskAttempt.STARTED,
+            task=self.task_not_repeatable_no_attempts)
+        recent_attempt.created = aware_datetime(2014, 1, 29)
+        recent_attempt.save()
+        expired_attempt_1.created = aware_datetime(2014, 1, 1)
+        expired_attempt_1.save()
+        expired_attempt_2.created = aware_datetime(2014, 1, 1)
+        expired_attempt_2.save()
+        eq_(self.task_not_repeatable_no_attempts.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 3)
+        with patch('oneanddone.tasks.models.timezone.now') as now:
+            now.return_value = aware_datetime(2014, 1, 31)
+            eq_(TaskAttempt.close_expired_onetime_attempts(), 2)
+        eq_(TaskAttempt.objects.filter(task=self.task_not_repeatable_no_attempts,
+                                       state=TaskAttempt.STARTED).count(), 1)
+        eq_(TaskAttempt.objects.filter(task=self.task_not_repeatable_no_attempts,
+                                       state=TaskAttempt.CLOSED).count(), 2)

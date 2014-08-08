@@ -1,6 +1,8 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+from datetime import timedelta
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -206,10 +208,12 @@ class TaskAttempt(CachedModel, CreatedModifiedModel):
     STARTED = 0
     FINISHED = 1
     ABANDONED = 2
+    CLOSED = 3
     state = models.IntegerField(default=STARTED, choices=(
         (STARTED, 'Started'),
         (FINISHED, 'Finished'),
-        (ABANDONED, 'Abandoned')
+        (ABANDONED, 'Abandoned'),
+        (CLOSED, 'Closed')
     ))
 
     def __unicode__(self):
@@ -217,6 +221,18 @@ class TaskAttempt(CachedModel, CreatedModifiedModel):
 
     class Meta(CreatedModifiedModel.Meta):
         ordering = ['-modified']
+
+    @classmethod
+    def close_expired_onetime_attempts(self):
+        """
+        Close any attempts for one-time tasks that have been open for over 30 days
+        """
+        compare_date = timezone.now() - timedelta(days=settings.TASK_ATTEMPT_EXPIRATION_DURATION)
+        expired_onetime_attempts = self.objects.filter(
+            state=self.STARTED,
+            created__lte=compare_date,
+            task__repeatable=False)
+        return expired_onetime_attempts.update(state=self.CLOSED)
 
 
 class Feedback(CachedModel, CreatedModifiedModel):
