@@ -52,7 +52,8 @@ SESSION_COOKIE_SECURE = False
 #
 # In development, this is typically 'http://localhost:8000' or similar. In
 # production, this is typically the protocol and domain for the site.
-BROWSERID_AUDIENCES = [os.environ.get('BROWSERID_AUDIENCE', 'https://oneanddone.paas.allizom.org')]
+
+BROWSERID_AUDIENCES = os.environ.get('BROWSERID_AUDIENCE', 'https://oneanddone.paas.allizom.org').split(',')
 
 # Time zone for the current installation. Default is America/Chicago. See
 # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of
