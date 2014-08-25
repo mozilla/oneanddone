@@ -270,7 +270,8 @@ class TaskTests(TestCase):
     def test_close_expired_onetime_attempts(self):
         """
         The close_expired_onetime_attempts routine should close all
-        expired one-time attempts and return the number that were closed.
+        expired one-time attempts, set them as requiring notification,
+        and return the number that were closed.
         """
         user = UserFactory.create()
         recent_attempt, expired_attempt_1, expired_attempt_2 = TaskAttemptFactory.create_batch(
@@ -291,4 +292,30 @@ class TaskTests(TestCase):
         eq_(TaskAttempt.objects.filter(task=self.task_not_repeatable_no_attempts,
                                        state=TaskAttempt.STARTED).count(), 1)
         eq_(TaskAttempt.objects.filter(task=self.task_not_repeatable_no_attempts,
-                                       state=TaskAttempt.CLOSED).count(), 2)
+                                       state=TaskAttempt.CLOSED,
+                                       requires_notification=True).count(), 2)
+
+    def test_save_closes_task_attempts(self):
+        """
+        When a saved task is unavailable,
+        close any open attempts, and set the attempts
+        to require a notification.
+        """
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        TaskAttemptFactory.create(
+            user=user1,
+            state=TaskAttempt.STARTED,
+            task=self.task_no_draft)
+        TaskAttemptFactory.create(
+            user=user2,
+            state=TaskAttempt.STARTED,
+            task=self.task_no_draft)
+        eq_(self.task_no_draft.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 2)
+        self.task_no_draft.is_draft = True
+        self.task_no_draft.save()
+        eq_(TaskAttempt.objects.filter(task=self.task_no_draft,
+                                       state=TaskAttempt.STARTED).count(), 0)
+        eq_(TaskAttempt.objects.filter(task=self.task_no_draft,
+                                       state=TaskAttempt.CLOSED,
+                                       requires_notification=True).count(), 2)

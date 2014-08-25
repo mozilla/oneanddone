@@ -62,6 +62,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'commonware.middleware.FrameOptionsHeader',
     'oneanddone.base.middleware.TimezoneMiddleware',
+    'oneanddone.base.middleware.ClosedTaskNotificationMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
