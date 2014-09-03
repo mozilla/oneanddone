@@ -13,8 +13,8 @@ from django_filters.views import FilterView
 from rest_framework import generics
 from tower import ugettext as _
 
-from oneanddone.base.util import get_object_or_none
-from oneanddone.tasks.filters import TasksFilterSet
+from oneanddone.base.util import SortHeaders, get_object_or_none
+from oneanddone.tasks.filters import ActivityFilterSet, TasksFilterSet
 from oneanddone.tasks.forms import FeedbackForm, TaskForm
 from oneanddone.tasks.mixins import APIRecordCreatorMixin, APIOnlyCreatorMayDeleteMixin
 from oneanddone.tasks.mixins import TaskMustBeAvailableMixin, HideNonRepeatableTaskMixin
@@ -169,6 +169,27 @@ class ListTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
     template_name = 'tasks/list.html'
     paginate_by = 20
     filterset_class = TasksFilterSet
+
+
+class ActivityView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
+    list_headers = (
+        (_('Task'), 'task__name'),
+        (_('User'), 'user__profile__name'),
+        (_('Status'), 'state'),
+    )
+    context_object_name = 'attempts'
+    template_name = 'tasks/activity.html'
+    paginate_by = 20
+    filterset_class = ActivityFilterSet
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(ActivityView, self).get_context_data(*args, **kwargs)
+        ctx['headers'] = self.sort_headers
+        return ctx
+
+    def get_queryset(self):
+        self.sort_headers = SortHeaders(self.request, self.list_headers)
+        return TaskAttempt.objects.order_by(self.sort_headers.get_order_by())
 
 
 class CreateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.CreateView):

@@ -7,7 +7,7 @@ from django_ace import AceWidget
 from tower import ugettext as _
 
 from oneanddone.tasks.models import Feedback, Task
-from oneanddone.tasks.widgets import CalendarInput, HorizRadioSelect
+from oneanddone.base.widgets import CalendarInput, HorizRadioSelect
 
 
 class FeedbackForm(forms.ModelForm):

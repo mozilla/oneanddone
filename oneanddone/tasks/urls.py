@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     url(r'^tasks/(?P<pk>\d+)/abandon/$', views.AbandonTaskView.as_view(), name='tasks.abandon'),
     url(r'^tasks/feedback/(?P<pk>\d+)/$', views.CreateFeedbackView.as_view(), name='tasks.feedback'),
     url(r'^tasks/list/$', views.ListTasksView.as_view(), name='tasks.list'),
+    url(r'^tasks/activity/$', views.ActivityView.as_view(), name='tasks.activity'),
     url(r'^tasks/create/$', views.CreateTaskView.as_view(), name='tasks.create'),
     url(r'^tasks/edit/(?P<pk>\d+)/$', views.UpdateTaskView.as_view(), name='tasks.edit'),
 
