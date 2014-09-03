@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.core.urlresolvers import reverse
-from django.http import Http404
 
 from mock import Mock, patch
 from nose.tools import eq_, ok_
@@ -147,30 +146,6 @@ class StartTaskViewTests(TestCase):
             redirect.assert_called_with(self.task)
             ok_(TaskAttempt.objects.filter(user=user, task=self.task, state=TaskAttempt.STARTED)
                 .exists())
-
-
-class CreateFeedbackViewTests(TestCase):
-    def setUp(self):
-        self.view = views.CreateFeedbackView()
-
-    def test_missing_attempt_404(self):
-        """
-        If there is no task attempt with the given ID, return a 404.
-        """
-        request = Mock(user=UserFactory.create())
-        with self.assertRaises(Http404):
-            self.view.dispatch(request, pk=9999)
-
-    def test_feedback_not_your_attempt(self):
-        """
-        If the current user doesn't match the user for the requested
-        task attempt, return a 404.
-        """
-        attempt = TaskAttemptFactory.create()
-        request = Mock(user=UserFactory.create())
-
-        with self.assertRaises(Http404):
-            self.view.dispatch(request, pk=attempt.pk)
 
 
 class RandomTasksViewTests(TestCase):
