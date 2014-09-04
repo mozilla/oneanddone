@@ -145,7 +145,7 @@ class CreateFeedbackView(PrivacyPolicyRequiredMixin, HideNonRepeatableTaskMixin,
         template = get_template('tasks/emails/feedback_email.txt')
 
         message = template.render({
-            'feedback_user': feedback.attempt.user.email,
+            'feedback_user': feedback.attempt.user,
             'task_name': task_name,
             'task_link': task_link,
             'task_state': feedback.attempt.get_state_display(),

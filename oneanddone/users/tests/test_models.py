@@ -16,14 +16,14 @@ class UserTests(TestCase):
         email address.
         """
         user = UserProfileFactory.create(name='Foo Bar', user__email='foo@example.com').user
-        eq_(unicode(user), u'Foo Bar <foo@example.com>')
+        eq_(unicode(user), u'Foo Bar (foo@example.com)')
 
     def test_unicode_no_name(self):
         """
-        If a user has no display name, use "Anonymous" in its place.
+        If a user has no profile, use "Anonymous" in its place and hide the email address.
         """
         user = UserFactory.build(email='foo@example.com')
-        eq_(unicode(user), u'Anonymous <foo@example.com>')
+        eq_(unicode(user), u'Anonymous (Email consent denied)')
 
     def test_display_name(self):
         """
@@ -39,6 +39,54 @@ class UserTests(TestCase):
         """
         user = UserFactory.build()
         eq_(user.display_name, None)
+
+    def test_display_email_with_consent(self):
+        """
+        The display_email attribute should return the user's email
+        if they have granted consent.
+        """
+        user = UserProfileFactory.create(
+            consent_to_email=True,
+            user__email='foo@example.com').user
+        eq_(user.display_email, 'foo@example.com')
+
+    def test_display_email_without_consent(self):
+        """
+        The display_email attribute should return 'Email consent denied'
+        if they have denied consent.
+        """
+        user = UserProfileFactory.create(
+            consent_to_email=False,
+            user__email='foo@example.com').user
+        eq_(user.display_email, 'Email consent denied')
+
+    def test_display_email_without_profile(self):
+        """
+        The display_email attribute should return 'Email consent denied'
+        if they have no profile.
+        """
+        user = UserFactory.build(email='foo@example.com')
+        eq_(user.display_email, 'Email consent denied')
+
+    def test_profile_email_with_consent(self):
+        """
+        The email attribute should return the user's email
+        if they have granted consent.
+        """
+        profile = UserProfileFactory.create(
+            consent_to_email=True,
+            user__email='foo@example.com')
+        eq_(profile.email, 'foo@example.com')
+
+    def test_profile_email_without_consent(self):
+        """
+        The email attribute should return 'Email consent denied'
+        if they have denied consent.
+        """
+        profile = UserProfileFactory.create(
+            consent_to_email=False,
+            user__email='foo@example.com')
+        eq_(profile.email, 'Email consent denied')
 
     def test_attempts_finished_count(self):
         user = UserFactory.create()

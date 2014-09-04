@@ -6,6 +6,10 @@ from oneanddone.users import models
 
 
 class MyUserAdmin(UserAdmin):
+
+    list_display = ('username', 'display_email', 'is_staff', 'is_superuser',
+                    'last_login', 'date_joined')
+
     def queryset(self, request):
         """
         Only return users if they have signed the privacy policy.
@@ -15,8 +19,8 @@ class MyUserAdmin(UserAdmin):
 
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('name', 'username', 'privacy_policy_accepted')
-    readonly_fields = ('name', 'username')
+    list_display = ('name', 'username', 'privacy_policy_accepted', 'email')
+    readonly_fields = ('user', 'name', 'username', 'email')
 
     def queryset(self, request):
         """
