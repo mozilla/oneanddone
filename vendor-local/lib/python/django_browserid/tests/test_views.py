@@ -2,165 +2,151 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.contrib import auth
-from django.test import TestCase
 from django.test.client import RequestFactory
-from django.test.utils import override_settings
 
 from mock import patch
+from nose.tools import eq_, ok_
 
 from django_browserid import BrowserIDException, views
-from django_browserid.tests import mock_browserid
+from django_browserid.tests import mock_browserid, TestCase
 
 
-factory = RequestFactory()
+class JSONViewTests(TestCase):
+    def test_http_method_not_allowed(self):
+        class TestView(views.JSONView):
+            def get(self, request, *args, **kwargs):
+                return 'asdf'
+        response = TestView().http_method_not_allowed()
+        eq_(response.status_code, 405)
+        ok_(set(['GET']).issubset(set(response['Allow'].split(', '))))
+        self.assert_json_equals(response.content, {'error': 'Method not allowed.'})
+
+    def test_http_method_not_allowed_allowed_methods(self):
+        class GetPostView(views.JSONView):
+            def get(self, request, *args, **kwargs):
+                return 'asdf'
+
+            def post(self, request, *args, **kwargs):
+                return 'qwer'
+        response = GetPostView().http_method_not_allowed()
+        ok_(set(['GET', 'POST']).issubset(set(response['Allow'].split(', '))))
+
+        class GetPostPutDeleteHeadView(views.JSONView):
+            def get(self, request, *args, **kwargs):
+                return 'asdf'
+
+            def post(self, request, *args, **kwargs):
+                return 'qwer'
+
+            def put(self, request, *args, **kwargs):
+                return 'qwer'
+
+            def delete(self, request, *args, **kwargs):
+                return 'qwer'
+
+            def head(self, request, *args, **kwargs):
+                return 'qwer'
+        response = GetPostPutDeleteHeadView().http_method_not_allowed()
+        expected_methods = set(['GET', 'POST', 'PUT', 'DELETE', 'HEAD'])
+        actual_methods = set(response['Allow'].split(', '))
+        ok_(expected_methods.issubset(actual_methods))
 
 
 class VerifyTests(TestCase):
-    def verify(self, request_type, success_url=None, failure_url=None, **kwargs):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def verify(self, request_type, **kwargs):
         """
-        Call the verify view function. All kwargs not specified above will be passed
-        as GET or POST arguments.
+        Call the verify view function. Kwargs are passed as GET or POST
+        arguments.
         """
         if request_type == 'get':
-            request = factory.get('/browserid/verify', kwargs)
+            request = self.factory.get('/browserid/verify', kwargs)
         else:
-            request = factory.post('/browserid/verify', kwargs)
+            request = self.factory.post('/browserid/verify', kwargs)
 
-        # Patch settings prior to importing verify
-        patches = {'BROWSERID_CREATE_USER': True, 'SITE_URL': 'http://testserver'}
-        if success_url is not None:
-            patches['LOGIN_REDIRECT_URL'] = success_url
-        if failure_url is not None:
-            patches['LOGIN_REDIRECT_URL_FAILURE'] = failure_url
-
-        with self.settings(**patches):
-            verify_view = views.Verify.as_view()
-            with patch.object(auth, 'login'):
-                response = verify_view(request)
+        verify_view = views.Verify.as_view()
+        with patch.object(auth, 'login'):
+            response = verify_view(request)
 
         return response
 
-    def test_get_redirect_failure(self):
-        # Issuing a GET to the verify view redirects to the failure URL.
-        response = self.verify('get', failure_url='/fail')
-        assert response.status_code == 302
-        assert response['Location'].endswith('/fail?bid_login_failed=1')
-
-    def test_invalid_redirect_failure(self):
-        # Invalid form arguments redirect to the failure URL.
-        response = self.verify('post', failure_url='/fail', blah='asdf')
-        assert response.status_code == 302
-        assert response['Location'].endswith('/fail?bid_login_failed=1')
+    def test_no_assertion(self):
+        """If no assertion is given, return a failure result."""
+        with self.settings(LOGIN_REDIRECT_URL_FAILURE='/fail'):
+            response = self.verify('post', blah='asdf')
+        eq_(response.status_code, 403)
+        self.assert_json_equals(response.content, {'redirect': '/fail'})
 
     @mock_browserid(None)
-    def test_auth_fail_redirect_failure(self):
-        # If authentication fails, redirect to the failure URL.
-        response = self.verify('post', failure_url='/fail', assertion='asdf')
-        assert response.status_code == 302
-        assert response['Location'].endswith('/fail?bid_login_failed=1')
-
-    @mock_browserid(None)
-    def test_auth_fail_url_parameters(self):
-        # Ensure that bid_login_failed=1 is appended to the failure url.
-        response = self.verify('post', failure_url='/fail', assertion='asdf')
-        assert response['Location'].endswith('/fail?bid_login_failed=1')
-
-        response = self.verify('post', failure_url='/fail?', assertion='asdf')
-        assert response['Location'].endswith('/fail?bid_login_failed=1')
-
-        response = self.verify('post', failure_url='/fail?asdf', assertion='asdf')
-        assert response['Location'].endswith('/fail?asdf&bid_login_failed=1')
-
-        response = self.verify('post', failure_url='/fail?asdf=4', assertion='asdf')
-        assert response['Location'].endswith('/fail?asdf=4&bid_login_failed=1')
-
-        response = self.verify('post', failure_url='/fail?asdf=4&bid_login_failed=1',
-                          assertion='asdf')
-        assert response['Location'].endswith('/fail?asdf=4&bid_login_failed=1'
-                                             '&bid_login_failed=1')
+    def test_auth_fail(self):
+        """If authentication fails, redirect to the failure URL."""
+        with self.settings(LOGIN_REDIRECT_URL_FAILURE='/fail'):
+            response = self.verify('post', assertion='asdf')
+        eq_(response.status_code, 403)
+        self.assert_json_equals(response.content, {'redirect': '/fail'})
 
     @mock_browserid(None)
     @patch('django_browserid.views.logger.error')
     @patch('django_browserid.views.auth.authenticate')
     def test_authenticate_browserid_exception(self, authenticate, logger_error):
-        # If authenticate raises a BrowserIDException, redirect to the failure URL.
+        """
+        If authenticate raises a BrowserIDException, return a failure
+        response.
+        """
         excpt = BrowserIDException(Exception('hsakjw'))
         authenticate.side_effect = excpt
 
-        response = self.verify('post', failure_url='/fail', assertion='asdf')
-        assert response.status_code == 302
-        assert response['Location'].endswith('/fail?bid_login_failed=1')
+        with patch.object(views.Verify, 'login_failure') as mock_failure:
+            response = self.verify('post', assertion='asdf')
+        eq_(response, mock_failure.return_value)
+        mock_failure.assert_called_with(excpt)
+
+    def test_login_failure_log_exception(self):
+        """If login_failure is passed an exception, it should log it."""
+        excpt = BrowserIDException(Exception('hsakjw'))
+
+        with patch('django_browserid.views.logger.error') as logger_error:
+            views.Verify().login_failure(excpt)
         logger_error.assert_called_with(excpt)
 
     @mock_browserid('test@example.com')
     def test_auth_success_redirect_success(self):
-        # If authentication succeeds, redirect to the success URL.
-        response = self.verify('post', success_url='/success', assertion='asdf')
-        assert response.status_code == 302
-        assert response['Location'].endswith('/success')
+        """If authentication succeeds, redirect to the success URL."""
+        user = auth.models.User.objects.create_user('asdf', 'test@example.com')
 
-    @mock_browserid('test@example.com')
-    def test_redirect_field(self):
-        # If a redirect is passed as an argument to the request, redirect to that
-        # instead of the success URL.
-        kwargs = {'next': '/field_success', 'assertion': 'asdf'}
-        response = self.verify('post', success_url='/success', **kwargs)
-        assert response.status_code == 302
-        assert response['Location'].endswith('/field_success')
+        request = self.factory.post('/browserid/verify', {'assertion': 'asdf'})
+        with self.settings(LOGIN_REDIRECT_URL='/success'):
+            with patch('django_browserid.views.auth.login') as login:
+                verify = views.Verify.as_view()
+                response = verify(request)
 
-    @mock_browserid('test@example.com')
-    def test_redirect_invalid_host(self):
-        # If the given redirect url points to an invalid host, redirect to the
-        # default failure URL.
-        response = self.verify('post', next='http://example.com/login_failure',
-                          success_url='/woo', assertion='asdf')
-        assert response.status_code == 302
-        assert response['Location'].endswith('/woo')
+        login.assert_called_with(request, user)
+        eq_(response.status_code, 200)
+        self.assert_json_equals(response.content,
+                                {'email': 'test@example.com', 'redirect': '/success'})
 
-    @override_settings(DEBUG=True, SESSION_COOKIE_SECURE=True)
-    @patch('django_browserid.views.logger.debug')
-    @mock_browserid(None)
-    def test_sanity_session_cookie(self, debug):
-        # If DEBUG == True and SESSION_COOKIE_SECURE == True, log a debug message
-        # warning about it.
-        self.verify('post', assertion='asdf')
-        debug.called = True
+    def test_sanity_checks(self):
+        """Run sanity checks on all incoming requests."""
+        with patch('django_browserid.views.sanity_checks') as sanity_checks:
+            self.verify('post')
+        ok_(sanity_checks.called)
 
-    @override_settings(DEBUG=True, MIDDLEWARE_CLASSES=['csp.middleware.CSPMiddleware'])
-    @patch('django_browserid.views.logger.debug')
-    @mock_browserid(None)
-    def test_sanity_csp(self, debug):
-        # If DEBUG == True, the django-csp middleware is present, and Persona isn't
-        # allowed by CSP, log a debug message warning about it.
 
-        # Test if allowed properly.
-        with self.settings(CSP_DEFAULT_SRC=[],
-                           CSP_SCRIPT_SRC=['https://login.persona.org'],
-                           CSP_FRAME_SRC=['https://login.persona.org']):
-            self.verify('post', assertion='asdf')
-            debug.called = False
-        debug.reset_mock()
+class LogoutTests(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
 
-        # Test fallback to default-src.
-        with self.settings(CSP_DEFAULT_SRC=['https://login.persona.org'],
-                           CSP_SCRIPT_SRC=[],
-                           CSP_FRAME_SRC=[]):
-            self.verify('post', assertion='asdf')
-            debug.called = False
-        debug.reset_mock()
+    def test_redirect(self):
+        """Include LOGOUT_REDIRECT_URL in the response."""
+        request = self.factory.post('/')
+        logout = views.Logout.as_view()
 
-        # Test incorrect csp.
-        with self.settings(CSP_DEFAULT_SRC=[],
-                           CSP_SCRIPT_SRC=[],
-                           CSP_FRAME_SRC=[]):
-            self.verify('post', assertion='asdf')
-            debug.called = True
-        debug.reset_mock()
+        with self.settings(LOGOUT_REDIRECT_URL='/test/foo'):
+            with patch('django_browserid.views.auth.logout') as auth_logout:
+                response = logout(request)
 
-        # Test partial incorrectness.
-        with self.settings(CSP_DEFAULT_SRC=[],
-                           CSP_SCRIPT_SRC=['https://login.persona.org'],
-                           CSP_FRAME_SRC=[]):
-            self.verify('post', assertion='asdf')
-            debug.called = True
-
+        auth_logout.assert_called_with(request)
+        eq_(response.status_code, 200)
+        self.assert_json_equals(response.content, {'redirect': '/test/foo'})

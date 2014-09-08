@@ -74,7 +74,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
     'funfactory.context_processors.i18n',
     'funfactory.context_processors.globals',
-    'django_browserid.context_processors.browserid',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -117,6 +116,7 @@ MINIFY_BUNDLES = {
     'js': {
         'base': (
             'js/libs/jquery-2.0.3.min.js',
+            'browserid/api.js',
             'browserid/browserid.js',
             'js/site.js',
             'js/slider.js',

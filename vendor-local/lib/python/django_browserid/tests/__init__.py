@@ -1,10 +1,17 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+import json
+
+from django.test import TestCase as DjangoTestCase
+from django.utils.encoding import smart_text
 from django.utils.functional import wraps
 
 from mock import patch
+from nose.tools import eq_
 
+from django_browserid.auth import BrowserIDBackend
+from django_browserid.base import MockVerifier
 
 
 def fake_create_user(email):
@@ -35,11 +42,6 @@ class mock_browserid(object):
             Keyword arguments are passed on to :class:`django_browserid.base.MockVerifier`, which
             updates the verification result with them.
         """
-        # Need to import these here so that we can import
-        # django_browserid.tests.settings to build the docs.
-        from django_browserid.auth import BrowserIDBackend
-        from django_browserid.base import MockVerifier
-
         self.patcher = patch.object(BrowserIDBackend, 'get_verifier')
         self.return_value = MockVerifier(email, **kwargs)
 
@@ -57,3 +59,13 @@ class mock_browserid(object):
             with self:
                 return func(*args, **kwargs)
         return inner
+
+
+class TestCase(DjangoTestCase):
+    def assert_json_equals(self, json_str, value):
+        return eq_(json.loads(smart_text(json_str)), value)
+
+    def shortDescription(self):
+        # Stop nose using the test docstring and instead the test method
+        # name.
+        pass
