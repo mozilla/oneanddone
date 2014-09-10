@@ -3,8 +3,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 
-from oneanddone.tasks.models import Task
+from oneanddone.tasks.models import Task, TaskAttempt
 
 
 class TaskMustBeAvailableMixin(object):
@@ -28,6 +29,17 @@ class HideNonRepeatableTaskMixin(object):
         if not task.is_available_to_user(self.request.user):
             raise Http404('Task unavailable.')
         return task
+
+
+class GetUserAttemptMixin(object):
+    """
+    Retrieve a user attempt and add it to the view's self scope
+    for later use.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        self.attempt = get_object_or_404(TaskAttempt, pk=kwargs['pk'], user=request.user,
+                                         state__in=[TaskAttempt.FINISHED, TaskAttempt.ABANDONED])
+        return super(GetUserAttemptMixin, self).dispatch(request, *args, **kwargs)
 
 
 class APIRecordCreatorMixin(object):

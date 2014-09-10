@@ -4,7 +4,7 @@
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.template.loader import get_template
 from django.views import generic
 
@@ -18,6 +18,7 @@ from oneanddone.tasks.filters import TasksFilterSet
 from oneanddone.tasks.forms import FeedbackForm, TaskForm
 from oneanddone.tasks.mixins import APIRecordCreatorMixin, APIOnlyCreatorMayDeleteMixin
 from oneanddone.tasks.mixins import TaskMustBeAvailableMixin, HideNonRepeatableTaskMixin
+from oneanddone.tasks.mixins import GetUserAttemptMixin
 from oneanddone.tasks.models import Feedback, Task, TaskAttempt
 from oneanddone.tasks.serializers import TaskSerializer
 from oneanddone.users.mixins import MyStaffUserRequiredMixin, PrivacyPolicyRequiredMixin
@@ -113,15 +114,12 @@ class FinishTaskView(TaskAttemptView):
         return redirect('tasks.feedback', attempt.pk)
 
 
-class CreateFeedbackView(PrivacyPolicyRequiredMixin, HideNonRepeatableTaskMixin, generic.CreateView):
+class CreateFeedbackView(LoginRequiredMixin, PrivacyPolicyRequiredMixin,
+                         HideNonRepeatableTaskMixin, GetUserAttemptMixin,
+                         generic.CreateView):
     model = Feedback
     form_class = FeedbackForm
     template_name = 'tasks/feedback.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        self.attempt = get_object_or_404(TaskAttempt, pk=kwargs['pk'], user=request.user,
-                                         state__in=[TaskAttempt.FINISHED, TaskAttempt.ABANDONED])
-        return super(CreateFeedbackView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(CreateFeedbackView, self).get_context_data(*args, **kwargs)

@@ -4,8 +4,13 @@
 from mock import Mock, patch
 from nose.tools import eq_
 
+from django.http import Http404
+
 from oneanddone.base.tests import TestCase
 from oneanddone.tasks import mixins
+from oneanddone.tasks.models import TaskAttempt
+from oneanddone.tasks.tests import TaskAttemptFactory
+from oneanddone.users.tests import UserFactory
 
 
 class TaskMustBeAvailableMixinTests(TestCase):
@@ -35,3 +40,52 @@ class TaskMustBeAvailableMixinTests(TestCase):
             eq_(view.get_queryset(), queryset.filter.return_value)
             queryset.filter.assert_called_with(Task.is_available_filter.return_value)
             Task.is_available_filter.assert_called_with(allow_expired=False)
+
+
+class GetUserAttemptMixinTests(TestCase):
+    def setUp(self):
+        self.view = self.make_view()
+
+    def make_view(self):
+        """
+        Create a fake view that applies the mixin to the dispatch method.
+        """
+        class BaseView(object):
+            def dispatch(self, request, *args, **kwargs):
+                pass
+
+        class View(mixins.GetUserAttemptMixin, BaseView):
+            pass
+
+        return View()
+
+    def test_found_attempt_stores_attempt(self):
+        """
+        If the current user has a matching attempt, it should
+        be stored in the view.
+        """
+        user = UserFactory.create()
+        attempt = TaskAttemptFactory.create(user=user, state=TaskAttempt.FINISHED)
+        request = Mock(user=user)
+
+        self.view.dispatch(request, pk=attempt.pk)
+        eq_(self.view.attempt, attempt)
+
+    def test_missing_attempt_raises_404(self):
+        """
+        If there is no task attempt with the given ID, return a 404.
+        """
+        request = Mock(user=UserFactory.create())
+        with self.assertRaises(Http404):
+            self.view.dispatch(request, pk=9999)
+
+    def test_not_your_attempt_raises_404(self):
+        """
+        If the current user doesn't match the user for the requested
+        task attempt, return a 404.
+        """
+        attempt = TaskAttemptFactory.create()
+        request = Mock(user=UserFactory.create())
+
+        with self.assertRaises(Http404):
+            self.view.dispatch(request, pk=attempt.pk)
