@@ -52,7 +52,7 @@ class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
         fields = ('name', 'short_description', 'execution_time', 'difficulty',
-                  'repeatable', 'team', 'project', 'type', 'start_date',
+                  'priority', 'repeatable', 'team', 'project', 'type', 'start_date',
                   'end_date', 'why_this_matters', 'prerequisites', 'instructions',
                   'is_draft')
         widgets = {

@@ -25,7 +25,7 @@ from oneanddone.users.mixins import MyStaffUserRequiredMixin, PrivacyPolicyRequi
 
 
 class AvailableTasksView(TaskMustBeAvailableMixin, FilterView):
-    queryset = Task.objects.order_by('-execution_time')
+    queryset = Task.objects.all()
     context_object_name = 'tasks'
     template_name = 'tasks/list.html'
     paginate_by = 10
@@ -164,7 +164,7 @@ class CreateFeedbackView(LoginRequiredMixin, PrivacyPolicyRequiredMixin,
 
 
 class ListTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
-    queryset = Task.objects.order_by('-modified')
+    queryset = Task.objects.all()
     context_object_name = 'tasks'
     template_name = 'tasks/list.html'
     paginate_by = 20

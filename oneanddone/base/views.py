@@ -12,7 +12,7 @@ from oneanddone.users.models import UserProfile
 
 class HomeView(TaskMustBeAvailableMixin, FilterView):
     template_name = 'base/home.html'
-    queryset = Task.objects.filter(difficulty=Task.EASY).order_by('?')
+    queryset = Task.objects.filter(difficulty=Task.EASY)
     context_object_name = 'tasks'
     paginate_by = 10
     filterset_class = TasksFilterSet

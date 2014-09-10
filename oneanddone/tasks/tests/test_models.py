@@ -319,3 +319,35 @@ class TaskTests(TestCase):
         eq_(TaskAttempt.objects.filter(task=self.task_no_draft,
                                        state=TaskAttempt.CLOSED,
                                        requires_notification=True).count(), 2)
+
+    def test_default_sort_order(self):
+        """
+        The sort order of tasks should default to `priority`, `difficulty`
+        """
+        Task.objects.all().delete()
+        t3, t1, t4, t2, t6, t5 = TaskFactory.create_batch(6)
+        t1.priority = 1
+        t1.difficulty = 1
+        t1.save()
+        t2.priority = 1
+        t2.difficulty = 2
+        t2.save()
+        t3.priority = 1
+        t3.difficulty = 3
+        t3.save()
+        t4.priority = 2
+        t4.difficulty = 1
+        t4.save()
+        t5.priority = 2
+        t5.difficulty = 3
+        t5.save()
+        t6.priority = 3
+        t6.difficulty = 1
+        t6.save()
+        tasks = Task.objects.all()
+        eq_(tasks[0], t1)
+        eq_(tasks[1], t2)
+        eq_(tasks[2], t3)
+        eq_(tasks[3], t4)
+        eq_(tasks[4], t5)
+        eq_(tasks[5], t6)

@@ -11,6 +11,7 @@ from oneanddone.tasks.models import TaskKeyword
 from oneanddone.tasks.tests import TaskFactory, TaskKeywordFactory
 from oneanddone.users.tests import UserFactory
 
+
 def get_filled_taskform(task, **kwargs):
     """
     Returns a TaskForm populated with initial task fields and additional
@@ -19,7 +20,7 @@ def get_filled_taskform(task, **kwargs):
     """
     data = {'team': task.team.id}
     for field in ('name', 'short_description', 'execution_time', 'difficulty',
-                      'repeatable', 'instructions', 'is_draft'):
+                  'repeatable', 'instructions', 'is_draft', 'priority'):
             data[field] = getattr(task, field)
     data.update(kwargs)
     return TaskForm(instance=task, data=data)
@@ -88,8 +89,8 @@ class TaskFormTests(TestCase):
         field requirements are respected.
         """
         form = get_filled_taskform(TaskFactory.create(),
-                                    start_date='2013-07-01',
-                                    end_date='2013-08-15')
+                                   start_date='2013-07-01',
+                                   end_date='2013-08-15')
 
         self.assertTrue(form.is_valid())
 
@@ -98,8 +99,8 @@ class TaskFormTests(TestCase):
         The form is not valid if start date is after end date.
         """
         form = get_filled_taskform(TaskFactory.create(),
-                                    start_date='2014-07-01',
-                                    end_date='2013-08-15')
+                                   start_date='2014-07-01',
+                                   end_date='2013-08-15')
 
         self.assertFalse(form.is_valid())
         eq_(form.non_field_errors(), ["'End date' must be after 'Start date'"])
@@ -109,8 +110,8 @@ class TaskFormTests(TestCase):
         The form is not valid if start date is same as end date.
         """
         form = get_filled_taskform(TaskFactory.create(),
-                                    start_date='2013-08-15',
-                                    end_date='2013-08-15')
+                                   start_date='2013-08-15',
+                                   end_date='2013-08-15')
 
         self.assertFalse(form.is_valid())
         eq_(form.non_field_errors(), ["'End date' must be after 'Start date'"])
