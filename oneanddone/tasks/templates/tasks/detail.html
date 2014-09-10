@@ -84,6 +84,11 @@
   </div>
 
   <div class="actions-container">
+    {% if user.is_staff %}
+      <div class="without-message">
+          <a href="{{ task.get_edit_url() }}" class="button" id="edit-task">{{ _('Edit task') }}</a>
+      </div>
+    {% endif %}
     {% if attempt %}
       <div class="with-message">
         <a href="{{ url('base.home') }}" class="button" id="save-for-later" role="button">{{ _('Save for later') }}</a>
@@ -123,11 +128,6 @@
           </form>
         {% endif %}
       {% endif %}
-    {% endif %}
-    {% if user.is_staff %}
-      <div class="without-message">
-          <a href="{{ task.get_edit_url() }}" class="button" id="edit-task">{{ _('Edit task') }}</a>
-      </div>
     {% endif %}
   </div>
 </main>
