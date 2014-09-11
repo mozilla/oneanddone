@@ -1,11 +1,10 @@
 {# This Source Code Form is subject to the terms of the Mozilla Public
  # License, v. 2.0. If a copy of the MPL was not distributed with this
  # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
-{% macro form_field(field, required=False) -%}
-  {{ field.errors }}
-  {{ field.label_tag() }}
-  {% if required %}
-    *
-  {% endif %}
-  : {{ field }}
+{% macro form_field(field, class=None) -%}
+  <div class="field{% if field.field.required %} required{% endif %}{% if class %} {{ class }}{% endif %}">
+    {{ field.errors }}
+    {{ field.label_tag() }}
+    {{ field }}
+  </div>
 {%- endmacro %}

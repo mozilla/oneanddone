@@ -228,7 +228,7 @@ footer {
     background-color: rgb(255, 255, 255);
     background-color: rgba(255, 255, 255, 0.5);
     margin-top: 2%;
-    padding: 20px 5%;
+    padding: 10px 20px 20px;
 }
 .get-involved {
     position: relative;
@@ -372,48 +372,29 @@ section[class *="-section"] {
 
 /* Task edit form */
 
+.medium-field {
+    width: 50%;
+}
+
 .task-form,
 .task-detail {
 
-    width: 95%;
-
-    label {
-      display: inline;
+    .task-category,
+    .task-info,
+    .task-dates {
+        .span(4);
     }
 
-    textarea {
-        width: 100%;
+    .task-category.first {
+        margin-left: 0;
     }
 
-    /* Form layout classes */
-
-    .span(@pct) {
-      float: left;
-      width: @pct;
-      margin: 0px 0px 10px;
+    .why-this-matters {
+        clear: left;
     }
 
-    .row {
-      div:not([class]) {
-        .span(100%)
-      }
-      .clearfix()
-    }
-
-    .two-fields {
-      .span(50%)
-    }
-
-    .three-fields {
-      .span(33%)
-    }
-
-    .four-fields {
-      .span(25%)
-    }
-
-    .two-of-three-fields {
-      .span(66%)
+    .ui-datepicker-trigger img {
+        vertical-align: middle;
     }
 
 }

@@ -115,3 +115,13 @@ class TaskFormTests(TestCase):
 
         self.assertFalse(form.is_valid())
         eq_(form.non_field_errors(), ["'End date' must be after 'Start date'"])
+
+    def test_form_widgets_have_expected_class(self):
+        """
+        Classes specified in attrs in form definition should be
+        populated into the widgets
+        """
+        form = TaskForm(instance=None)
+        for field in ('name', 'short_description', 'instructions',
+                      'why_this_matters', 'prerequisites'):
+            eq_(form[field].field.widget.attrs['class'], 'fill-width')

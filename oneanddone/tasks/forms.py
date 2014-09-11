@@ -17,7 +17,8 @@ class FeedbackForm(forms.ModelForm):
 
 
 class TaskForm(forms.ModelForm):
-    keywords = forms.CharField(required=False, widget=forms.TextInput(attrs={'size': 50}))
+    keywords = forms.CharField(required=False, widget=forms.TextInput(
+        attrs={'class': 'medium-field'}))
 
     def __init__(self, *args, **kwargs):
         if kwargs['instance']:
@@ -56,15 +57,15 @@ class TaskForm(forms.ModelForm):
                   'end_date', 'why_this_matters', 'prerequisites', 'instructions',
                   'is_draft')
         widgets = {
-            'name': forms.TextInput(attrs={'size': 100}),
-            'short_description': forms.TextInput(attrs={'size': 100}),
-            'execution_time': HorizRadioSelect,
+            'name': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),
+            'short_description': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),
             'instructions': AceWidget(mode='markdown', theme='textmate', width='800px',
-                                      height='300px', wordwrap=True),
+                                      height='300px', wordwrap=True,
+                                      attrs={'class': 'fill-width'}),
             'start_date': CalendarInput,
             'end_date': CalendarInput,
-            'why_this_matters': forms.Textarea(attrs={'cols': 100, 'rows': 2}),
-            'prerequisites': forms.Textarea(attrs={'cols': 100, 'rows': 4}),
+            'why_this_matters': forms.Textarea(attrs={'rows': 2, 'class': 'fill-width'}),
+            'prerequisites': forms.Textarea(attrs={'rows': 4, 'class': 'fill-width'}),
         }
 
     class Media:
