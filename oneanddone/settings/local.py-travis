@@ -1,0 +1,46 @@
+from . import base
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'oneanddone',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
+        'OPTIONS': {
+            'init_command': 'SET storage_engine=InnoDB',
+            'charset' : 'utf8',
+            'use_unicode' : True,
+        },
+        'TEST_CHARSET': 'utf8',
+        'TEST_COLLATION': 'utf8_general_ci',
+    },
+}
+
+DEBUG = TEMPLATE_DEBUG = True
+
+# Is this a development instance? Set this to True on development/master
+# instances and False on stage/prod.
+DEV = True
+ENGAGE_ROBOTS = True
+BROWSERID_AUDIENCES = ['http://localhost:8000']
+
+# Path to lessc binary (can be `lessc` if it's already on your path).
+# This isn't used if TEMPLATE_DEBUG is True.
+LESS_BIN = 'lessc'
+
+
+# Playdoh ships with Bcrypt+HMAC by default because it's the most secure.
+# To use bcrypt, fill in a secret HMAC key. It cannot be blank.
+HMAC_KEYS = {
+    '2012-06-06': '<bar>',
+}
+
+from django_sha2 import get_password_hashers
+PASSWORD_HASHERS = get_password_hashers(base.BASE_PASSWORD_HASHERS, HMAC_KEYS)
+
+# Make this unique, and don't share it with anybody. It cannot be blank.
+SECRET_KEY = '<foo>'
+
