@@ -6,5 +6,7 @@ before_script:
   - cp oneanddone/settings/local.py-travis oneanddone/settings/local.py
 before_install:
   - git submodule update --init --recursive
-install: pip install -r requirements/dev.txt
+install: 
+  - pip install -r requirements/compiled.txt
+  - pip install -r requirements/dev.txt
 script: python manage.py test
