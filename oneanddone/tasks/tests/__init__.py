@@ -38,6 +38,7 @@ class TaskFactory(DjangoModelFactory):
     team = SubFactory(TaskTeamFactory)
     type = SubFactory(TaskTypeFactory)
     repeatable = True
+    priority = 3
 
 
 class TaskAttemptFactory(DjangoModelFactory):

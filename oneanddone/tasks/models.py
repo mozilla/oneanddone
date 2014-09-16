@@ -43,6 +43,9 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     Task for a user to attempt to fulfill.
     """
 
+    class Meta(CreatedModifiedModel.Meta):
+        ordering = ['priority', 'difficulty']
+
     project = models.ForeignKey(TaskProject, blank=True, null=True)
     team = models.ForeignKey(TaskTeam)
     type = models.ForeignKey(TaskType, blank=True, null=True)
@@ -58,6 +61,17 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
         ),
         default=EASY,
         verbose_name='task difficulty')
+    P1 = 1
+    P2 = 2
+    P3 = 3
+    priority = models.IntegerField(
+        choices=(
+            (P1, 'P1'),
+            (P2, 'P2'),
+            (P3, 'P3')
+        ),
+        default=P3,
+        verbose_name='task priority')
     end_date = models.DateTimeField(blank=True, null=True)
     execution_time = models.IntegerField(
         choices=((i, i) for i in (15, 30, 45, 60)),
