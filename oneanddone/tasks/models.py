@@ -50,16 +50,16 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     team = models.ForeignKey(TaskTeam)
     type = models.ForeignKey(TaskType, blank=True, null=True)
 
-    EASY = 1
+    BEGINNER = 1
     INTERMEDIATE = 2
     ADVANCED = 3
     difficulty = models.IntegerField(
         choices=(
-            (EASY, 'Easy'),
+            (BEGINNER, 'Beginner'),
             (INTERMEDIATE, 'Intermediate'),
             (ADVANCED, 'Advanced')
         ),
-        default=EASY,
+        default=BEGINNER,
         verbose_name='task difficulty')
     P1 = 1
     P2 = 2
