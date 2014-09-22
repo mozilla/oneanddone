@@ -398,3 +398,42 @@ section[class *="-section"] {
     }
 
 }
+
+/* menu */
+
+.drop-down {
+    ul[role="menu"] {
+        list-style: none;
+        &> li {
+            position: relative;
+            display: inline-block;
+        }
+    }
+    .top-level {
+        ul {
+            background-color: white;
+            position: absolute;
+            display: none;
+            list-style: none;
+            width: 10rem;
+            @radius: 0 6px 6px 6px;
+            .border-radius(@radius);
+            @shadow: 1px 1px 2px #e0e0e0;
+            .box-shadow(@shadow);
+            z-index: 99;
+            li {
+                margin-left: 0;
+                padding: .5rem;
+                border-bottom: 1px solid #edecec;
+            }
+            a {
+                display: block;
+            }
+        }
+        &:hover {
+            ul {
+                display: block;
+            }
+        }
+    }
+}
