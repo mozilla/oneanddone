@@ -26,6 +26,12 @@
 
   <form method="post" class="task-form">
     {{ csrf() }}
+    {% if form.instance.pk %}
+      <div class="field">
+        <label for="id_owner">{{ _('Owner') }}</label>
+        <p id="id_owner">{{ form.instance.creator }}</p>
+      </div>
+    {% endif %}
     {{ form_field(form['name']) }}
     {{ form_field(form['short_description']) }}
     {{ form_field(form['keywords']) }}
