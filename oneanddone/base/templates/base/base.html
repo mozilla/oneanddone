@@ -38,10 +38,10 @@
       <div id="wrapper">
         <header id="masthead">
           <a href="http://www.mozilla.org/" id="tabzilla">Mozilla</a>
-          <nav id="nav-main" role="menubar">
+          <nav id="nav-main" role="menubar" class="drop-down">
             <span class="toggle" role="button" aria-controls="nav-main-menu" tabindex="0">{{ _('Menu') }}</span>
             <ul role="menu" id="nav-main-menu">
-              <li role="menuitem" class="auth-menu">
+              <li role="menuitem">
                 {% if user.is_authenticated() %}
                   {% if user.display_name %}
                    <a id="view-profile" href="{{ url('users.profile.mydetails') }}">
@@ -51,16 +51,26 @@
                    </a>
                   {% else %}
                     {{ _('Welcome!') }}
-                  {% endif %} |
-                {% endif %}
-                  <a id="available-tasks" href="{{ url('tasks.available') }}">{{ _('Available Tasks') }}</a>
-                {% if user.is_authenticated() %}
-                  {% if user.is_staff %}
-                    | <a href="{{ url('tasks.list') }}">{{ _('Task Admin') }}</a>
                   {% endif %}
-                  | {{ browserid_logout(text=_('Sign out')) }}
+                {% endif %}
+              </li>
+              <li role="menuitem">
+                  <a id="available-tasks" href="{{ url('tasks.available') }}">{{ _('Available Tasks') }}</a>
+              </li>
+              {% if user.is_staff %}
+                <li role="menuitem" class="top-level">
+                  <a href="#">{{ _('Task Admin') }}</a>
+                  <ul>
+                    <li><a href="{{ url('tasks.list') }}">{{ _('List Tasks') }}</a></li>
+                    <li><a href="{{ url('tasks.create') }}">{{ _('Create Task') }}</a></li>
+                  </ul>
+                </li>
+              {% endif %}
+              <li role="menuitem" {% if not user.is_authenticated() %}class="auth-menu"{% endif %}>
+                {% if user.is_authenticated() %}
+                  {{ browserid_logout(text=_('Sign out')) }}
                 {% else %}
-                  | {{ browserid_login(text=_('Sign in'), color='blue') }}
+                  {{ browserid_login(text=_('Sign in'), color='blue') }}
                 {% endif %}
               </li>
             </ul>
