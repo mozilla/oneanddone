@@ -33,6 +33,7 @@ class TaskFactory(DjangoModelFactory):
     instructions = Sequence(lambda n: 'test_instructions{0}'.format(n))
     execution_time = fuzzy.FuzzyChoice((15, 30, 45, 60))
     is_draft = False
+    is_invalid = False
     creator = SubFactory(UserFactory)
     project = SubFactory(TaskProjectFactory)
     team = SubFactory(TaskTeamFactory)

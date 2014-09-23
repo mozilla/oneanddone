@@ -80,7 +80,8 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
         verbose_name='estimated time'
     )
     instructions = models.TextField()
-    is_draft = models.BooleanField(verbose_name='draft?')
+    is_draft = models.BooleanField(verbose_name='draft')
+    is_invalid = models.BooleanField(verbose_name='invalid')
     name = models.CharField(max_length=255, verbose_name='title')
     prerequisites = models.TextField(blank=True)
     repeatable = models.BooleanField(default=True)
@@ -114,7 +115,7 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     @property
     def is_available(self):
         """Whether this task is available for users to attempt."""
-        if self.is_draft:
+        if self.is_draft or self.is_invalid:
             return False
 
         now = timezone.now()
@@ -180,7 +181,7 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
 
         now = now or timezone.now()
         now = now.replace(hour=0, minute=0, second=0)  # Use just the date to allow caching
-        q_filter = pQ(is_draft=False) & (pQ(start_date__isnull=True) | pQ(start_date__lte=now))
+        q_filter = pQ(is_draft=False) & pQ(is_invalid=False) & (pQ(start_date__isnull=True) | pQ(start_date__lte=now))
 
         if not allow_expired:
             q_filter = q_filter & (pQ(end_date__isnull=True) | pQ(end_date__gt=now))

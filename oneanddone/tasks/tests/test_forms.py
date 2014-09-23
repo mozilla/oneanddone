@@ -20,7 +20,7 @@ def get_filled_taskform(task, **kwargs):
     """
     data = {'team': task.team.id}
     for field in ('name', 'short_description', 'execution_time', 'difficulty',
-                  'repeatable', 'instructions', 'is_draft', 'priority'):
+                  'repeatable', 'instructions', 'is_draft', 'is_invalid', 'priority'):
             data[field] = getattr(task, field)
     data.update(kwargs)
     return TaskForm(instance=task, data=data)
