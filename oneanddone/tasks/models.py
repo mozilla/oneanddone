@@ -367,7 +367,7 @@ class TaskAttempt(CachedModel, CreatedModifiedModel):
         ordering = ['-modified']
 
     @classmethod
-    def close_expired_onetime_attempts(self):
+    def close_stale_onetime_attempts(self):
         """
         Close any attempts for one-time tasks that have been open for over 30 days
         """
@@ -379,6 +379,21 @@ class TaskAttempt(CachedModel, CreatedModifiedModel):
         return expired_onetime_attempts.update(
             state=self.CLOSED,
             requires_notification=True)
+
+    @classmethod
+    def close_expired_task_attempts(self):
+        """
+        Close any attempts for tasks that have expired
+        """
+        open_attempts = self.objects.filter(state=self.STARTED)
+        closed = 0
+        for attempt in open_attempts:
+            if not attempt.task.is_available:
+                attempt.state = self.CLOSED
+                attempt.requires_notification = True
+                attempt.save()
+                closed += 1
+        return closed
 
 
 class Feedback(CachedModel, CreatedModifiedModel):

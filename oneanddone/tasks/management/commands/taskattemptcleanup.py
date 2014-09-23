@@ -10,5 +10,7 @@ class Command(BaseCommand):
     help = 'Cleans up status of task attempts based on task data'
 
     def handle(self, *args, **options):
-        closed = TaskAttempt.close_expired_onetime_attempts()
-        self.stdout.write('%s expired one-time attempts were closed\n' % closed)
+        closed = TaskAttempt.close_stale_onetime_attempts()
+        self.stdout.write('%s stale one-time attempts were closed\n' % closed)
+        closed = TaskAttempt.close_expired_task_attempts()
+        self.stdout.write('%s attempts for expired tasks were closed\n' % closed)

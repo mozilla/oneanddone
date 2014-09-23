@@ -283,9 +283,9 @@ class TaskTests(TestCase):
         """
         eq_(self.task_not_repeatable_no_attempts.is_completed, False)
 
-    def test_close_expired_onetime_attempts(self):
+    def test_close_stale_onetime_attempts(self):
         """
-        The close_expired_onetime_attempts routine should close all
+        The close_stale_onetime_attempts routine should close all
         expired one-time attempts, set them as requiring notification,
         and return the number that were closed.
         """
@@ -304,12 +304,43 @@ class TaskTests(TestCase):
         eq_(self.task_not_repeatable_no_attempts.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 3)
         with patch('oneanddone.tasks.models.timezone.now') as now:
             now.return_value = aware_datetime(2014, 1, 31)
-            eq_(TaskAttempt.close_expired_onetime_attempts(), 2)
+            eq_(TaskAttempt.close_stale_onetime_attempts(), 2)
         eq_(TaskAttempt.objects.filter(task=self.task_not_repeatable_no_attempts,
                                        state=TaskAttempt.STARTED).count(), 1)
         eq_(TaskAttempt.objects.filter(task=self.task_not_repeatable_no_attempts,
                                        state=TaskAttempt.CLOSED,
                                        requires_notification=True).count(), 2)
+
+    def test_close_expired_task_attempts(self):
+        """
+        The close_expired_task_attempts routine should close all
+        attempts for tasks that are no longer available,
+        set them as requiring notification,
+        and return the number that were closed.
+        """
+        user1, user2, user3 = UserFactory.create_batch(3)
+        TaskAttemptFactory.create(
+            user=user1,
+            state=TaskAttempt.STARTED,
+            task=self.task_end_jan)
+        TaskAttemptFactory.create(
+            user=user2,
+            state=TaskAttempt.STARTED,
+            task=self.task_end_jan)
+        TaskAttemptFactory.create(
+            user=user3,
+            state=TaskAttempt.STARTED,
+            task=self.task_no_draft)
+        eq_(self.task_end_jan.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 2)
+        eq_(self.task_no_draft.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 1)
+        eq_(TaskAttempt.close_expired_task_attempts(), 2)
+        eq_(TaskAttempt.objects.filter(task=self.task_end_jan,
+                                       state=TaskAttempt.STARTED).count(), 0)
+        eq_(TaskAttempt.objects.filter(task=self.task_end_jan,
+                                       state=TaskAttempt.CLOSED,
+                                       requires_notification=True).count(), 2)
+        eq_(TaskAttempt.objects.filter(task=self.task_no_draft,
+                                       state=TaskAttempt.STARTED).count(), 1)
 
     def test_save_closes_task_attempts(self):
         """
