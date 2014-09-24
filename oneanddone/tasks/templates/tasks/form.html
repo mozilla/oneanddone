@@ -59,7 +59,14 @@
         {{ form['is_draft'].errors }}
         <label for="id_is_draft">
           {{ form['is_draft'] }}
-          Draft
+          {{ _('Draft') }}
+        </label>
+      </div>
+      <div class="field">
+        {{ form['is_invalid'].errors }}
+        <label for="id_is_invalid">
+          {{ form['is_invalid'] }}
+          {{ _('Invalid') }}
         </label>
       </div>
     </fieldset>

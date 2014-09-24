@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from django.utils import timezone
 
@@ -38,6 +38,7 @@ class TaskTests(TestCase):
             state=TaskAttempt.FINISHED,
             task=self.task_not_repeatable_finished_attempt)
         self.task_draft = TaskFactory.create(is_draft=True)
+        self.task_invalid = TaskFactory.create(is_invalid=True)
         self.task_no_draft = TaskFactory.create(is_draft=False)
         self.task_start_jan = TaskFactory.create(
             is_draft=False, start_date=aware_datetime(2014, 1, 1))
@@ -45,6 +46,12 @@ class TaskTests(TestCase):
         self.task_range_jan_feb = TaskFactory.create(
             is_draft=False, start_date=aware_datetime(2014, 1, 1),
             end_date=aware_datetime(2014, 2, 1))
+
+    def test_isnt_available_invalid(self):
+        """
+        If a task is marked as invalid, it should not be available.
+        """
+        eq_(self.task_invalid.is_available, False)
 
     def test_isnt_available_draft(self):
         """
@@ -122,6 +129,14 @@ class TaskTests(TestCase):
         tasks = Task.objects.filter(Task.is_available_filter(now=aware_datetime(2014, 1, 2)))
         ok_(self.task_no_draft in tasks)
         ok_(self.task_draft not in tasks)
+
+    def test_is_available_filter_invalid(self):
+        """
+        If a task is marked as invalid, it should not be available.
+        """
+        tasks = Task.objects.filter(Task.is_available_filter(now=aware_datetime(2014, 1, 2)))
+        ok_(self.task_no_draft in tasks)
+        ok_(self.task_invalid not in tasks)
 
     def test_is_available_filter_before_start_date(self):
         """

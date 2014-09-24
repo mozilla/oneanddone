@@ -34,5 +34,5 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = ('id', 'name', 'short_description', 'instructions',
                   'prerequisites', 'execution_time', 'start_date', 'end_date',
-                  'is_draft', 'project', 'team', 'type', 'repeatable', 'difficulty',
-                  'why_this_matters', 'keyword_set', 'taskattempt_set')
+                  'is_draft', 'is_invalid', 'project', 'team', 'type', 'repeatable',
+                  'difficulty', 'why_this_matters', 'keyword_set', 'taskattempt_set')
