@@ -18,3 +18,5 @@ tmp/*
 *~
 *.mo
 /static
+*.sql
+stackato-*.yml
