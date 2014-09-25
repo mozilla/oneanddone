@@ -1,6 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+import time
 from datetime import timedelta
 
 from django.conf import settings
@@ -13,6 +14,7 @@ from django.utils import timezone
 import bleach
 import jinja2
 from markdown import markdown
+from tower import ugettext as _
 
 from oneanddone.base.models import CachedModel, CreatedByModel, CreatedModifiedModel
 
@@ -243,6 +245,26 @@ class TaskAttempt(CachedModel, CreatedModifiedModel):
     def __unicode__(self):
         return u'{user} attempt [{task}]'.format(user=self.user, task=self.task)
 
+    @property
+    def feedback_display(self):
+        if self.has_feedback:
+            return self.feedback.text
+        return _('No feedback for this attempt')
+
+    @property
+    def has_feedback(self):
+        try:
+            self.feedback
+            return True
+        except Feedback.DoesNotExist:
+            return False
+
+    @property
+    def attempt_length_in_minutes(self):
+        start_seconds = time.mktime(self.created.timetuple())
+        end_seconds = time.mktime(self.modified.timetuple())
+        return round((end_seconds - start_seconds) / 60, 1)
+
     class Meta(CreatedModifiedModel.Meta):
         ordering = ['-modified']
 
@@ -262,7 +284,7 @@ class TaskAttempt(CachedModel, CreatedModifiedModel):
 
 
 class Feedback(CachedModel, CreatedModifiedModel):
-    attempt = models.ForeignKey(TaskAttempt)
+    attempt = models.OneToOneField(TaskAttempt)
     text = models.TextField()
 
     def __unicode__(self):

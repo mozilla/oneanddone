@@ -61,3 +61,24 @@ $(function() {
     }
   });
 });
+
+// To show and hide activity detail
+$(function() {
+  $(document).on('click', '.activity-listing th.toggle', function () {
+    $(this).toggleClass('opened');
+    if ($(this).hasClass('opened')) {
+      $('.activity-item td.toggle').addClass('opened');
+      $('.activity-listing .activty-detail').show();
+    } else {
+      $('.activity-item td.toggle').removeClass('opened');
+      $('.activity-listing .activty-detail').hide();
+    }
+    return false;
+  });
+
+  $(document).on('click', '.activity-item td.toggle', function () {
+    $(this).toggleClass('opened');
+    $(this).parent().next('tr').toggle();
+    return false;
+  });
+});

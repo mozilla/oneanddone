@@ -2,13 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django import forms
+from django.contrib.auth.models import User
 
 import django_filters
 from tower import ugettext_lazy as _lazy
 
-from oneanddone.base.filters import MultiFieldFilter
-from oneanddone.tasks.models import Task, TaskTeam, TaskProject, TaskType
-from oneanddone.tasks.widgets import HorizCheckboxSelect
+from oneanddone.base.filters import MultiFieldFilter, MyDateRangeFilter
+from oneanddone.tasks.models import Task, TaskTeam, TaskProject, TaskType, TaskAttempt
+from oneanddone.base.widgets import HorizCheckboxSelect
 
 
 class TasksFilterSet(django_filters.FilterSet):
@@ -45,3 +46,28 @@ class TasksFilterSet(django_filters.FilterSet):
     class Meta:
         model = Task
         fields = ('search', 'execution_time', 'team', 'project', 'type', 'keyword')
+
+
+class ActivityFilterSet(django_filters.FilterSet):
+
+    task__creator = django_filters.ModelChoiceFilter(
+        label=_lazy(u'Task Owner'),
+        queryset=User.objects.filter(task__isnull=False).distinct())
+
+    task__team = django_filters.ModelChoiceFilter(
+        label=_lazy(u'Team'),
+        queryset=TaskTeam.objects.all())
+
+    user__profile__name = django_filters.CharFilter(
+        label=_lazy(u'User Name'),
+        lookup_type='icontains',
+        widget=forms.TextInput(attrs={'size': 50})
+    )
+
+    modified = MyDateRangeFilter(
+        label=_lazy(u'Date')
+    )
+
+    class Meta:
+        model = TaskAttempt
+        fields = ('task__creator', 'task__team', 'user__profile__name', 'modified')

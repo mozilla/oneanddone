@@ -8,3 +8,10 @@
     {{ field }}
   </div>
 {%- endmacro %}
+
+{% macro activity_filter_field(field) -%}
+  <div class="field task-activity-filter">
+    {{ field.label_tag() }}
+    {{ field }}
+  </div>
+{%- endmacro %}

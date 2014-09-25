@@ -437,3 +437,82 @@ section[class *="-section"] {
         }
     }
 }
+
+/* Task activity listing */
+
+.activity-listing {
+    width: 100%;
+    margin-top: 5px;
+
+    .toggle {
+        padding-right: 40px;
+        background: url(/static/img/ui/item_closed.png) center no-repeat;
+
+        &.opened {
+            background-image: url(/static/img/ui/item_opened.png);
+        }
+    }
+
+}
+
+.activity-item {
+    vertical-align: top;
+}
+
+.task-activity-filter {
+  .span(6);
+}
+
+.filter-button {
+  clear: left;
+}
+
+div.filter-button {
+    margin-top: 5px;
+}
+
+.activty-detail {
+    position: relative;
+    background-color: #fff;
+    #gradient > .vertical(#EAEFF2; #D4DDE4);
+    padding: 4%;
+    .border-radius(.4rem);
+    .box-shadow(2px 2px 8px #999);
+    display: none;
+
+    .task-info {
+        vertical-align: top;
+    }
+
+    .feedback {
+        margin-top: 5px;
+
+        &.no-feedback {
+            font-style: oblique;
+        }
+    }
+}
+
+table.activity-listing thead th {
+    .open-sans;
+    background: #FCFCFC url(/static/img/ui/header-bg.png) left bottom repeat-x;
+    padding: 2px 5px;
+    vertical-align: middle;
+
+    &.orderable {
+
+        a {
+            padding-right: 20px;
+            background: url(/static/img/ui/arrow-inactive-up.png) right center no-repeat;
+        }
+
+        &.asc a {
+            background-image: url(/static/img/ui/arrow-active-up.png);
+        }
+
+        &.desc a {
+            background-image: url(/static/img/ui/arrow-active-down.png);
+        }
+
+    }
+}

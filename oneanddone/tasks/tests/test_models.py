@@ -11,6 +11,7 @@ from nose.tools import eq_, ok_
 from oneanddone.base.tests import TestCase
 from oneanddone.tasks.models import Task, TaskKeyword, TaskAttempt
 from oneanddone.tasks.tests import TaskFactory, TaskKeywordFactory, TaskAttemptFactory
+from oneanddone.tasks.tests import FeedbackFactory
 from oneanddone.users.tests import UserFactory
 
 
@@ -366,3 +367,46 @@ class TaskTests(TestCase):
         eq_(tasks[3], t4)
         eq_(tasks[4], t5)
         eq_(tasks[5], t6)
+
+
+class TaskAttemptTests(TestCase):
+    def setUp(self):
+        user = UserFactory.create()
+        task = TaskFactory.create()
+        self.attempt = TaskAttemptFactory.create(user=user, task=task)
+
+    def test_feedback_display_none(self):
+        """
+        If no feedback exists for an attempt, return a standard string.
+        """
+        eq_(self.attempt.feedback_display, 'No feedback for this attempt')
+
+    def test_feedback_display_text(self):
+        """
+        If feedback exists for an attempt, return the feedback text.
+        """
+        feedback_text = 'Feedback text'
+        FeedbackFactory.create(attempt=self.attempt, text=feedback_text)
+        eq_(self.attempt.feedback_display, feedback_text)
+
+    def test_has_feedback_false(self):
+        """
+        If no feedback exists return False.
+        """
+        eq_(self.attempt.has_feedback, False)
+
+    def test_has_feedback_true(self):
+        """
+        If feedback exists return True.
+        """
+        FeedbackFactory.create(attempt=self.attempt)
+        eq_(self.attempt.has_feedback, True)
+
+    def test_attempt_length_in_minutes(self):
+        """
+        Return the time, in minutes between the attempt creation time and
+        last modification time.
+        """
+        self.attempt.created = aware_datetime(2014, 1, 1)
+        self.attempt.modified = aware_datetime(2014, 1, 2)
+        eq_(self.attempt.attempt_length_in_minutes, 1440)
