@@ -59,3 +59,5 @@ ignores:
   - "*.sql"
   - "mine/*"
   - "stackato-*"
+cron:
+  - "00 * * * * python manage.py taskattemptcleanup >>$HOME/cron-stdout.log 2>>$HOME/cron-stderr.log"

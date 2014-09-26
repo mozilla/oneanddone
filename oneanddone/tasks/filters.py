@@ -58,10 +58,9 @@ class ActivityFilterSet(django_filters.FilterSet):
         label=_lazy(u'Team'),
         queryset=TaskTeam.objects.all())
 
-    user__profile__name = django_filters.CharFilter(
-        label=_lazy(u'User Name'),
-        lookup_type='icontains',
-        widget=forms.TextInput(attrs={'size': 50})
+    user = MultiFieldFilter(
+        ['user__profile__name', 'user__profile__username', 'user__email'],
+        label=_lazy(u'Task User')
     )
 
     modified = MyDateRangeFilter(
@@ -70,4 +69,4 @@ class ActivityFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = TaskAttempt
-        fields = ('task__creator', 'task__team', 'user__profile__name', 'modified')
+        fields = ('task__creator', 'task__team', 'user', 'modified')

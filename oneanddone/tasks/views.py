@@ -175,7 +175,8 @@ class ActivityView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
     list_headers = (
         (_('Task'), 'task__name'),
         (_('User'), 'user__profile__name'),
-        (_('Status'), 'state'),
+        (_('Status'), 'state_display'),
+        (_('Time'), 'elapsed_time'),
     )
     context_object_name = 'attempts'
     template_name = 'tasks/activity.html'
@@ -189,7 +190,12 @@ class ActivityView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
 
     def get_queryset(self):
         self.sort_headers = SortHeaders(self.request, self.list_headers)
-        return TaskAttempt.objects.order_by(self.sort_headers.get_order_by())
+        qs = TaskAttempt.objects.extra(
+            select={
+                'state_display': TaskAttempt.choice_display_extra_expression('state'),
+                'elapsed_time': 'TIMESTAMPDIFF(SECOND, tasks_taskattempt.created, tasks_taskattempt.modified)'
+            })
+        return qs.order_by(self.sort_headers.get_order_by())
 
 
 class CreateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.CreateView):
