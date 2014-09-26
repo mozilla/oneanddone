@@ -7,6 +7,24 @@ from django.db import models
 import caching.base
 
 
+class BaseModel(models.Model):
+    """
+    Base class for models which adds utility methods.
+    """
+
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def choice_display_extra_expression(self, field):
+        exp = 'CASE %s ' % field
+        state_field = self._meta.get_field_by_name(field)[0]
+        for choice in state_field.choices:
+            exp += "WHEN %s THEN '%s' " % (choice[0], choice[1])
+        exp += "END"
+        return exp
+
+
 class CachedModel(caching.base.CachingMixin, models.Model):
     """
     Base class for models which adds caching via django-cache-machine.
@@ -18,9 +36,9 @@ class CachedModel(caching.base.CachingMixin, models.Model):
         abstract = True
 
 
-class CreatedModifiedModel(models.Model):
+class CreatedModifiedModel(BaseModel):
     """
-    Abstract model that tracts when an instance is created and modified.
+    Abstract model that tracks when an instance is created and modified.
     """
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
