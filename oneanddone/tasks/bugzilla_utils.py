@@ -48,9 +48,11 @@ class BugzillaUtils(object):
         bug_count = response.get('bug_count', '0')
         return int(bug_count)
 
-    def request_bug(self, bug_id, fields=['id', 'summary']):
+    def request_bug(self, bug_id, fields=None):
         """ Returns bug with id `bug_id` from Buzgilla@Mozilla, if any """
-        params = {'include_fields': ','.join(fields)}
+        params = {}
+        if fields:
+            params['include_fields'] = ','.join(fields)
         url = ''.join([self.baseurl, '/', str(bug_id)])
         bugs = self._request_json(url, params).get('bugs')
         if bugs:

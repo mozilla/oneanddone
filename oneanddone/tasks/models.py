@@ -19,6 +19,7 @@ from markdown import markdown
 from tower import ugettext as _
 
 from oneanddone.base.models import CachedModel, CreatedByModel, CreatedModifiedModel
+from oneanddone.tasks.bugzilla_utils import BugzillaUtils
 
 
 class TaskInvalidationCriterion(CreatedModifiedModel, CreatedByModel):
@@ -43,6 +44,15 @@ class TaskInvalidationCriterion(CreatedModifiedModel, CreatedByModel):
         return ' '.join([str(self.field_name),
                          self.choices[self.relation],
                          self.field_value])
+
+    def passes(self, bug):
+        sought_value = self.field_value.lower()
+        actual_value = bug[self.field_name.lower()].lower()
+        matches = sought_value == actual_value
+        if ((self.relation == self.EQUAL and matches) or
+                (self.relation == self.NOT_EQUAL and not matches)):
+            return True
+        return False
 
     field_name.help_text = """
         Name of field recognized by Bugzilla@Mozilla REST API. Examples:
@@ -197,6 +207,22 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
         return jinja2.Markup(cleaned_html)
 
     @property
+    def has_bugzilla_bug(self):
+        return isinstance(self.imported_item, BugzillaBug)
+
+    @property
+    def bugzilla_bug(self):
+        if self.has_bugzilla_bug:
+            return BugzillaUtils().request_bug(self.imported_item.bugzilla_id)
+        return None
+
+    @property
+    def invalidation_criteria(self):
+        if self.batch:
+            return self.batch.taskinvalidationcriterion_set.all()
+        return None
+
+    @property
     def keywords_list(self):
         return ', '.join([keyword.name for keyword in self.keyword_set.all()])
 
@@ -255,6 +281,25 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
 
     def __unicode__(self):
         return self.name
+
+    @classmethod
+    def invalidate_tasks(self):
+        """
+        Invalidate any tasks for which invalidation criteria is met
+        """
+        bugzillabug_type = ContentType.objects.get(model="BugzillaBug")
+        tasks = self.objects.filter(
+            is_invalid=False,
+            content_type=bugzillabug_type)
+        invalidated = 0
+        for task in tasks:
+            bug = task.bugzilla_bug
+            for criterion in task.invalidation_criteria:
+                if criterion.passes(bug):
+                    task.is_invalid = True
+                    task.save()
+                    invalidated += 1
+        return invalidated
 
     @classmethod
     def is_available_filter(self, now=None, allow_expired=False, prefix=''):

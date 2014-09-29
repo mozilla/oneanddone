@@ -9,9 +9,12 @@ from mock import patch
 from nose.tools import eq_, ok_
 
 from oneanddone.base.tests import TestCase
-from oneanddone.tasks.models import Task, TaskKeyword, TaskAttempt
-from oneanddone.tasks.tests import TaskFactory, TaskKeywordFactory, TaskAttemptFactory
-from oneanddone.tasks.tests import FeedbackFactory
+from oneanddone.tasks.models import (Task, TaskInvalidationCriterion, TaskKeyword,
+                                     TaskAttempt)
+from oneanddone.tasks.tests import (BugzillaBugFactory, FeedbackFactory,
+                                    TaskFactory, TaskImportBatchFactory,
+                                    TaskInvalidationCriterionFactory, TaskKeywordFactory,
+                                    TaskAttemptFactory)
 from oneanddone.users.tests import UserFactory
 
 
@@ -342,6 +345,63 @@ class TaskTests(TestCase):
         eq_(TaskAttempt.objects.filter(task=self.task_no_draft,
                                        state=TaskAttempt.STARTED).count(), 1)
 
+    def test_invalidate_tasks_equals_criterion(self):
+        """
+        The invalidate_tasks routine should invalidate tasks which match the
+        invalidation criteria.
+        This tests an equals criterion.
+        """
+        bug_to_become_invalid, bug_to_stay_valid = BugzillaBugFactory.create_batch(2)
+        batch = TaskImportBatchFactory.create()
+        criterion = TaskInvalidationCriterionFactory.create(
+            field_name='name',
+            relation=TaskInvalidationCriterion.EQUAL,
+            field_value='value')
+        criterion.batches.add(batch)
+        criterion.save()
+        task1, task2, task3 = TaskFactory.create_batch(3,
+                                                       batch=batch,
+                                                       imported_item=bug_to_become_invalid,
+                                                       is_invalid=False)
+        task3.imported_item = bug_to_stay_valid
+        task3.save()
+        with patch('oneanddone.tasks.models.BugzillaUtils.request_bug') as request_bug:
+            request_bug.side_effect = lambda x: {
+                bug_to_become_invalid.bugzilla_id: {'name': 'value'},
+                bug_to_stay_valid.bugzilla_id: {'name': 'not value'}}[x]
+            eq_(Task.invalidate_tasks(), 2)
+        eq_(Task.objects.get(pk=task1.pk).is_invalid, True)
+        eq_(Task.objects.get(pk=task2.pk).is_invalid, True)
+        eq_(Task.objects.get(pk=task3.pk).is_invalid, False)
+
+    def test_invalidate_tasks_not_equals_criterion(self):
+        """
+        The invalidate_tasks routine should invalidate tasks which match the
+        invalidation criteria.
+        This tests a not equals criterion.
+        """
+        bug_to_become_invalid, bug_to_stay_valid = BugzillaBugFactory.create_batch(2)
+        batch = TaskImportBatchFactory.create()
+        criterion = TaskInvalidationCriterionFactory.create(
+            field_name='name',
+            relation=TaskInvalidationCriterion.NOT_EQUAL,
+            field_value='value')
+        criterion.batches.add(batch)
+        criterion.save()
+        task1, task2 = TaskFactory.create_batch(2,
+                                                batch=batch,
+                                                imported_item=bug_to_become_invalid,
+                                                is_invalid=False)
+        task2.imported_item = bug_to_stay_valid
+        task2.save()
+        with patch('oneanddone.tasks.models.BugzillaUtils.request_bug') as request_bug:
+            request_bug.side_effect = lambda x: {
+                bug_to_become_invalid.bugzilla_id: {'name': 'value'},
+                bug_to_stay_valid.bugzilla_id: {'name': 'not value'}}[x]
+            eq_(Task.invalidate_tasks(), 1)
+        eq_(Task.objects.get(pk=task1.pk).is_invalid, False)
+        eq_(Task.objects.get(pk=task2.pk).is_invalid, True)
+
     def test_save_closes_task_attempts(self):
         """
         When a saved task is unavailable,
@@ -399,6 +459,39 @@ class TaskTests(TestCase):
         eq_(tasks[4], t5)
         eq_(tasks[5], t6)
 
+    def test_has_bugzilla_bug_true(self):
+        bug = BugzillaBugFactory.create()
+        task = TaskFactory.create(imported_item=bug)
+        ok_(task.has_bugzilla_bug)
+
+    def test_has_bugzilla_bug_false(self):
+        task = TaskFactory.create()
+        ok_(not task.has_bugzilla_bug)
+
+    def test_bugzilla_bug_exists(self):
+        bug = BugzillaBugFactory.create()
+        task = TaskFactory.create(imported_item=bug)
+        with patch('oneanddone.tasks.models.BugzillaUtils.request_bug') as request_bug:
+            request_bug.return_value = bug
+            eq_(bug, task.bugzilla_bug)
+            request_bug.assert_called_with(bug.bugzilla_id)
+
+    def test_bugzilla_bug_not_exists(self):
+        task = TaskFactory.create()
+        eq_(None, task.bugzilla_bug)
+
+    def test_invalidation_criteria_exists(self):
+        batch = TaskImportBatchFactory.create()
+        criterion = TaskInvalidationCriterionFactory.create()
+        criterion.batches.add(batch)
+        criterion.save()
+        task = TaskFactory.create(batch=batch)
+        eq_(criterion, task.invalidation_criteria[0])
+
+    def test_invalidation_criteria_does_not_exist(self):
+        task = TaskFactory.create()
+        eq_(None, task.invalidation_criteria)
+
 
 class TaskAttemptTests(TestCase):
     def setUp(self):
@@ -441,3 +534,50 @@ class TaskAttemptTests(TestCase):
         self.attempt.created = aware_datetime(2014, 1, 1)
         self.attempt.modified = aware_datetime(2014, 1, 2)
         eq_(self.attempt.attempt_length_in_minutes, 1440)
+
+
+class TaskInvalidationCriterionTests(TestCase):
+
+    def test_equal_passes_true(self):
+        """
+        Return true if the criterion passes for the bug, using EQUAL.
+        """
+        criterion = TaskInvalidationCriterionFactory.create(
+            field_name='name',
+            relation=TaskInvalidationCriterion.EQUAL,
+            field_value='value')
+        bug = {'name': 'value'}
+        ok_(criterion.passes(bug))
+
+    def test_equal_passes_false(self):
+        """
+        Return false if the criterion does not pass for the bug, using EQUAL.
+        """
+        criterion = TaskInvalidationCriterionFactory.create(
+            field_name='name',
+            relation=TaskInvalidationCriterion.EQUAL,
+            field_value='value')
+        bug = {'name': 'not value'}
+        ok_(not criterion.passes(bug))
+
+    def test_not_equal_passes_true(self):
+        """
+        Return true if the criterion passes for the bug, using NOT_EQUAL.
+        """
+        criterion = TaskInvalidationCriterionFactory.create(
+            field_name='name',
+            relation=TaskInvalidationCriterion.NOT_EQUAL,
+            field_value='not value')
+        bug = {'name': 'value'}
+        ok_(criterion.passes(bug))
+
+    def test_not_equal_passes_false(self):
+        """
+        Return false if the criterion does not pass for the bug, using NOT_EQUAL.
+        """
+        criterion = TaskInvalidationCriterionFactory.create(
+            field_name='name',
+            relation=TaskInvalidationCriterion.NOT_EQUAL,
+            field_value='value')
+        bug = {'name': 'value'}
+        ok_(not criterion.passes(bug))

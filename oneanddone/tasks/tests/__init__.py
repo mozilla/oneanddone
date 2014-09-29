@@ -25,6 +25,31 @@ class TaskTypeFactory(DjangoModelFactory):
     creator = SubFactory(UserFactory)
 
 
+class BugzillaBugFactory(DjangoModelFactory):
+    FACTORY_FOR = models.BugzillaBug
+
+    summary = Sequence(lambda n: 'test{0}'.format(n))
+    bugzilla_id = Sequence(lambda n: n)
+
+
+class TaskImportBatchFactory(DjangoModelFactory):
+    FACTORY_FOR = models.TaskImportBatch
+
+    description = Sequence(lambda n: 'test{0}'.format(n))
+    query = Sequence(lambda n: 'test{0}'.format(n))
+    source = models.TaskImportBatch.BUGZILLA
+    creator = SubFactory(UserFactory)
+
+
+class TaskInvalidationCriterionFactory(DjangoModelFactory):
+    FACTORY_FOR = models.TaskInvalidationCriterion
+
+    field_name = Sequence(lambda n: 'test{0}'.format(n))
+    relation = models.TaskInvalidationCriterion.EQUAL
+    field_value = Sequence(lambda n: 'test{0}'.format(n))
+    creator = SubFactory(UserFactory)
+
+
 class TaskFactory(DjangoModelFactory):
     FACTORY_FOR = models.Task
 

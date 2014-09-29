@@ -60,4 +60,4 @@ ignores:
   - "mine/*"
   - "stackato-*"
 cron:
-  - "00 * * * * python manage.py taskattemptcleanup >>$HOME/cron-stdout.log 2>>$HOME/cron-stderr.log"
+  - "00 */6 * * * python manage.py taskcleanup >>$HOME/cron-stdout.log 2>>$HOME/cron-stderr.log"
