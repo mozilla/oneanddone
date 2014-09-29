@@ -7,7 +7,7 @@
 
 {% block content %}
 <main class="billboard content-container task-detail">
-  <h1>{{ task.name }}</h1>
+  <h1>{{ task.name|buglinkify }}</h1>
   <div class="row">
     <div>{{ task.short_description }}</div>
   </div>

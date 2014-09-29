@@ -17,15 +17,16 @@ from oneanddone.users.tests import UserFactory
 class TaskDetailViewTests(TestCase):
     def setUp(self):
         self.view = views.TaskDetailView()
+        self.view.request = Mock()
+        self.view.object = Mock()
+        self.view.object.name = 'name'
 
     def test_get_context_data_not_authenticated(self):
         """
         If the current user isn't authenticated, don't include an
         attempt in the context.
         """
-        self.view.request = Mock()
         self.view.request.user.is_authenticated.return_value = False
-        self.view.object = Mock()
 
         with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
             get_context_data.return_value = {}
@@ -37,9 +38,7 @@ class TaskDetailViewTests(TestCase):
         If the current user is authenticated, fetch their attempt for
         the current task using get_object_or_none.
         """
-        self.view.request = Mock()
         self.view.request.user.is_authenticated.return_value = True
-        self.view.object = Mock()
 
         get_object_patch = patch('oneanddone.tasks.views.get_object_or_none')
         context_patch = patch('oneanddone.tasks.views.generic.DetailView.get_context_data')
@@ -55,9 +54,7 @@ class TaskDetailViewTests(TestCase):
         """
         If the task is taken, correct values should be added to the context.
         """
-        self.view.request = Mock()
         self.view.request.user.is_authenticated.return_value = False
-        self.view.object = Mock()
         self.view.object.is_taken = True
 
         with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
@@ -70,9 +67,7 @@ class TaskDetailViewTests(TestCase):
         """
         If the task is taken, correct values should be added to the context.
         """
-        self.view.request = Mock()
         self.view.request.user.is_authenticated.return_value = False
-        self.view.object = Mock()
         self.view.object.is_taken = False
         self.view.object.is_completed = True
 
@@ -86,9 +81,7 @@ class TaskDetailViewTests(TestCase):
         """
         If the task is taken, correct values should be added to the context.
         """
-        self.view.request = Mock()
         self.view.request.user.is_authenticated.return_value = False
-        self.view.object = Mock()
         self.view.object.is_taken = False
         self.view.object.is_completed = False
 

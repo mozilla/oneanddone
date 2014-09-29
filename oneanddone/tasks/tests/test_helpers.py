@@ -8,7 +8,7 @@ from mock import Mock
 from nose.tools import eq_
 
 from oneanddone.base.tests import TestCase
-from oneanddone.tasks.helpers import page_url
+from oneanddone.tasks.helpers import page_url, buglinkify
 
 
 class PageUrlTests(TestCase):
@@ -45,3 +45,41 @@ class PageUrlTests(TestCase):
         eq_(args, {'foo': ['bar', 'ok'], 'baz': ['5'], 'page': ['4']})
 
 
+class BuglinkifyTests(TestCase):
+
+    def setUp(self):
+        self.bugzilla_url_prefix = 'https://bugzilla.mozilla.org/show_bug.cgi?id='
+
+    def test_with_bug_ucase(self):
+        """
+        buglinkify should linkify a capitalized bug in a string.
+        """
+        name = 'Test this string with Bug 12345'
+        eq_(buglinkify(name),
+            'Test this string with <a href="%s12345">Bug 12345</a>' %
+            self.bugzilla_url_prefix)
+
+    def test_with_bug_lcase(self):
+        """
+        buglinkify should linkify a lowercase bug in a string.
+        """
+        name = 'Test this string with bug 12345'
+        eq_(buglinkify(name),
+            'Test this string with <a href="%s12345">bug 12345</a>' %
+            self.bugzilla_url_prefix)
+
+    def test_without_bug(self):
+        """
+        buglinkify should leave string intact without a bug.
+        """
+        name = 'Test this string with boog 12345'
+        eq_(buglinkify(name), name)
+
+    def test_with_extra_numbers(self):
+        """
+        buglinkify should only linkify the bug.
+        """
+        name = 'Test this 12345 string with Bug 12345 and 12345'
+        eq_(buglinkify(name),
+            'Test this 12345 string with <a href="%s12345">Bug 12345</a> and 12345' %
+            self.bugzilla_url_prefix)
