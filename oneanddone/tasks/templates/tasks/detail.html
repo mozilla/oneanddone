@@ -8,6 +8,14 @@
 {% block content %}
 <main class="billboard content-container task-detail">
   <h1>{{ task.name|buglinkify }}</h1>
+  {% if task.imported_item %}
+    <div class="row">
+      <div>
+        {{ _('Summary of Bug') }} {{ task.imported_item.bugzilla_id }}:
+        <span class="bug-summary">{{ task.imported_item.summary }}</span>
+      </div>
+    </div>
+  {% endif %}
   <div class="row">
     <div>{{ task.short_description }}</div>
   </div>
