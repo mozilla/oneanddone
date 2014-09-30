@@ -8,7 +8,7 @@ from requests.exceptions import RequestException
 from tower import ugettext as _
 from urlparse import urlparse, parse_qs
 
-from oneanddone.base.widgets import CalendarInput, HorizRadioSelect
+from oneanddone.base.widgets import CalendarInput
 from oneanddone.tasks.bugzilla_utils import BugzillaUtils
 from oneanddone.tasks.models import (BugzillaBug, Feedback, Task,
                                      TaskImportBatch,
@@ -37,8 +37,8 @@ class PreviewConfirmationForm(forms.Form):
 
 
 class TaskInvalidationCriterionForm(forms.Form):
-    criterion = forms.ModelChoiceField(queryset=
-                                       TaskInvalidationCriterion.objects.all())
+    criterion = forms.ModelChoiceField(
+        queryset=TaskInvalidationCriterion.objects.all())
 
 
 class BaseTaskInvalidCriteriaFormSet(forms.formsets.BaseFormSet):
@@ -125,8 +125,7 @@ class TaskImportBatchForm(forms.ModelForm):
         fields = ('description', 'query')
         widgets = {
             'query': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),
-            'description': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'})
-            }
+            'description': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'})}
 
 
 class TaskForm(forms.ModelForm):
@@ -141,7 +140,6 @@ class TaskForm(forms.ModelForm):
             initial['keywords'] = kwargs['instance'].keywords_list
             kwargs['initial'] = initial
         super(TaskForm, self).__init__(*args, **kwargs)
-        # self.fields['keywords'].value = self.instance.keywords_list
 
     def save(self, creator, *args, **kwargs):
         self.instance.creator = creator
@@ -186,21 +184,3 @@ class TaskForm(forms.ModelForm):
         css = {
             'all': ('css/admin_ace.css',)
         }
-
-
-class TaskModelForm(forms.ModelForm):
-    instructions = (forms.CharField(widget=AceWidget(mode='markdown',
-                    theme='textmate', width='800px', height='600px',
-                    wordwrap=True)))
-
-    class Meta:
-        model = Task
-
-    class Media:
-        css = {
-            'all': ('css/admin_ace.css',)
-        }
-
-    instructions.help_text = ('Instructions are written in '
-                              '<a href="http://markdowntutorial.com/" '
-                              'target="_blank">Markdown</a>.')

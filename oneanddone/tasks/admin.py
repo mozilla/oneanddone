@@ -1,7 +1,6 @@
 from django.contrib import admin
 
 from oneanddone.tasks import models
-from oneanddone.tasks.forms import TaskModelForm
 
 
 class RecordCreatorMixin(object):

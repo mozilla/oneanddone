@@ -1,6 +1,8 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+import re
+
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
@@ -24,8 +26,7 @@ from oneanddone.tasks.mixins import (APIRecordCreatorMixin,
 from oneanddone.tasks.mixins import (TaskMustBeAvailableMixin,
                                      HideNonRepeatableTaskMixin)
 from oneanddone.tasks.mixins import GetUserAttemptMixin
-from oneanddone.tasks.models import (BugzillaBug, Feedback, Task, TaskAttempt,
-                                     TaskInvalidationCriterion)
+from oneanddone.tasks.models import BugzillaBug, Feedback, Task, TaskAttempt
 from oneanddone.tasks.serializers import TaskSerializer
 from oneanddone.users.mixins import (MyStaffUserRequiredMixin,
                                      PrivacyPolicyRequiredMixin)
@@ -242,6 +243,7 @@ class ImportTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Temp
         ctx = super(ImportTasksView, self).get_context_data(**kwargs)
         ctx.update(kwargs)
         ctx['action'] = 'Import'
+        ctx['import_obj'] = 'tasks'
         ctx['cancel_url'] = reverse('tasks.list')
         return ctx
 
@@ -255,7 +257,6 @@ class ImportTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Temp
             ctx['basename'] = forms['task_form'].cleaned_data['name']
             ctx['bugs'] = bugs
             ctx['num_tasks'] = len(bugs)
-            ctx['bugzilla_url'] = 'https://bugzilla.mozilla.org/show_bug.cgi?id='
             return self.render_to_response(self.get_context_data(**ctx))
 
     def forms_invalid(self, forms):

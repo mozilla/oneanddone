@@ -6,8 +6,8 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
@@ -226,14 +226,14 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     @property
     def is_taken(self):
         return (not self.repeatable and
-                self.taskattempt_set.filter(state=
-                                            TaskAttempt.STARTED).exists())
+                self.taskattempt_set.filter(
+                    state=TaskAttempt.STARTED).exists())
 
     @property
     def is_completed(self):
         return (not self.repeatable and
-                self.taskattempt_set.filter(state=
-                                            TaskAttempt.FINISHED).exists())
+                self.taskattempt_set.filter(
+                    state=TaskAttempt.FINISHED).exists())
 
     @property
     def instructions_html(self):
