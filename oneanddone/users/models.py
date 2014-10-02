@@ -21,19 +21,6 @@ User.add_to_class('__unicode__', user_unicode)
 
 
 @property
-def user_display_name(self):
-    """
-    Return this user's display name, or 'Anonymous' if they don't have a
-    profile.
-    """
-    try:
-        return self.profile.name
-    except UserProfile.DoesNotExist:
-        return None
-User.add_to_class('display_name', user_display_name)
-
-
-@property
 def user_display_email(self):
     """
     If a user has not consented to receive emails
@@ -47,6 +34,19 @@ def user_display_email(self):
         return no_consent_email
     return no_consent_email
 User.add_to_class('display_email', user_display_email)
+
+
+@property
+def user_display_name(self):
+    """
+    Return this user's display name, or 'Anonymous' if they don't have a
+    profile.
+    """
+    try:
+        return self.profile.name
+    except UserProfile.DoesNotExist:
+        return None
+User.add_to_class('display_name', user_display_name)
 
 
 @property
@@ -83,10 +83,11 @@ User.__bases__ = (CachingMixin,) + User.__bases__
 
 class UserProfile(CachedModel, models.Model):
     user = models.OneToOneField(User, related_name='profile')
-    username = models.CharField(_lazy(u'Username'), max_length=30, unique=True, null=True)
+
+    consent_to_email = models.BooleanField(default=True)
     name = models.CharField(_lazy(u'Display Name:'), max_length=255)
     privacy_policy_accepted = models.BooleanField(default=False)
-    consent_to_email = models.BooleanField(default=True)
+    username = models.CharField(_lazy(u'Username'), max_length=30, unique=True, null=True)
 
     @property
     def email(self):

@@ -30,6 +30,6 @@ class UserProfileAdmin(admin.ModelAdmin):
         return qs.filter(privacy_policy_accepted=True)
 
 
-admin.site.register(models.UserProfile, UserProfileAdmin)
 admin.site.unregister(User)
 admin.site.register(User, MyUserAdmin)
+admin.site.register(models.UserProfile, UserProfileAdmin)

@@ -52,32 +52,6 @@ class CreateProfileViewTests(TestCase):
             redirect.assert_called_with('base.home')
 
 
-class ProfileDetailsViewTests(TestCase):
-    def setUp(self):
-        self.view = views.ProfileDetailsView()
-        self.view.kwargs = {}
-        self.request = Mock()
-
-    def test_get_object_existing_username(self):
-        """
-        If an existing username is passed in, return that user's profile.
-        """
-        user = UserProfileFactory.create().user
-        self.view.kwargs['username'] = user.profile.username
-
-        eq_(self.view.get_object(), user.profile)
-
-    def test_get_object_non_existent_username(self):
-        """
-        If a non-existent username is passed in, throw a 404.
-        """
-        user = UserProfileFactory.create().user
-        self.view.kwargs['username'] = user.profile.username + str(datetime.today())
-
-        with self.assertRaises(Http404):
-            self.view.get_object()
-
-
 class MyProfileDetailsViewTests(TestCase):
     def setUp(self):
         self.view = views.MyProfileDetailsView()
@@ -103,3 +77,29 @@ class MyProfileDetailsViewTests(TestCase):
         self.request.user = UserProfileFactory.create().user
         self.view.request = self.request
         eq_(self.view.get_object(), self.request.user.profile)
+
+
+class ProfileDetailsViewTests(TestCase):
+    def setUp(self):
+        self.view = views.ProfileDetailsView()
+        self.view.kwargs = {}
+        self.request = Mock()
+
+    def test_get_object_existing_username(self):
+        """
+        If an existing username is passed in, return that user's profile.
+        """
+        user = UserProfileFactory.create().user
+        self.view.kwargs['username'] = user.profile.username
+
+        eq_(self.view.get_object(), user.profile)
+
+    def test_get_object_non_existent_username(self):
+        """
+        If a non-existent username is passed in, throw a 404.
+        """
+        user = UserProfileFactory.create().user
+        self.view.kwargs['username'] = user.profile.username + str(datetime.today())
+
+        with self.assertRaises(Http404):
+            self.view.get_object()

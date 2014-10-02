@@ -9,7 +9,7 @@ from django.http import Http404
 from django.shortcuts import redirect
 from django.views import generic
 
-from rest_framework import generics, permissions
+from rest_framework import generics
 from braces.views import LoginRequiredMixin
 import django_browserid.views
 from funfactory.urlresolvers import reverse_lazy
@@ -22,19 +22,6 @@ from oneanddone.users.forms import UserProfileForm, SignUpForm
 from oneanddone.users.mixins import UserProfileRequiredMixin
 from oneanddone.users.models import UserProfile
 from serializers import UserSerializer
-
-
-class LoginView(generic.TemplateView):
-    template_name = 'users/login.html'
-
-
-class Verify(django_browserid.views.Verify):
-    def login_failure(self, *args, **kwargs):
-        messages.error(self.request, _("""
-            There was a problem signing you in. Please try again. If you continue to have issues
-            logging in, let us know by emailing <a href="mailto:{email}">{email}</a>.
-        """).format(email='oneanddone@mozilla.com'), extra_tags='safe')
-        return super(Verify, self).login_failure(*args, **kwargs)
 
 
 def default_username(email, counter):
@@ -61,11 +48,6 @@ class CreateProfileView(generic.CreateView):
         else:
             return super(CreateProfileView, self).dispatch(request, *args, **kwargs)
 
-    def get_initial(self):
-        return {
-            'username': default_username(self.request.user.email, 0),
-        }
-
     def form_valid(self, form):
         profile = form.save(commit=False)
         profile.user = self.request.user
@@ -73,11 +55,73 @@ class CreateProfileView(generic.CreateView):
         messages.success(self.request, _('Your profile has been created.'))
         return redirect('base.home')
 
+    def get_initial(self):
+        return {
+            'username': default_username(self.request.user.email, 0),
+        }
+
+
+class DeleteProfileView(UserProfileRequiredMixin, generic.DeleteView):
+    model = UserProfile
+    success_url = reverse_lazy('base.home')
+    template_name = 'users/profile/delete.html'
+
+    def get_object(self):
+        return self.request.user.profile
+
+
+class LoginView(generic.TemplateView):
+    template_name = 'users/login.html'
+
+
+class ProfileDetailsView(generic.DetailView):
+    model = UserProfile
+    template_name = 'users/profile/detail.html'
+
+    def get_context_data(self, **kwargs):
+        all_attempts_finished = self.object.user.taskattempt_set.filter(state=TaskAttempt.FINISHED)
+        paginator = Paginator(all_attempts_finished, 20)
+        page = self.request.GET.get('page', 1)
+
+        try:
+            attempts_finished = paginator.page(page)
+        except PageNotAnInteger:
+            attempts_finished = paginator.page(1)
+        except EmptyPage:
+            attempts_finished = paginator.page(paginator.num_pages)
+
+        context = super(ProfileDetailsView, self).get_context_data(**kwargs)
+        context['attempts_finished'] = attempts_finished
+        context['page'] = 'ProfileDetails'
+        return context
+
+    def get_object(self, *args, **kwargs):
+        username = self.kwargs.get('username')
+        try:
+            return self.get_queryset().get(username=username)
+        except (ObjectDoesNotExist, MultipleObjectsReturned):
+            raise Http404(_(u'No UserProfiles found matching the username'))
+
+
+class MyProfileDetailsView(ProfileDetailsView):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated():
+            return redirect('base.home')
+        return super(MyProfileDetailsView, self).dispatch(request, *args, **kwargs)
+
+    def get_object(self, *args, **kwargs):
+        return self.request.user.profile
+
 
 class UpdateProfileView(LoginRequiredMixin, generic.UpdateView):
     model = UserProfile
     template_name = 'users/profile/edit.html'
     success_url = reverse_lazy('base.home')
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('Your profile has been updated.'))
+        return redirect('base.home')
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(UpdateProfileView, self).get_context_data(*args, **kwargs)
@@ -99,58 +143,23 @@ class UpdateProfileView(LoginRequiredMixin, generic.UpdateView):
     def get_object(self):
         return self.request.user.profile
 
-    def form_valid(self, form):
-        form.save()
-        messages.success(self.request, _('Your profile has been updated.'))
-        return redirect('base.home')
+
+class Verify(django_browserid.views.Verify):
+    def login_failure(self, *args, **kwargs):
+        messages.error(self.request, _("""
+            There was a problem signing you in. Please try again. If you continue to have issues
+            logging in, let us know by emailing <a href="mailto:{email}">{email}</a>.
+        """).format(email='oneanddone@mozilla.com'), extra_tags='safe')
+        return super(Verify, self).login_failure(*args, **kwargs)
 
 
-class DeleteProfileView(UserProfileRequiredMixin, generic.DeleteView):
-    model = UserProfile
-    success_url = reverse_lazy('base.home')
-    template_name = 'users/profile/delete.html'
-
-    def get_object(self):
-        return self.request.user.profile
-
-
-class ProfileDetailsView(generic.DetailView):
-    model = UserProfile
-    template_name = 'users/profile/detail.html'
-
-    def get_object(self, *args, **kwargs):
-        username = self.kwargs.get('username')
-        try:
-            return self.get_queryset().get(username=username)
-        except (ObjectDoesNotExist, MultipleObjectsReturned):
-            raise Http404(_(u'No UserProfiles found matching the username'))
-
-    def get_context_data(self, **kwargs):
-        all_attempts_finished = self.object.user.taskattempt_set.filter(state=TaskAttempt.FINISHED)
-        paginator = Paginator(all_attempts_finished, 20)
-        page = self.request.GET.get('page', 1)
-
-        try:
-            attempts_finished = paginator.page(page)
-        except PageNotAnInteger:
-            attempts_finished = paginator.page(1)
-        except EmptyPage:
-            attempts_finished = paginator.page(paginator.num_pages)
-
-        context = super(ProfileDetailsView, self).get_context_data(**kwargs)
-        context['attempts_finished'] = attempts_finished
-        context['page'] = 'ProfileDetails'
-        return context
-
-
-class MyProfileDetailsView(ProfileDetailsView):
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated():
-            return redirect('base.home')
-        return super(MyProfileDetailsView, self).dispatch(request, *args, **kwargs)
-
-    def get_object(self, *args, **kwargs):
-        return self.request.user.profile
+class UserDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint used to get, update and delete user data.
+    """
+    lookup_field = 'email'
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 class UserListAPI(generics.ListCreateAPIView):
@@ -160,12 +169,3 @@ class UserListAPI(generics.ListCreateAPIView):
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-
-class UserDetailAPI(generics.RetrieveUpdateDestroyAPIView):
-    """
-    API endpoint used to get, update and delete user data.
-    """
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    lookup_field = 'email'

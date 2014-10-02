@@ -8,27 +8,15 @@ from django.shortcuts import get_object_or_404
 from oneanddone.tasks.models import Task, TaskAttempt
 
 
-class TaskMustBeAvailableMixin(object):
-    """
-    Only allow published tasks to be listed, by filtering the
-    queryset.
-    """
-    allow_expired_tasks = False
-
-    def get_queryset(self):
-        queryset = super(TaskMustBeAvailableMixin, self).get_queryset()
-        return queryset.filter(Task.is_available_filter(allow_expired=self.allow_expired_tasks))
+class APIOnlyCreatorMayDeleteMixin(object):
+    def pre_delete(self, obj):
+        if obj.creator != self.request.user:
+            raise PermissionDenied()
 
 
-class HideNonRepeatableTaskMixin(object):
-    """
-    Do not allow access to a non-repeatable task that is not available to the user.
-    """
-    def get_object(self, queryset=None):
-        task = super(HideNonRepeatableTaskMixin, self).get_object(queryset)
-        if not task.is_available_to_user(self.request.user):
-            raise Http404('Task unavailable.')
-        return task
+class APIRecordCreatorMixin(object):
+    def pre_save(self, obj):
+        obj.creator = self.request.user
 
 
 class GetUserAttemptMixin(object):
@@ -42,12 +30,24 @@ class GetUserAttemptMixin(object):
         return super(GetUserAttemptMixin, self).dispatch(request, *args, **kwargs)
 
 
-class APIRecordCreatorMixin(object):
-    def pre_save(self, obj):
-        obj.creator = self.request.user
+class HideNonRepeatableTaskMixin(object):
+    """
+    Do not allow access to a non-repeatable task that is not available to the user.
+    """
+    def get_object(self, queryset=None):
+        task = super(HideNonRepeatableTaskMixin, self).get_object(queryset)
+        if not task.is_available_to_user(self.request.user):
+            raise Http404('Task unavailable.')
+        return task
 
 
-class APIOnlyCreatorMayDeleteMixin(object):
-    def pre_delete(self, obj):
-        if obj.creator != self.request.user:
-            raise PermissionDenied()
+class TaskMustBeAvailableMixin(object):
+    """
+    Only allow published tasks to be listed, by filtering the
+    queryset.
+    """
+    allow_expired_tasks = False
+
+    def get_queryset(self):
+        queryset = super(TaskMustBeAvailableMixin, self).get_queryset()
+        return queryset.filter(Task.is_available_filter(allow_expired=self.allow_expired_tasks))

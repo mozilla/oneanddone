@@ -15,6 +15,14 @@ from oneanddone.tasks.models import (BugzillaBug, Feedback, Task,
                                      TaskInvalidationCriterion)
 
 
+class BaseTaskInvalidCriteriaFormSet(forms.formsets.BaseFormSet):
+    # make it impossible to submit an empty form as part of the formset
+    def __init__(self, *args, **kwargs):
+        super(BaseTaskInvalidCriteriaFormSet, self).__init__(*args, **kwargs)
+        for form in self.forms:
+            form.empty_permitted = False
+
+
 class FeedbackForm(forms.ModelForm):
     class Meta:
         model = Feedback
@@ -36,30 +44,65 @@ class PreviewConfirmationForm(forms.Form):
         return cleaned_data
 
 
-class TaskInvalidationCriterionForm(forms.Form):
-    criterion = forms.ModelChoiceField(
-        queryset=TaskInvalidationCriterion.objects.all())
+class TaskForm(forms.ModelForm):
+    keywords = (forms.CharField(
+                help_text=_('Please use commas to separate your keywords.'),
+                required=False,
+                widget=forms.TextInput(attrs={'class': 'medium-field'})))
 
-
-class BaseTaskInvalidCriteriaFormSet(forms.formsets.BaseFormSet):
-    # make it impossible to submit an empty form as part of the formset
     def __init__(self, *args, **kwargs):
-        super(BaseTaskInvalidCriteriaFormSet, self).__init__(*args, **kwargs)
-        for form in self.forms:
-            form.empty_permitted = False
+        if kwargs['instance']:
+            initial = kwargs.get('initial', {})
+            initial['keywords'] = kwargs['instance'].keywords_list
+            kwargs['initial'] = initial
+        super(TaskForm, self).__init__(*args, **kwargs)
 
+    def _process_keywords(self, creator):
+        if 'keywords' in self.changed_data:
+            kw = [k.strip() for k in self.cleaned_data['keywords'].split(',')]
+            self.instance.replace_keywords(kw, creator)
 
-TaskInvalidCriteriaFormSet = forms.formsets.formset_factory(
-    TaskInvalidationCriterionForm,
-    formset=BaseTaskInvalidCriteriaFormSet)
+    def clean(self):
+        cleaned_data = super(TaskForm, self).clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        if start_date and end_date:
+            if start_date >= end_date:
+                raise forms.ValidationError(_("'End date' must be after 'Start date'"))
+        return cleaned_data
+
+    def save(self, creator, *args, **kwargs):
+        self.instance.creator = creator
+        super(TaskForm, self).save(*args, **kwargs)
+        if kwargs.get('commit', True):
+            self._process_keywords(creator)
+        return self.instance
+
+    class Media:
+        css = {
+            'all': ('css/admin_ace.css',)
+        }
+
+    class Meta:
+        model = Task
+        fields = ('name', 'short_description', 'execution_time', 'difficulty',
+                  'priority', 'repeatable', 'team', 'project', 'type', 'start_date',
+                  'end_date', 'why_this_matters', 'prerequisites', 'instructions',
+                  'is_draft', 'is_invalid')
+        widgets = {
+            'name': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),
+            'short_description': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),
+            'instructions': AceWidget(mode='markdown', theme='textmate', width='800px',
+                                      height='300px', wordwrap=True,
+                                      attrs={'class': 'fill-width'}),
+            'start_date': CalendarInput,
+            'end_date': CalendarInput,
+            'why_this_matters': forms.Textarea(attrs={'rows': 2, 'class': 'fill-width'}),
+            'prerequisites': forms.Textarea(attrs={'rows': 4, 'class': 'fill-width'}),
+        }
 
 
 class TaskImportBatchForm(forms.ModelForm):
-    def save(self, creator, *args, **kwargs):
-        self.instance.creator = creator
-        super(TaskImportBatchForm, self).save(*args, **kwargs)
-        return self.instance
-
     def clean(self):
         max_results = 100
         max_batch_size = 20
@@ -100,6 +143,11 @@ class TaskImportBatchForm(forms.ModelForm):
 
         return cleaned_data
 
+    def save(self, creator, *args, **kwargs):
+        self.instance.creator = creator
+        super(TaskImportBatchForm, self).save(*args, **kwargs)
+        return self.instance
+
     @staticmethod
     def _get_fresh_bugs(query_url, query, max_results, max_batch_size):
         ''' Returns at most first `max_batch_size` bugs (ordered by bug id)
@@ -128,59 +176,11 @@ class TaskImportBatchForm(forms.ModelForm):
             'description': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'})}
 
 
-class TaskForm(forms.ModelForm):
-    keywords = (forms.CharField(
-                help_text=_('Please use commas to separate your keywords.'),
-                required=False,
-                widget=forms.TextInput(attrs={'class': 'medium-field'})))
+class TaskInvalidationCriterionForm(forms.Form):
+    criterion = forms.ModelChoiceField(
+        queryset=TaskInvalidationCriterion.objects.all())
 
-    def __init__(self, *args, **kwargs):
-        if kwargs['instance']:
-            initial = kwargs.get('initial', {})
-            initial['keywords'] = kwargs['instance'].keywords_list
-            kwargs['initial'] = initial
-        super(TaskForm, self).__init__(*args, **kwargs)
 
-    def save(self, creator, *args, **kwargs):
-        self.instance.creator = creator
-        super(TaskForm, self).save(*args, **kwargs)
-        if kwargs.get('commit', True):
-            self._process_keywords(creator)
-        return self.instance
-
-    def _process_keywords(self, creator):
-        if 'keywords' in self.changed_data:
-            kw = [k.strip() for k in self.cleaned_data['keywords'].split(',')]
-            self.instance.replace_keywords(kw, creator)
-
-    def clean(self):
-        cleaned_data = super(TaskForm, self).clean()
-        start_date = cleaned_data.get('start_date')
-        end_date = cleaned_data.get('end_date')
-        if start_date and end_date:
-            if start_date >= end_date:
-                raise forms.ValidationError(_("'End date' must be after 'Start date'"))
-        return cleaned_data
-
-    class Meta:
-        model = Task
-        fields = ('name', 'short_description', 'execution_time', 'difficulty',
-                  'priority', 'repeatable', 'team', 'project', 'type', 'start_date',
-                  'end_date', 'why_this_matters', 'prerequisites', 'instructions',
-                  'is_draft', 'is_invalid')
-        widgets = {
-            'name': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),
-            'short_description': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),
-            'instructions': AceWidget(mode='markdown', theme='textmate', width='800px',
-                                      height='300px', wordwrap=True,
-                                      attrs={'class': 'fill-width'}),
-            'start_date': CalendarInput,
-            'end_date': CalendarInput,
-            'why_this_matters': forms.Textarea(attrs={'rows': 2, 'class': 'fill-width'}),
-            'prerequisites': forms.Textarea(attrs={'rows': 4, 'class': 'fill-width'}),
-        }
-
-    class Media:
-        css = {
-            'all': ('css/admin_ace.css',)
-        }
+TaskInvalidCriteriaFormSet = forms.formsets.formset_factory(
+    TaskInvalidationCriterionForm,
+    formset=BaseTaskInvalidCriteriaFormSet)

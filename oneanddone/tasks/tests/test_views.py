@@ -14,82 +14,34 @@ from oneanddone.tasks.tests import TaskAttemptFactory, TaskFactory
 from oneanddone.users.tests import UserFactory
 
 
-class TaskDetailViewTests(TestCase):
+class CreateTaskViewTests(TestCase):
     def setUp(self):
-        self.view = views.TaskDetailView()
-        self.view.request = Mock()
-        self.view.object = Mock()
-        self.view.object.name = 'name'
+        self.view = views.CreateTaskView()
 
-    def test_get_context_data_not_authenticated(self):
+    def test_get_context_data_returns_add_action_and_url(self):
         """
-        If the current user isn't authenticated, don't include an
-        attempt in the context.
+        The 'Add' action and correct cancel_url
+        should be included in the context data.
         """
-        self.view.request.user.is_authenticated.return_value = False
-
-        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
+        with patch('oneanddone.tasks.views.generic.CreateView.get_context_data') as get_context_data:
             get_context_data.return_value = {}
             ctx = self.view.get_context_data()
-            ok_('attempt' not in ctx)
+            eq_(ctx['action'], 'Add')
+            eq_(ctx['cancel_url'], reverse('tasks.list'))
 
-    def test_get_context_data_authenticated(self):
-        """
-        If the current user is authenticated, fetch their attempt for
-        the current task using get_object_or_none.
-        """
-        self.view.request.user.is_authenticated.return_value = True
 
-        get_object_patch = patch('oneanddone.tasks.views.get_object_or_none')
-        context_patch = patch('oneanddone.tasks.views.generic.DetailView.get_context_data')
-        with get_object_patch as get_object_or_none, context_patch as get_context_data:
-            get_context_data.return_value = {}
+class RandomTasksViewTests(TestCase):
+    def setUp(self):
+        self.view = views.RandomTasksView()
+
+    def test_get_context_data_returns_slice(self):
+        """
+        A subset of 5 items should be returned when Random tasks are viewed.
+        """
+        with patch('oneanddone.tasks.views.generic.ListView.get_context_data') as get_context_data:
+            get_context_data.return_value = {'object_list': [i for i in range(0, 10)]}
             ctx = self.view.get_context_data()
-
-            eq_(ctx['attempt'], get_object_or_none.return_value)
-            get_object_or_none.assert_called_with(TaskAttempt, user=self.view.request.user,
-                                                  task=self.view.object, state=TaskAttempt.STARTED)
-
-    def test_get_context_data_taken_task(self):
-        """
-        If the task is taken, correct values should be added to the context.
-        """
-        self.view.request.user.is_authenticated.return_value = False
-        self.view.object.is_taken = True
-
-        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
-            get_context_data.return_value = {}
-            ctx = self.view.get_context_data()
-            eq_(ctx['gs_button_label'], _('Taken'))
-            eq_(ctx['gs_button_disabled'], True)
-
-    def test_get_context_data_completed_task(self):
-        """
-        If the task is taken, correct values should be added to the context.
-        """
-        self.view.request.user.is_authenticated.return_value = False
-        self.view.object.is_taken = False
-        self.view.object.is_completed = True
-
-        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
-            get_context_data.return_value = {}
-            ctx = self.view.get_context_data()
-            eq_(ctx['gs_button_label'], _('Completed'))
-            eq_(ctx['gs_button_disabled'], True)
-
-    def test_get_context_data_available_task(self):
-        """
-        If the task is taken, correct values should be added to the context.
-        """
-        self.view.request.user.is_authenticated.return_value = False
-        self.view.object.is_taken = False
-        self.view.object.is_completed = False
-
-        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
-            get_context_data.return_value = {}
-            ctx = self.view.get_context_data()
-            eq_(ctx['gs_button_label'], _('Get Started'))
-            eq_(ctx['gs_button_disabled'], False)
+            eq_(len(ctx['random_task_list']), 5)
 
 
 class StartTaskViewTests(TestCase):
@@ -97,6 +49,20 @@ class StartTaskViewTests(TestCase):
         self.view = views.StartTaskView()
         self.task = TaskFactory.create()
         self.view.get_object = Mock(return_value=self.task)
+
+    def test_post_create_attempt(self):
+        """
+        If the task is available and the user doesn't have any tasks in
+        progress, create a new task attempt and redirect to its page.
+        """
+        user = UserFactory.create()
+        self.view.request = Mock(user=user)
+
+        with patch('oneanddone.tasks.views.redirect') as redirect:
+            eq_(self.view.post(), redirect.return_value)
+            redirect.assert_called_with(self.task)
+            ok_(TaskAttempt.objects.filter(user=user, task=self.task, state=TaskAttempt.STARTED)
+                .exists())
 
     def test_post_existing_attempts(self):
         """
@@ -126,49 +92,83 @@ class StartTaskViewTests(TestCase):
             redirect.assert_called_with('tasks.available')
             ok_(not TaskAttempt.objects.filter(user=user, task=self.task).exists())
 
-    def test_post_create_attempt(self):
-        """
-        If the task is available and the user doesn't have any tasks in
-        progress, create a new task attempt and redirect to its page.
-        """
-        user = UserFactory.create()
-        self.view.request = Mock(user=user)
 
-        with patch('oneanddone.tasks.views.redirect') as redirect:
-            eq_(self.view.post(), redirect.return_value)
-            redirect.assert_called_with(self.task)
-            ok_(TaskAttempt.objects.filter(user=user, task=self.task, state=TaskAttempt.STARTED)
-                .exists())
-
-
-class RandomTasksViewTests(TestCase):
+class TaskDetailViewTests(TestCase):
     def setUp(self):
-        self.view = views.RandomTasksView()
+        self.view = views.TaskDetailView()
+        self.view.request = Mock()
+        self.view.object = Mock()
+        self.view.object.name = 'name'
 
-    def test_get_context_data_returns_slice(self):
+    def test_get_context_data_authenticated(self):
         """
-        A subset of 5 items should be returned when Random tasks are viewed.
+        If the current user is authenticated, fetch their attempt for
+        the current task using get_object_or_none.
         """
-        with patch('oneanddone.tasks.views.generic.ListView.get_context_data') as get_context_data:
-            get_context_data.return_value = {'object_list': [i for i in range(0, 10)]}
-            ctx = self.view.get_context_data()
-            eq_(len(ctx['random_task_list']), 5)
+        self.view.request.user.is_authenticated.return_value = True
 
-
-class CreateTaskViewTests(TestCase):
-    def setUp(self):
-        self.view = views.CreateTaskView()
-
-    def test_get_context_data_returns_add_action_and_url(self):
-        """
-        The 'Add' action and correct cancel_url
-        should be included in the context data.
-        """
-        with patch('oneanddone.tasks.views.generic.CreateView.get_context_data') as get_context_data:
+        get_object_patch = patch('oneanddone.tasks.views.get_object_or_none')
+        context_patch = patch('oneanddone.tasks.views.generic.DetailView.get_context_data')
+        with get_object_patch as get_object_or_none, context_patch as get_context_data:
             get_context_data.return_value = {}
             ctx = self.view.get_context_data()
-            eq_(ctx['action'], 'Add')
-            eq_(ctx['cancel_url'], reverse('tasks.list'))
+
+            eq_(ctx['attempt'], get_object_or_none.return_value)
+            get_object_or_none.assert_called_with(TaskAttempt, user=self.view.request.user,
+                                                  task=self.view.object, state=TaskAttempt.STARTED)
+
+    def test_get_context_data_available_task(self):
+        """
+        If the task is taken, correct values should be added to the context.
+        """
+        self.view.request.user.is_authenticated.return_value = False
+        self.view.object.is_taken = False
+        self.view.object.is_completed = False
+
+        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
+            get_context_data.return_value = {}
+            ctx = self.view.get_context_data()
+            eq_(ctx['gs_button_label'], _('Get Started'))
+            eq_(ctx['gs_button_disabled'], False)
+
+    def test_get_context_data_completed_task(self):
+        """
+        If the task is taken, correct values should be added to the context.
+        """
+        self.view.request.user.is_authenticated.return_value = False
+        self.view.object.is_taken = False
+        self.view.object.is_completed = True
+
+        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
+            get_context_data.return_value = {}
+            ctx = self.view.get_context_data()
+            eq_(ctx['gs_button_label'], _('Completed'))
+            eq_(ctx['gs_button_disabled'], True)
+
+    def test_get_context_data_not_authenticated(self):
+        """
+        If the current user isn't authenticated, don't include an
+        attempt in the context.
+        """
+        self.view.request.user.is_authenticated.return_value = False
+
+        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
+            get_context_data.return_value = {}
+            ctx = self.view.get_context_data()
+            ok_('attempt' not in ctx)
+
+    def test_get_context_data_taken_task(self):
+        """
+        If the task is taken, correct values should be added to the context.
+        """
+        self.view.request.user.is_authenticated.return_value = False
+        self.view.object.is_taken = True
+
+        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
+            get_context_data.return_value = {}
+            ctx = self.view.get_context_data()
+            eq_(ctx['gs_button_label'], _('Taken'))
+            eq_(ctx['gs_button_disabled'], True)
 
 
 class UpdateTaskViewTests(TestCase):

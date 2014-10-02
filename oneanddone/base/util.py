@@ -88,24 +88,6 @@ class SortHeaders:
         if self.order_type_var in params and params[self.order_type_var] in ('asc', 'desc'):
             self.order_type = params[self.order_type_var]
 
-    def headers(self):
-        """
-        Generates dicts containing header and sort link details for
-        all defined headers.
-        """
-        for i, (header, order_criterion) in enumerate(self.header_defs):
-            th_classes = ['orderable']
-            new_order_type = 'asc'
-            if i == self.order_field:
-                th_classes.append('sorted %s' % self.order_type)
-                new_order_type = {'asc': 'desc', 'desc': 'asc'}[self.order_type]
-            yield {
-                'text': header,
-                'sortable': order_criterion is not None,
-                'url': self.get_query_string({self.order_var: i, self.order_type_var: new_order_type}),
-                'class_attr': {'class': ' '.join(th_classes)},
-            }
-
     def get_query_string(self, params):
         """
         Creates a query string from the given dictionary of
@@ -126,3 +108,21 @@ class SortHeaders:
             self.order_type == 'desc' and '-' or '',
             self.header_defs[self.order_field][1],
         )
+
+    def headers(self):
+        """
+        Generates dicts containing header and sort link details for
+        all defined headers.
+        """
+        for i, (header, order_criterion) in enumerate(self.header_defs):
+            th_classes = ['orderable']
+            new_order_type = 'asc'
+            if i == self.order_field:
+                th_classes.append('sorted %s' % self.order_type)
+                new_order_type = {'asc': 'desc', 'desc': 'asc'}[self.order_type]
+            yield {
+                'text': header,
+                'sortable': order_criterion is not None,
+                'url': self.get_query_string({self.order_var: i, self.order_type_var: new_order_type}),
+                'class_attr': {'class': ' '.join(th_classes)},
+            }

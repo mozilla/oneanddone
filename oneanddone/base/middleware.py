@@ -7,17 +7,6 @@ from django.utils import timezone
 from tower import ugettext as _
 
 
-class TimezoneMiddleware(object):
-    """
-    Set the current timezone for all requests to be UTC.
-
-    Will handle more complex timezone logic once we have more formal
-    timezone support in the app.
-    """
-    def process_request(self, request):
-        timezone.activate(timezone.utc)
-
-
 class ClosedTaskNotificationMiddleware(object):
     """
     Add messages to the request if required.
@@ -31,3 +20,14 @@ class ClosedTaskNotificationMiddleware(object):
                                  extra_tags='modal-message')
                 attempt.requires_notification = False
                 attempt.save()
+
+
+class TimezoneMiddleware(object):
+    """
+    Set the current timezone for all requests to be UTC.
+
+    Will handle more complex timezone logic once we have more formal
+    timezone support in the app.
+    """
+    def process_request(self, request):
+        timezone.activate(timezone.utc)

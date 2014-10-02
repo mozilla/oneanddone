@@ -13,27 +13,6 @@ class RecordCreatorMixin(object):
         super(RecordCreatorMixin, self).save_model(request, obj, form, change)
 
 
-class TaskTeamAdmin(RecordCreatorMixin, admin.ModelAdmin):
-    list_display = ('name', 'creator', 'modified')
-    readonly_fields = ('creator', 'modified')
-
-
-class TaskProjectAdmin(RecordCreatorMixin, admin.ModelAdmin):
-    list_display = ('name', 'creator', 'modified')
-    readonly_fields = ('creator', 'modified')
-
-
-class TaskTypeAdmin(RecordCreatorMixin, admin.ModelAdmin):
-    list_display = ('name', 'creator', 'modified')
-    readonly_fields = ('creator', 'modified')
-
-
-class TaskAttemptAdmin(admin.ModelAdmin):
-    list_display = ('task', 'user', 'state', 'modified')
-    list_filter = ('state',)
-    readonly_fields = ('task', 'user', 'state')
-
-
 class FeedbackAdmin(admin.ModelAdmin):
     list_display = ('task', 'user', 'state', 'created')
     search_fields = ('text',)
@@ -50,6 +29,12 @@ class FeedbackAdmin(admin.ModelAdmin):
         return feedback.attempt.get_state_display()
 
 
+class TaskAttemptAdmin(admin.ModelAdmin):
+    list_display = ('task', 'user', 'state', 'modified')
+    list_filter = ('state',)
+    readonly_fields = ('task', 'user', 'state')
+
+
 class TaskInvalidationCriterionAdmin(RecordCreatorMixin, admin.ModelAdmin):
     list_display = ('field_name', 'relation', 'field_value',
                     'creator', 'modified')
@@ -57,10 +42,25 @@ class TaskInvalidationCriterionAdmin(RecordCreatorMixin, admin.ModelAdmin):
     exclude = ('batches',)
 
 
-admin.site.register(models.TaskTeam, TaskTeamAdmin)
-admin.site.register(models.TaskProject, TaskProjectAdmin)
-admin.site.register(models.TaskType, TaskTeamAdmin)
-admin.site.register(models.TaskAttempt, TaskAttemptAdmin)
+class TaskProjectAdmin(RecordCreatorMixin, admin.ModelAdmin):
+    list_display = ('name', 'creator', 'modified')
+    readonly_fields = ('creator', 'modified')
+
+
+class TaskTeamAdmin(RecordCreatorMixin, admin.ModelAdmin):
+    list_display = ('name', 'creator', 'modified')
+    readonly_fields = ('creator', 'modified')
+
+
+class TaskTypeAdmin(RecordCreatorMixin, admin.ModelAdmin):
+    list_display = ('name', 'creator', 'modified')
+    readonly_fields = ('creator', 'modified')
+
+
 admin.site.register(models.Feedback, FeedbackAdmin)
+admin.site.register(models.TaskAttempt, TaskAttemptAdmin)
 admin.site.register(models.TaskInvalidationCriterion,
                     TaskInvalidationCriterionAdmin)
+admin.site.register(models.TaskProject, TaskProjectAdmin)
+admin.site.register(models.TaskTeam, TaskTeamAdmin)
+admin.site.register(models.TaskType, TaskTeamAdmin)

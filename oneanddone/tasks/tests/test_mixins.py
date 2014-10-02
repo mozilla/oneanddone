@@ -13,35 +13,6 @@ from oneanddone.tasks.tests import TaskAttemptFactory
 from oneanddone.users.tests import UserFactory
 
 
-class TaskMustBeAvailableMixinTests(TestCase):
-    def make_view(self, queryset, allow_expired_tasks_attr):
-        """
-        Create a fake view that applies the mixin to the given queryset
-        when get_queryset is called.
-        """
-        class BaseView(object):
-            def get_queryset(self):
-                return queryset
-
-        class View(mixins.TaskMustBeAvailableMixin, BaseView):
-            allow_expired_tasks = allow_expired_tasks_attr
-
-        return View()
-
-    def test_get_queryset(self):
-        """
-        get_queryset should filter the parent class' queryset with the
-        availability filter from Task.
-        """
-        queryset = Mock()
-        view = self.make_view(queryset, False)
-
-        with patch('oneanddone.tasks.mixins.Task') as Task:
-            eq_(view.get_queryset(), queryset.filter.return_value)
-            queryset.filter.assert_called_with(Task.is_available_filter.return_value)
-            Task.is_available_filter.assert_called_with(allow_expired=False)
-
-
 class GetUserAttemptMixinTests(TestCase):
     def setUp(self):
         self.view = self.make_view()
@@ -89,3 +60,32 @@ class GetUserAttemptMixinTests(TestCase):
 
         with self.assertRaises(Http404):
             self.view.dispatch(request, pk=attempt.pk)
+
+
+class TaskMustBeAvailableMixinTests(TestCase):
+    def make_view(self, queryset, allow_expired_tasks_attr):
+        """
+        Create a fake view that applies the mixin to the given queryset
+        when get_queryset is called.
+        """
+        class BaseView(object):
+            def get_queryset(self):
+                return queryset
+
+        class View(mixins.TaskMustBeAvailableMixin, BaseView):
+            allow_expired_tasks = allow_expired_tasks_attr
+
+        return View()
+
+    def test_get_queryset(self):
+        """
+        get_queryset should filter the parent class' queryset with the
+        availability filter from Task.
+        """
+        queryset = Mock()
+        view = self.make_view(queryset, False)
+
+        with patch('oneanddone.tasks.mixins.Task') as Task:
+            eq_(view.get_queryset(), queryset.filter.return_value)
+            queryset.filter.assert_called_with(Task.is_available_filter.return_value)
+            Task.is_available_filter.assert_called_with(allow_expired=False)

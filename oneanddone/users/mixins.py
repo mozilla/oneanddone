@@ -21,11 +21,16 @@ class BaseUserProfileRequiredMixin(object):
             return super(BaseUserProfileRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
-class UserProfileRequiredMixin(LoginRequiredMixin, BaseUserProfileRequiredMixin):
+class MyStaffUserRequiredMixin(object):
     """
-    Require a user to be both logged in and have a UserProfile before
-    they can interact with the view.
+    Require a user to be staff before they can interact with the view.
+    Throw an exception if they are not.
     """
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            raise PermissionDenied
+        return super(MyStaffUserRequiredMixin, self).dispatch(
+            request, *args, **kwargs)
 
 
 class PrivacyPolicyRequiredMixin(object):
@@ -43,13 +48,8 @@ class PrivacyPolicyRequiredMixin(object):
                 return super(PrivacyPolicyRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
-class MyStaffUserRequiredMixin(object):
+class UserProfileRequiredMixin(LoginRequiredMixin, BaseUserProfileRequiredMixin):
     """
-    Require a user to be staff before they can interact with the view.
-    Throw an exception if they are not.
+    Require a user to be both logged in and have a UserProfile before
+    they can interact with the view.
     """
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
-            raise PermissionDenied
-        return super(MyStaffUserRequiredMixin, self).dispatch(
-            request, *args, **kwargs)

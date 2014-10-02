@@ -31,23 +31,6 @@ class BugzillaUtils(object):
                 raise RuntimeError(message)
         return data
 
-    def request_bugs(self, request_params, fields=['id', 'summary'],
-                     offset=0, limit=99):
-        """ Returns list of at most first `limit` bugs (starting at `offset`) from
-            Bugzilla@Mozilla, if any. The bugs are ordered by bug id.
-        """
-        params = dict(request_params)
-        params.update({'include_fields': ','.join(fields),
-                      'offset': offset, 'limit': limit})
-        return self._request_json(self.baseurl, params).get('bugs', [])
-
-    def request_bugcount(self, request_params):
-        params = dict(request_params)
-        params.update({'count_only': 1})
-        response = self._request_json(self.baseurl, params)
-        bug_count = response.get('bug_count', '0')
-        return int(bug_count)
-
     def request_bug(self, bug_id, fields=None):
         """ Returns bug with id `bug_id` from Buzgilla@Mozilla, if any """
         params = {}
@@ -59,3 +42,20 @@ class BugzillaUtils(object):
             return bugs[0]
         else:
             return None
+
+    def request_bugcount(self, request_params):
+        params = dict(request_params)
+        params.update({'count_only': 1})
+        response = self._request_json(self.baseurl, params)
+        bug_count = response.get('bug_count', '0')
+        return int(bug_count)
+
+    def request_bugs(self, request_params, fields=['id', 'summary'],
+                     offset=0, limit=99):
+        """ Returns list of at most first `limit` bugs (starting at `offset`) from
+            Bugzilla@Mozilla, if any. The bugs are ordered by bug id.
+        """
+        params = dict(request_params)
+        params.update({'include_fields': ','.join(fields),
+                      'offset': offset, 'limit': limit})
+        return self._request_json(self.baseurl, params).get('bugs', [])

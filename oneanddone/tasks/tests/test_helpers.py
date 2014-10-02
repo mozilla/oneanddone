@@ -50,15 +50,6 @@ class BuglinkifyTests(TestCase):
     def setUp(self):
         self.bugzilla_url_prefix = 'https://bugzilla.mozilla.org/show_bug.cgi?id='
 
-    def test_with_bug_ucase(self):
-        """
-        buglinkify should linkify a capitalized bug in a string.
-        """
-        name = 'Test this string with Bug 12345'
-        eq_(buglinkify(name),
-            'Test this string with <a href="%s12345">Bug 12345</a>' %
-            self.bugzilla_url_prefix)
-
     def test_with_bug_lcase(self):
         """
         buglinkify should linkify a lowercase bug in a string.
@@ -66,6 +57,15 @@ class BuglinkifyTests(TestCase):
         name = 'Test this string with bug 12345'
         eq_(buglinkify(name),
             'Test this string with <a href="%s12345">bug 12345</a>' %
+            self.bugzilla_url_prefix)
+
+    def test_with_bug_ucase(self):
+        """
+        buglinkify should linkify a capitalized bug in a string.
+        """
+        name = 'Test this string with Bug 12345'
+        eq_(buglinkify(name),
+            'Test this string with <a href="%s12345">Bug 12345</a>' %
             self.bugzilla_url_prefix)
 
     def test_without_bug(self):

@@ -8,8 +8,32 @@ import django_filters
 from tower import ugettext_lazy as _lazy
 
 from oneanddone.base.filters import MultiFieldFilter, MyDateRangeFilter
-from oneanddone.tasks.models import Task, TaskTeam, TaskProject, TaskType, TaskAttempt
+from oneanddone.tasks.models import Task, TaskAttempt, TaskProject, TaskTeam, TaskType
 from oneanddone.base.widgets import HorizCheckboxSelect
+
+
+class ActivityFilterSet(django_filters.FilterSet):
+
+    task__creator = django_filters.ModelChoiceFilter(
+        label=_lazy(u'Task Owner'),
+        queryset=User.objects.filter(task__isnull=False).distinct())
+
+    task__team = django_filters.ModelChoiceFilter(
+        label=_lazy(u'Team'),
+        queryset=TaskTeam.objects.all())
+
+    user = MultiFieldFilter(
+        ['user__profile__name', 'user__profile__username', 'user__email'],
+        label=_lazy(u'Task User')
+    )
+
+    modified = MyDateRangeFilter(
+        label=_lazy(u'Date')
+    )
+
+    class Meta:
+        model = TaskAttempt
+        fields = ('task__creator', 'task__team', 'user', 'modified')
 
 
 class TasksFilterSet(django_filters.FilterSet):
@@ -46,27 +70,3 @@ class TasksFilterSet(django_filters.FilterSet):
     class Meta:
         model = Task
         fields = ('search', 'execution_time', 'team', 'project', 'type', 'keyword')
-
-
-class ActivityFilterSet(django_filters.FilterSet):
-
-    task__creator = django_filters.ModelChoiceFilter(
-        label=_lazy(u'Task Owner'),
-        queryset=User.objects.filter(task__isnull=False).distinct())
-
-    task__team = django_filters.ModelChoiceFilter(
-        label=_lazy(u'Team'),
-        queryset=TaskTeam.objects.all())
-
-    user = MultiFieldFilter(
-        ['user__profile__name', 'user__profile__username', 'user__email'],
-        label=_lazy(u'Task User')
-    )
-
-    modified = MyDateRangeFilter(
-        label=_lazy(u'Date')
-    )
-
-    class Meta:
-        model = TaskAttempt
-        fields = ('task__creator', 'task__team', 'user', 'modified')

@@ -20,31 +20,43 @@ class FakeView(BaseUserProfileRequiredMixin, FakeMixin):
     pass
 
 
-class FakeViewNeedsStaff(MyStaffUserRequiredMixin, FakeMixin):
-    pass
-
-
 class FakeViewNeedsPrivacyPolicy(PrivacyPolicyRequiredMixin, FakeMixin):
     pass
 
 
-class UserProfileRequiredMixinTests(TestCase):
-    def setUp(self):
-        self.view = FakeView()
+class FakeViewNeedsStaff(MyStaffUserRequiredMixin, FakeMixin):
+    pass
 
-    def test_no_profile(self):
+
+class MyStaffUserRequiredMixinTests(TestCase):
+    def setUp(self):
+        self.view = FakeViewNeedsStaff()
+
+    def test_is_staff(self):
         """
-        If the user hasn't created a profile, redirect them to the
-        profile creation view.
+        If the user is staff, call the parent class's
+        dispatch method.
         """
         request = Mock()
-        request.user = UserFactory.create()
+        request.user = UserFactory.create(is_staff=True)
 
-        with patch('oneanddone.users.mixins.redirect') as redirect:
-            eq_(self.view.dispatch(request), redirect.return_value)
-            redirect.assert_called_with('users.profile.create')
+        eq_(self.view.dispatch(request), 'fakemixin')
 
-    def test_has_profile(self):
+    @raises(PermissionDenied)
+    def test_not_staff(self):
+        """
+        If the user is not staff, raise a PermissionDenied exception.
+        """
+        request = Mock()
+        request.user = UserFactory.create(is_staff=False)
+        self.view.dispatch(request)
+
+
+class PrivacyPolicyRequiredMixinTests(TestCase):
+    def setUp(self):
+        self.view = FakeViewNeedsPrivacyPolicy()
+
+    def test_has_profile_and_accepts_privacy_policy(self):
         """
         If the user has created a profile, and has accepted privacy policy
         call the parent class's dispatch method.
@@ -53,23 +65,6 @@ class UserProfileRequiredMixinTests(TestCase):
         request.user = UserProfileFactory.create(privacy_policy_accepted=True).user
 
         eq_(self.view.dispatch(request), 'fakemixin')
-
-
-class PrivacyPolicyRequiredMixinTests(TestCase):
-    def setUp(self):
-        self.view = FakeViewNeedsPrivacyPolicy()
-
-    def test_no_profile(self):
-        """
-        If the user hasn't created a profile, redirect them to the
-        profile creation view.
-        """
-        request = Mock()
-        request.user = UserFactory.create()
-
-        with patch('oneanddone.users.mixins.redirect') as redirect:
-            eq_(self.view.dispatch(request), redirect.return_value)
-            redirect.assert_called_with('users.profile.create')
 
     def test_has_profile_and_not_accepted_privacy_policy(self):
         """
@@ -83,7 +78,24 @@ class PrivacyPolicyRequiredMixinTests(TestCase):
             eq_(self.view.dispatch(request), redirect.return_value)
             redirect.assert_called_with('users.profile.update')
 
-    def test_has_profile_and_accepts_privacy_policy(self):
+    def test_no_profile(self):
+        """
+        If the user hasn't created a profile, redirect them to the
+        profile creation view.
+        """
+        request = Mock()
+        request.user = UserFactory.create()
+
+        with patch('oneanddone.users.mixins.redirect') as redirect:
+            eq_(self.view.dispatch(request), redirect.return_value)
+            redirect.assert_called_with('users.profile.create')
+
+
+class UserProfileRequiredMixinTests(TestCase):
+    def setUp(self):
+        self.view = FakeView()
+
+    def test_has_profile(self):
         """
         If the user has created a profile, and has accepted privacy policy
         call the parent class's dispatch method.
@@ -93,26 +105,14 @@ class PrivacyPolicyRequiredMixinTests(TestCase):
 
         eq_(self.view.dispatch(request), 'fakemixin')
 
-
-class MyStaffUserRequiredMixinTests(TestCase):
-    def setUp(self):
-        self.view = FakeViewNeedsStaff()
-
-    @raises(PermissionDenied)
-    def test_not_staff(self):
+    def test_no_profile(self):
         """
-        If the user is not staff, raise a PermissionDenied exception.
+        If the user hasn't created a profile, redirect them to the
+        profile creation view.
         """
         request = Mock()
-        request.user = UserFactory.create(is_staff=False)
-        self.view.dispatch(request)
+        request.user = UserFactory.create()
 
-    def test_is_staff(self):
-        """
-        If the user is staff, call the parent class's
-        dispatch method.
-        """
-        request = Mock()
-        request.user = UserFactory.create(is_staff=True)
-
-        eq_(self.view.dispatch(request), 'fakemixin')
+        with patch('oneanddone.users.mixins.redirect') as redirect:
+            eq_(self.view.dispatch(request), redirect.return_value)
+            redirect.assert_called_with('users.profile.create')

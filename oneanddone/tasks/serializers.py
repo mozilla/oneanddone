@@ -6,13 +6,6 @@ from rest_framework import serializers
 from oneanddone.tasks.models import Task, TaskKeyword, TaskAttempt
 
 
-class TaskKeywordSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = TaskKeyword
-        fields = ('name',)
-
-
 class TaskAttemptSerializer(serializers.ModelSerializer):
 
     user = serializers.SlugRelatedField(many=False, slug_field='email')
@@ -22,13 +15,20 @@ class TaskAttemptSerializer(serializers.ModelSerializer):
         fields = ('user', 'state')
 
 
+class TaskKeywordSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TaskKeyword
+        fields = ('name',)
+
+
 class TaskSerializer(serializers.ModelSerializer):
 
+    taskattempt_set = TaskAttemptSerializer(required=False, many=True)
+    keyword_set = TaskKeywordSerializer(required=False, many=True)
     project = serializers.SlugRelatedField(many=False, slug_field='name')
     team = serializers.SlugRelatedField(many=False, slug_field='name')
     type = serializers.SlugRelatedField(many=False, slug_field='name')
-    keyword_set = TaskKeywordSerializer(required=False, many=True)
-    taskattempt_set = TaskAttemptSerializer(required=False, many=True)
 
     class Meta:
         model = Task

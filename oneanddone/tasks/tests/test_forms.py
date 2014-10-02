@@ -1,8 +1,6 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-from django.http import Http404
-
 from nose.tools import eq_
 
 from oneanddone.base.tests import TestCase
@@ -28,6 +26,24 @@ def get_filled_taskform(task, **kwargs):
 
 class TaskFormTests(TestCase):
 
+    def test_form_widgets_have_expected_class(self):
+        """
+        Classes specified in attrs in form definition should be
+        populated into the widgets
+        """
+        form = TaskForm(instance=None)
+        for field in ('name', 'short_description', 'instructions',
+                      'why_this_matters', 'prerequisites'):
+            eq_(form[field].field.widget.attrs['class'], 'fill-width')
+
+    def test_initial_contains_empty_list_of_keywords_for_new_task(self):
+        """
+        Initial should contain an empty list of keywords for a new task.
+        """
+        task = TaskFactory.create()
+        form = TaskForm(instance=task)
+        eq_(form.initial['keywords'], '')
+
     def test_initial_contains_list_of_keywords_for_existing_task(self):
         """
         Initial should contain the list of keywords from the task instance.
@@ -37,13 +53,18 @@ class TaskFormTests(TestCase):
         form = TaskForm(instance=task)
         eq_(form.initial['keywords'], 'test1, test2, test3')
 
-    def test_initial_contains_empty_list_of_keywords_for_new_task(self):
+    def test_save_does_not_add_a_blank_keyword(self):
         """
-        Initial should contain an empty list of keywords for a new task.
+        Saving the form should not add a blank keyword when
+         keywords are empty.
         """
+        user = UserFactory.create()
         task = TaskFactory.create()
-        form = TaskForm(instance=task)
-        eq_(form.initial['keywords'], '')
+        form = get_filled_taskform(task, keywords=' ')
+
+        form.save(user)
+
+        eq_(task.keyword_set.count(), 0)
 
     def test_save_processes_keywords_correctly(self):
         """
@@ -70,29 +91,16 @@ class TaskFormTests(TestCase):
         # double-check on the keywords_list property
         eq_(task.keywords_list, 'test3, new_keyword')
 
-    def test_save_does_not_add_a_blank_keyword(self):
+    def test_validation_same_start_date_as_end_date(self):
         """
-        Saving the form should not add a blank keyword when
-         keywords are empty.
-        """
-        user = UserFactory.create()
-        task = TaskFactory.create()
-        form = get_filled_taskform(task, keywords=' ')
-
-        form.save(user)
-
-        eq_(task.keyword_set.count(), 0)
-
-    def test_validation_start_date_before_end_date(self):
-        """
-        The form is valid if start date is before end date and all other
-        field requirements are respected.
+        The form is not valid if start date is same as end date.
         """
         form = get_filled_taskform(TaskFactory.create(),
-                                   start_date='2013-07-01',
+                                   start_date='2013-08-15',
                                    end_date='2013-08-15')
 
-        self.assertTrue(form.is_valid())
+        self.assertFalse(form.is_valid())
+        eq_(form.non_field_errors(), ["'End date' must be after 'Start date'"])
 
     def test_validation_start_date_after_end_date(self):
         """
@@ -105,23 +113,13 @@ class TaskFormTests(TestCase):
         self.assertFalse(form.is_valid())
         eq_(form.non_field_errors(), ["'End date' must be after 'Start date'"])
 
-    def test_validation_same_start_date_as_end_date(self):
+    def test_validation_start_date_before_end_date(self):
         """
-        The form is not valid if start date is same as end date.
+        The form is valid if start date is before end date and all other
+        field requirements are respected.
         """
         form = get_filled_taskform(TaskFactory.create(),
-                                   start_date='2013-08-15',
+                                   start_date='2013-07-01',
                                    end_date='2013-08-15')
 
-        self.assertFalse(form.is_valid())
-        eq_(form.non_field_errors(), ["'End date' must be after 'Start date'"])
-
-    def test_form_widgets_have_expected_class(self):
-        """
-        Classes specified in attrs in form definition should be
-        populated into the widgets
-        """
-        form = TaskForm(instance=None)
-        for field in ('name', 'short_description', 'instructions',
-                      'why_this_matters', 'prerequisites'):
-            eq_(form[field].field.widget.attrs['class'], 'fill-width')
+        self.assertTrue(form.is_valid())

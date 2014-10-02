@@ -6,6 +6,48 @@ from django.forms.widgets import DateInput, Input, RadioSelect
 from django.utils.safestring import mark_safe
 
 
+class CalendarInput(DateInput):
+
+    def render(self, name, value, attrs={}):
+        if 'class' not in attrs:
+            attrs['class'] = 'datepicker'
+        return super(CalendarInput, self).render(name, value, attrs)
+
+
+class DateRangeWidget(MultiWidget):
+    def __init__(self, attrs=None):
+        widgets = (CalendarInput(attrs=attrs), CalendarInput(attrs=attrs))
+        super(DateRangeWidget, self).__init__(widgets, attrs)
+
+    def decompress(self, value):
+        if value:
+            return [value.start, value.stop]
+        return [None, None]
+
+    def format_output(self, rendered_widgets):
+        return '-'.join(rendered_widgets)
+
+
+class HorizCheckboxSelect(CheckboxSelectMultiple):
+
+    def render(self, *args, **kwargs):
+        output = super(HorizCheckboxSelect, self).render(*args, **kwargs)
+        return mark_safe(output.replace(u'<ul>', u'').replace(u'</ul>', u'').replace(u'<li>', u'').replace(u'</li>', u''))
+
+
+class HorizRadioRenderer(RadioSelect.renderer):
+    """ this overrides widget method to put radio buttons horizontally
+        instead of vertically.
+    """
+    def render(self):
+            """Outputs radios"""
+            return mark_safe(u'\n'.join([u'%s\n' % w for w in self]))
+
+
+class HorizRadioSelect(RadioSelect):
+    renderer = HorizRadioRenderer
+
+
 class RangeInput(Input):
     input_type = 'range'
 
@@ -26,47 +68,3 @@ class RangeInput(Input):
         """.format(input=super(RangeInput, self).render(name, value, attrs))
 
         return mark_safe(markup)
-
-
-class CalendarInput(DateInput):
-
-    def render(self, name, value, attrs={}):
-        if 'class' not in attrs:
-            attrs['class'] = 'datepicker'
-        return super(CalendarInput, self).render(name, value, attrs)
-
-
-class HorizRadioRenderer(RadioSelect.renderer):
-    """ this overrides widget method to put radio buttons horizontally
-        instead of vertically.
-    """
-    def render(self):
-            """Outputs radios"""
-            return mark_safe(u'\n'.join([u'%s\n' % w for w in self]))
-
-
-class HorizRadioSelect(RadioSelect):
-    renderer = HorizRadioRenderer
-
-
-class HorizCheckboxSelect(CheckboxSelectMultiple):
-
-    def render(self, *args, **kwargs):
-        output = super(HorizCheckboxSelect, self).render(*args, **kwargs)
-        return mark_safe(output.replace(u'<ul>', u'').replace(u'</ul>', u'').replace(u'<li>', u'').replace(u'</li>', u''))
-
-
-class DateRangeWidget(MultiWidget):
-    def __init__(self, attrs=None):
-        widgets = (CalendarInput(attrs=attrs), CalendarInput(attrs=attrs))
-        super(DateRangeWidget, self).__init__(widgets, attrs)
-
-    def decompress(self, value):
-        if value:
-            return [value.start, value.stop]
-        return [None, None]
-
-    def format_output(self, rendered_widgets):
-        return '-'.join(rendered_widgets)
-
-

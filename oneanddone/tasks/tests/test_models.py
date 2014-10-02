@@ -51,6 +51,187 @@ class TaskTests(TestCase):
             is_draft=False, start_date=aware_datetime(2014, 1, 1),
             end_date=aware_datetime(2014, 2, 1))
 
+    def test_bugzilla_bug_exists(self):
+        bug = BugzillaBugFactory.create()
+        task = TaskFactory.create(imported_item=bug)
+        with patch('oneanddone.tasks.models.BugzillaUtils.request_bug') as request_bug:
+            request_bug.return_value = bug
+            eq_(bug, task.bugzilla_bug)
+            request_bug.assert_called_with(bug.bugzilla_id)
+
+    def test_bugzilla_bug_not_exists(self):
+        task = TaskFactory.create()
+        eq_(None, task.bugzilla_bug)
+
+    def test_close_expired_task_attempts(self):
+        """
+        The close_expired_task_attempts routine should close all
+        attempts for tasks that are no longer available,
+        set them as requiring notification,
+        and return the number that were closed.
+        """
+        user1, user2, user3 = UserFactory.create_batch(3)
+        TaskAttemptFactory.create(
+            user=user1,
+            state=TaskAttempt.STARTED,
+            task=self.task_end_jan)
+        TaskAttemptFactory.create(
+            user=user2,
+            state=TaskAttempt.STARTED,
+            task=self.task_end_jan)
+        TaskAttemptFactory.create(
+            user=user3,
+            state=TaskAttempt.STARTED,
+            task=self.task_no_draft)
+        eq_(self.task_end_jan.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 2)
+        eq_(self.task_no_draft.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 1)
+        eq_(TaskAttempt.close_expired_task_attempts(), 2)
+        eq_(TaskAttempt.objects.filter(task=self.task_end_jan,
+                                       state=TaskAttempt.STARTED).count(), 0)
+        eq_(TaskAttempt.objects.filter(task=self.task_end_jan,
+                                       state=TaskAttempt.CLOSED,
+                                       requires_notification=True).count(), 2)
+        eq_(TaskAttempt.objects.filter(task=self.task_no_draft,
+                                       state=TaskAttempt.STARTED).count(), 1)
+
+    def test_close_stale_onetime_attempts(self):
+        """
+        The close_stale_onetime_attempts routine should close all
+        expired one-time attempts, set them as requiring notification,
+        and return the number that were closed.
+        """
+        user = UserFactory.create()
+        recent_attempt, expired_attempt_1, expired_attempt_2 = TaskAttemptFactory.create_batch(
+            3,
+            user=user,
+            state=TaskAttempt.STARTED,
+            task=self.task_not_repeatable_no_attempts)
+        recent_attempt.created = aware_datetime(2014, 1, 29)
+        recent_attempt.save()
+        expired_attempt_1.created = aware_datetime(2014, 1, 1)
+        expired_attempt_1.save()
+        expired_attempt_2.created = aware_datetime(2014, 1, 1)
+        expired_attempt_2.save()
+        eq_(self.task_not_repeatable_no_attempts.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 3)
+        with patch('oneanddone.tasks.models.timezone.now') as now:
+            now.return_value = aware_datetime(2014, 1, 31)
+            eq_(TaskAttempt.close_stale_onetime_attempts(), 2)
+        eq_(TaskAttempt.objects.filter(task=self.task_not_repeatable_no_attempts,
+                                       state=TaskAttempt.STARTED).count(), 1)
+        eq_(TaskAttempt.objects.filter(task=self.task_not_repeatable_no_attempts,
+                                       state=TaskAttempt.CLOSED,
+                                       requires_notification=True).count(), 2)
+
+    def test_default_sort_order(self):
+        """
+        The sort order of tasks should default to `priority`, `difficulty`
+        """
+        Task.objects.all().delete()
+        t3, t1, t4, t2, t6, t5 = TaskFactory.create_batch(6)
+        t1.priority = 1
+        t1.difficulty = 1
+        t1.save()
+        t2.priority = 1
+        t2.difficulty = 2
+        t2.save()
+        t3.priority = 1
+        t3.difficulty = 3
+        t3.save()
+        t4.priority = 2
+        t4.difficulty = 1
+        t4.save()
+        t5.priority = 2
+        t5.difficulty = 3
+        t5.save()
+        t6.priority = 3
+        t6.difficulty = 1
+        t6.save()
+        tasks = Task.objects.all()
+        eq_(tasks[0], t1)
+        eq_(tasks[1], t2)
+        eq_(tasks[2], t3)
+        eq_(tasks[3], t4)
+        eq_(tasks[4], t5)
+        eq_(tasks[5], t6)
+
+    def test_has_bugzilla_bug_false(self):
+        task = TaskFactory.create()
+        ok_(not task.has_bugzilla_bug)
+
+    def test_has_bugzilla_bug_true(self):
+        bug = BugzillaBugFactory.create()
+        task = TaskFactory.create(imported_item=bug)
+        ok_(task.has_bugzilla_bug)
+
+    def test_invalidate_tasks_equals_criterion(self):
+        """
+        The invalidate_tasks routine should invalidate tasks which match the
+        invalidation criteria.
+        This tests an equals criterion.
+        """
+        bug_to_become_invalid, bug_to_stay_valid = BugzillaBugFactory.create_batch(2)
+        batch = TaskImportBatchFactory.create()
+        criterion = TaskInvalidationCriterionFactory.create(
+            field_name='name',
+            relation=TaskInvalidationCriterion.EQUAL,
+            field_value='value')
+        criterion.batches.add(batch)
+        criterion.save()
+        task1, task2, task3 = TaskFactory.create_batch(3,
+                                                       batch=batch,
+                                                       imported_item=bug_to_become_invalid,
+                                                       is_invalid=False)
+        task3.imported_item = bug_to_stay_valid
+        task3.save()
+        with patch('oneanddone.tasks.models.BugzillaUtils.request_bug') as request_bug:
+            request_bug.side_effect = lambda x: {
+                bug_to_become_invalid.bugzilla_id: {'name': 'value'},
+                bug_to_stay_valid.bugzilla_id: {'name': 'not value'}}[x]
+            eq_(Task.invalidate_tasks(), 2)
+        eq_(Task.objects.get(pk=task1.pk).is_invalid, True)
+        eq_(Task.objects.get(pk=task2.pk).is_invalid, True)
+        eq_(Task.objects.get(pk=task3.pk).is_invalid, False)
+
+    def test_invalidate_tasks_not_equals_criterion(self):
+        """
+        The invalidate_tasks routine should invalidate tasks which match the
+        invalidation criteria.
+        This tests a not equals criterion.
+        """
+        bug_to_become_invalid, bug_to_stay_valid = BugzillaBugFactory.create_batch(2)
+        batch = TaskImportBatchFactory.create()
+        criterion = TaskInvalidationCriterionFactory.create(
+            field_name='name',
+            relation=TaskInvalidationCriterion.NOT_EQUAL,
+            field_value='value')
+        criterion.batches.add(batch)
+        criterion.save()
+        task1, task2 = TaskFactory.create_batch(2,
+                                                batch=batch,
+                                                imported_item=bug_to_become_invalid,
+                                                is_invalid=False)
+        task2.imported_item = bug_to_stay_valid
+        task2.save()
+        with patch('oneanddone.tasks.models.BugzillaUtils.request_bug') as request_bug:
+            request_bug.side_effect = lambda x: {
+                bug_to_become_invalid.bugzilla_id: {'name': 'value'},
+                bug_to_stay_valid.bugzilla_id: {'name': 'not value'}}[x]
+            eq_(Task.invalidate_tasks(), 1)
+        eq_(Task.objects.get(pk=task1.pk).is_invalid, False)
+        eq_(Task.objects.get(pk=task2.pk).is_invalid, True)
+
+    def test_invalidation_criteria_does_not_exist(self):
+        task = TaskFactory.create()
+        eq_(None, task.invalidation_criteria)
+
+    def test_invalidation_criteria_exists(self):
+        batch = TaskImportBatchFactory.create()
+        criterion = TaskInvalidationCriterionFactory.create()
+        criterion.batches.add(batch)
+        criterion.save()
+        task = TaskFactory.create(batch=batch)
+        eq_(criterion, task.invalidation_criteria[0])
+
     def test_isnt_available_invalid(self):
         """
         If a task is marked as invalid, it should not be available.
@@ -181,15 +362,6 @@ class TaskTests(TestCase):
         tasks = Task.objects.filter(Task.is_available_filter(now=aware_datetime(2014, 1, 5)))
         ok_(self.task_range_jan_feb in tasks)
 
-    def test_keywords_list_returns_expected_string(self):
-        """
-        keywords_list should return a comma delimited list of keywords.
-        """
-        TaskKeywordFactory.create_batch(4, task=self.task_draft)
-        keywords = TaskKeyword.objects.filter(task=self.task_draft)
-        expected_keywords = ', '.join([keyword.name for keyword in keywords])
-        eq_(self.task_draft.keywords_list, expected_keywords)
-
     def test_is_available_to_user_no_attempts(self):
         """
         If there are no attempts,
@@ -230,34 +402,6 @@ class TaskTests(TestCase):
         TaskAttemptFactory.create(user=other_user, state=TaskAttempt.STARTED, task=task)
         eq_(task.is_available_to_user(user), False)
 
-    def test_is_taken_taken_task(self):
-        """
-        If there is a started attempt,
-        the task should be taken.
-        """
-        eq_(self.task_not_repeatable_started_attempt.is_taken, True)
-
-    def test_isnt_taken_finished_task(self):
-        """
-        If there is a finished attempt,
-        the task should not be taken.
-        """
-        eq_(self.task_not_repeatable_finished_attempt.is_taken, False)
-
-    def test_isnt_taken_abandoned_task(self):
-        """
-        If there is an abandoned attempt,
-        the task should not be taken.
-        """
-        eq_(self.task_not_repeatable_abandoned_attempt.is_taken, False)
-
-    def test_isnt_taken_no_attempts_task(self):
-        """
-        If there are no attempts,
-        the task should not be taken.
-        """
-        eq_(self.task_not_repeatable_no_attempts.is_taken, False)
-
     def test_is_completed_finished_task(self):
         """
         If there is a finished attempt,
@@ -286,121 +430,42 @@ class TaskTests(TestCase):
         """
         eq_(self.task_not_repeatable_no_attempts.is_completed, False)
 
-    def test_close_stale_onetime_attempts(self):
+    def test_is_taken_taken_task(self):
         """
-        The close_stale_onetime_attempts routine should close all
-        expired one-time attempts, set them as requiring notification,
-        and return the number that were closed.
+        If there is a started attempt,
+        the task should be taken.
         """
-        user = UserFactory.create()
-        recent_attempt, expired_attempt_1, expired_attempt_2 = TaskAttemptFactory.create_batch(
-            3,
-            user=user,
-            state=TaskAttempt.STARTED,
-            task=self.task_not_repeatable_no_attempts)
-        recent_attempt.created = aware_datetime(2014, 1, 29)
-        recent_attempt.save()
-        expired_attempt_1.created = aware_datetime(2014, 1, 1)
-        expired_attempt_1.save()
-        expired_attempt_2.created = aware_datetime(2014, 1, 1)
-        expired_attempt_2.save()
-        eq_(self.task_not_repeatable_no_attempts.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 3)
-        with patch('oneanddone.tasks.models.timezone.now') as now:
-            now.return_value = aware_datetime(2014, 1, 31)
-            eq_(TaskAttempt.close_stale_onetime_attempts(), 2)
-        eq_(TaskAttempt.objects.filter(task=self.task_not_repeatable_no_attempts,
-                                       state=TaskAttempt.STARTED).count(), 1)
-        eq_(TaskAttempt.objects.filter(task=self.task_not_repeatable_no_attempts,
-                                       state=TaskAttempt.CLOSED,
-                                       requires_notification=True).count(), 2)
+        eq_(self.task_not_repeatable_started_attempt.is_taken, True)
 
-    def test_close_expired_task_attempts(self):
+    def test_isnt_taken_finished_task(self):
         """
-        The close_expired_task_attempts routine should close all
-        attempts for tasks that are no longer available,
-        set them as requiring notification,
-        and return the number that were closed.
+        If there is a finished attempt,
+        the task should not be taken.
         """
-        user1, user2, user3 = UserFactory.create_batch(3)
-        TaskAttemptFactory.create(
-            user=user1,
-            state=TaskAttempt.STARTED,
-            task=self.task_end_jan)
-        TaskAttemptFactory.create(
-            user=user2,
-            state=TaskAttempt.STARTED,
-            task=self.task_end_jan)
-        TaskAttemptFactory.create(
-            user=user3,
-            state=TaskAttempt.STARTED,
-            task=self.task_no_draft)
-        eq_(self.task_end_jan.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 2)
-        eq_(self.task_no_draft.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 1)
-        eq_(TaskAttempt.close_expired_task_attempts(), 2)
-        eq_(TaskAttempt.objects.filter(task=self.task_end_jan,
-                                       state=TaskAttempt.STARTED).count(), 0)
-        eq_(TaskAttempt.objects.filter(task=self.task_end_jan,
-                                       state=TaskAttempt.CLOSED,
-                                       requires_notification=True).count(), 2)
-        eq_(TaskAttempt.objects.filter(task=self.task_no_draft,
-                                       state=TaskAttempt.STARTED).count(), 1)
+        eq_(self.task_not_repeatable_finished_attempt.is_taken, False)
 
-    def test_invalidate_tasks_equals_criterion(self):
+    def test_isnt_taken_abandoned_task(self):
         """
-        The invalidate_tasks routine should invalidate tasks which match the
-        invalidation criteria.
-        This tests an equals criterion.
+        If there is an abandoned attempt,
+        the task should not be taken.
         """
-        bug_to_become_invalid, bug_to_stay_valid = BugzillaBugFactory.create_batch(2)
-        batch = TaskImportBatchFactory.create()
-        criterion = TaskInvalidationCriterionFactory.create(
-            field_name='name',
-            relation=TaskInvalidationCriterion.EQUAL,
-            field_value='value')
-        criterion.batches.add(batch)
-        criterion.save()
-        task1, task2, task3 = TaskFactory.create_batch(3,
-                                                       batch=batch,
-                                                       imported_item=bug_to_become_invalid,
-                                                       is_invalid=False)
-        task3.imported_item = bug_to_stay_valid
-        task3.save()
-        with patch('oneanddone.tasks.models.BugzillaUtils.request_bug') as request_bug:
-            request_bug.side_effect = lambda x: {
-                bug_to_become_invalid.bugzilla_id: {'name': 'value'},
-                bug_to_stay_valid.bugzilla_id: {'name': 'not value'}}[x]
-            eq_(Task.invalidate_tasks(), 2)
-        eq_(Task.objects.get(pk=task1.pk).is_invalid, True)
-        eq_(Task.objects.get(pk=task2.pk).is_invalid, True)
-        eq_(Task.objects.get(pk=task3.pk).is_invalid, False)
+        eq_(self.task_not_repeatable_abandoned_attempt.is_taken, False)
 
-    def test_invalidate_tasks_not_equals_criterion(self):
+    def test_isnt_taken_no_attempts_task(self):
         """
-        The invalidate_tasks routine should invalidate tasks which match the
-        invalidation criteria.
-        This tests a not equals criterion.
+        If there are no attempts,
+        the task should not be taken.
         """
-        bug_to_become_invalid, bug_to_stay_valid = BugzillaBugFactory.create_batch(2)
-        batch = TaskImportBatchFactory.create()
-        criterion = TaskInvalidationCriterionFactory.create(
-            field_name='name',
-            relation=TaskInvalidationCriterion.NOT_EQUAL,
-            field_value='value')
-        criterion.batches.add(batch)
-        criterion.save()
-        task1, task2 = TaskFactory.create_batch(2,
-                                                batch=batch,
-                                                imported_item=bug_to_become_invalid,
-                                                is_invalid=False)
-        task2.imported_item = bug_to_stay_valid
-        task2.save()
-        with patch('oneanddone.tasks.models.BugzillaUtils.request_bug') as request_bug:
-            request_bug.side_effect = lambda x: {
-                bug_to_become_invalid.bugzilla_id: {'name': 'value'},
-                bug_to_stay_valid.bugzilla_id: {'name': 'not value'}}[x]
-            eq_(Task.invalidate_tasks(), 1)
-        eq_(Task.objects.get(pk=task1.pk).is_invalid, False)
-        eq_(Task.objects.get(pk=task2.pk).is_invalid, True)
+        eq_(self.task_not_repeatable_no_attempts.is_taken, False)
+
+    def test_keywords_list_returns_expected_string(self):
+        """
+        keywords_list should return a comma delimited list of keywords.
+        """
+        TaskKeywordFactory.create_batch(4, task=self.task_draft)
+        keywords = TaskKeyword.objects.filter(task=self.task_draft)
+        expected_keywords = ', '.join([keyword.name for keyword in keywords])
+        eq_(self.task_draft.keywords_list, expected_keywords)
 
     def test_save_closes_task_attempts(self):
         """
@@ -427,77 +492,21 @@ class TaskTests(TestCase):
                                        state=TaskAttempt.CLOSED,
                                        requires_notification=True).count(), 2)
 
-    def test_default_sort_order(self):
-        """
-        The sort order of tasks should default to `priority`, `difficulty`
-        """
-        Task.objects.all().delete()
-        t3, t1, t4, t2, t6, t5 = TaskFactory.create_batch(6)
-        t1.priority = 1
-        t1.difficulty = 1
-        t1.save()
-        t2.priority = 1
-        t2.difficulty = 2
-        t2.save()
-        t3.priority = 1
-        t3.difficulty = 3
-        t3.save()
-        t4.priority = 2
-        t4.difficulty = 1
-        t4.save()
-        t5.priority = 2
-        t5.difficulty = 3
-        t5.save()
-        t6.priority = 3
-        t6.difficulty = 1
-        t6.save()
-        tasks = Task.objects.all()
-        eq_(tasks[0], t1)
-        eq_(tasks[1], t2)
-        eq_(tasks[2], t3)
-        eq_(tasks[3], t4)
-        eq_(tasks[4], t5)
-        eq_(tasks[5], t6)
-
-    def test_has_bugzilla_bug_true(self):
-        bug = BugzillaBugFactory.create()
-        task = TaskFactory.create(imported_item=bug)
-        ok_(task.has_bugzilla_bug)
-
-    def test_has_bugzilla_bug_false(self):
-        task = TaskFactory.create()
-        ok_(not task.has_bugzilla_bug)
-
-    def test_bugzilla_bug_exists(self):
-        bug = BugzillaBugFactory.create()
-        task = TaskFactory.create(imported_item=bug)
-        with patch('oneanddone.tasks.models.BugzillaUtils.request_bug') as request_bug:
-            request_bug.return_value = bug
-            eq_(bug, task.bugzilla_bug)
-            request_bug.assert_called_with(bug.bugzilla_id)
-
-    def test_bugzilla_bug_not_exists(self):
-        task = TaskFactory.create()
-        eq_(None, task.bugzilla_bug)
-
-    def test_invalidation_criteria_exists(self):
-        batch = TaskImportBatchFactory.create()
-        criterion = TaskInvalidationCriterionFactory.create()
-        criterion.batches.add(batch)
-        criterion.save()
-        task = TaskFactory.create(batch=batch)
-        eq_(criterion, task.invalidation_criteria[0])
-
-    def test_invalidation_criteria_does_not_exist(self):
-        task = TaskFactory.create()
-        eq_(None, task.invalidation_criteria)
-
 
 class TaskAttemptTests(TestCase):
     def setUp(self):
         user = UserFactory.create()
         task = TaskFactory.create()
         self.attempt = TaskAttemptFactory.create(user=user, task=task)
+
+    def test_attempt_length_in_minutes(self):
+        """
+        Return the time, in minutes between the attempt creation time and
+        last modification time.
+        """
+        self.attempt.created = aware_datetime(2014, 1, 1)
+        self.attempt.modified = aware_datetime(2014, 1, 2)
+        eq_(self.attempt.attempt_length_in_minutes, 1440)
 
     def test_feedback_display_none(self):
         """
@@ -526,28 +535,8 @@ class TaskAttemptTests(TestCase):
         FeedbackFactory.create(attempt=self.attempt)
         eq_(self.attempt.has_feedback, True)
 
-    def test_attempt_length_in_minutes(self):
-        """
-        Return the time, in minutes between the attempt creation time and
-        last modification time.
-        """
-        self.attempt.created = aware_datetime(2014, 1, 1)
-        self.attempt.modified = aware_datetime(2014, 1, 2)
-        eq_(self.attempt.attempt_length_in_minutes, 1440)
-
 
 class TaskInvalidationCriterionTests(TestCase):
-
-    def test_equal_passes_true(self):
-        """
-        Return true if the criterion passes for the bug, using EQUAL.
-        """
-        criterion = TaskInvalidationCriterionFactory.create(
-            field_name='name',
-            relation=TaskInvalidationCriterion.EQUAL,
-            field_value='value')
-        bug = {'name': 'value'}
-        ok_(criterion.passes(bug))
 
     def test_equal_passes_false(self):
         """
@@ -560,14 +549,14 @@ class TaskInvalidationCriterionTests(TestCase):
         bug = {'name': 'not value'}
         ok_(not criterion.passes(bug))
 
-    def test_not_equal_passes_true(self):
+    def test_equal_passes_true(self):
         """
-        Return true if the criterion passes for the bug, using NOT_EQUAL.
+        Return true if the criterion passes for the bug, using EQUAL.
         """
         criterion = TaskInvalidationCriterionFactory.create(
             field_name='name',
-            relation=TaskInvalidationCriterion.NOT_EQUAL,
-            field_value='not value')
+            relation=TaskInvalidationCriterion.EQUAL,
+            field_value='value')
         bug = {'name': 'value'}
         ok_(criterion.passes(bug))
 
@@ -581,3 +570,14 @@ class TaskInvalidationCriterionTests(TestCase):
             field_value='value')
         bug = {'name': 'value'}
         ok_(not criterion.passes(bug))
+
+    def test_not_equal_passes_true(self):
+        """
+        Return true if the criterion passes for the bug, using NOT_EQUAL.
+        """
+        criterion = TaskInvalidationCriterionFactory.create(
+            field_name='name',
+            relation=TaskInvalidationCriterion.NOT_EQUAL,
+            field_value='not value')
+        bug = {'name': 'value'}
+        ok_(criterion.passes(bug))

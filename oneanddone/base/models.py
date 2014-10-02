@@ -36,22 +36,22 @@ class CachedModel(caching.base.CachingMixin, models.Model):
         abstract = True
 
 
+class CreatedByModel(models.Model):
+    """
+    Abstract model that records the user that created it.
+    """
+    creator = models.ForeignKey(User, blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+
 class CreatedModifiedModel(BaseModel):
     """
     Abstract model that tracks when an instance is created and modified.
     """
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
-
-
-class CreatedByModel(models.Model):
-    """
-    Abstract model that records the user that created it.
-    """
-    creator = models.ForeignKey(User, blank=True, null=True)
 
     class Meta:
         abstract = True

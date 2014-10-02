@@ -7,13 +7,6 @@ from jingo import register
 from jinja2 import Markup
 
 
-@register.function
-def page_url(request, page):
-    query = request.GET.copy()
-    query['page'] = page
-    return ''.join(['?', query.urlencode()])
-
-
 @register.filter
 def buglinkify(obj):
     return Markup(
@@ -22,3 +15,10 @@ def buglinkify(obj):
             r'<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=\2">\1</a>',
             unicode(obj))
     )
+
+
+@register.function
+def page_url(request, page):
+    query = request.GET.copy()
+    query['page'] = page
+    return ''.join(['?', query.urlencode()])
