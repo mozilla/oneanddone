@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-from nose.tools import eq_
+from nose.tools import assert_not_in, eq_
 
 from oneanddone.base.tests import TestCase
 from oneanddone.tasks.forms import TaskForm
@@ -90,6 +90,20 @@ class TaskFormTests(TestCase):
 
         # double-check on the keywords_list property
         eq_(self.task.keywords_list, 'test3, new_keyword')
+
+    def test_save_processes_keywords_for_clone(self):
+        """
+        When the keywords field is filled initially but submitted with no
+        changes, the form processes these keywords anyway.
+        Therefore, when cloning a task, the new task is saved with the same
+        keywords as the original task.
+        """
+        form = get_filled_taskform(self.task)
+        keywords = 'test1, test2, test3'
+        form.initial['keywords'] = form.data['keywords'] = keywords
+        form.save(self.user)
+        assert_not_in('keywords', form.changed_data)
+        eq_(self.task.keywords_list, keywords)
 
     def test_validation_same_start_date_as_end_date(self):
         """

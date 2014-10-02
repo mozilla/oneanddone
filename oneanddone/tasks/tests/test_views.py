@@ -4,13 +4,15 @@
 from django.core.urlresolvers import reverse
 
 from mock import Mock, patch
-from nose.tools import eq_, ok_
+from nose.tools import eq_, ok_, assert_dict_contains_subset
 from tower import ugettext as _
 
 from oneanddone.base.tests import TestCase
 from oneanddone.tasks import views
 from oneanddone.tasks.models import TaskAttempt
-from oneanddone.tasks.tests import TaskAttemptFactory, TaskFactory
+from oneanddone.tasks.tests import (TaskAttemptFactory, TaskFactory,
+                                    TaskKeywordFactory)
+from oneanddone.tasks.tests.test_forms import get_filled_taskform
 from oneanddone.users.tests import UserFactory
 
 
@@ -39,6 +41,24 @@ class CreateTaskViewTests(TestCase):
             get_form_kwargs.return_value = {'initial': {}}
             kwargs = self.view.get_form_kwargs()
         eq_(kwargs['initial']['owner'], user)
+
+    def test_get_initial_populates_form_with_data_to_be_cloned(self):
+        """
+        When accessed via the tasks.clone url, the view displays a form
+        whose initial data is that of the task being cloned, except for
+        the 'name' field, which should be prefixed with 'Copy of '
+        """
+        original_task = TaskFactory.create()
+        TaskKeywordFactory.create_batch(3, task=original_task)
+        original_data = get_filled_taskform(original_task).data
+        self.view.kwargs = {'clone': original_task.pk }
+        with patch('oneanddone.tasks.views.generic.CreateView.get_initial') as get_initial:
+            get_initial.return_value = {}
+            initial = self.view.get_initial()
+        eq_(initial['keywords'], original_task.keywords_list)
+        eq_(initial['name'], ' '.join(['Copy of', original_task.name]))
+        del original_data['name']
+        assert_dict_contains_subset(original_data, initial)
 
 
 class RandomTasksViewTests(TestCase):

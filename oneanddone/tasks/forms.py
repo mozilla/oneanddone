@@ -60,8 +60,12 @@ class TaskForm(forms.ModelForm):
         super(TaskForm, self).__init__(*args, **kwargs)
 
     def _process_keywords(self, creator):
-        if 'keywords' in self.changed_data:
-            kw = [k.strip() for k in self.cleaned_data['keywords'].split(',')]
+        form_keywords = self.cleaned_data['keywords'].split(',')
+        # When cloning a task we need to process/add the keywords even
+        # they weren't changed in the form.
+        if ('keywords' in self.changed_data or
+            self.instance.keyword_set.count() != len(form_keywords)):
+            kw = [k.strip() for k in form_keywords]
             self.instance.replace_keywords(kw, creator)
 
     def clean(self):

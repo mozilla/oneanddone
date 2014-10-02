@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     url(r'^tasks/import/$', views.ImportTasksView.as_view(), name='tasks.import'),
     url(r'^tasks/list/$', views.ListTasksView.as_view(), name='tasks.list'),
     url(r'^tasks/metrics/$', views.MetricsView.as_view(), name='tasks.metrics'),
+    url(r'^tasks/clone/(?P<clone>\d+)/$', views.CreateTaskView.as_view(), name='tasks.clone'),
 
     # API for interacting with tasks and task areas
     url(r'^api/v1/task/$', views.TaskListAPI.as_view(), name='api-task'),
