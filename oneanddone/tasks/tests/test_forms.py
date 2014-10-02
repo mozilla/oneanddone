@@ -1,12 +1,19 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+from mock import patch
 from nose.tools import assert_not_in, eq_
+from requests.exceptions import RequestException
 
 from oneanddone.base.tests import TestCase
-from oneanddone.tasks.forms import TaskForm
+from oneanddone.tasks.forms import (PreviewConfirmationForm,
+                                    TaskForm,
+                                    TaskImportBatchForm,
+                                    TaskInvalidCriteriaFormSet)
 from oneanddone.tasks.models import TaskKeyword
-from oneanddone.tasks.tests import TaskFactory, TaskKeywordFactory
+from oneanddone.tasks.tests import (BugzillaBugFactory, TaskFactory,
+                                    TaskImportBatchFactory, TaskKeywordFactory)
 from oneanddone.users.tests import UserProfileFactory
 
 
@@ -149,3 +156,208 @@ class TaskFormTests(TestCase):
         self.assertFalse(form.is_valid())
         eq_(form.errors['verification_instructions'],
             ['If the task is a Verified task then you must provide some verification instructions'])
+
+
+class PreviewConfirmationFormTests(TestCase):
+    def test_validation_invalid_stage(self):
+        """
+        The form is invalid if the stage is not 'preview', 'confirm' or 'fill'.
+        """
+        form = PreviewConfirmationForm(data={'stage': 'hug_kitten'})
+        self.assertFalse(form.is_valid())
+        eq_(form.non_field_errors(),
+            ['Form data is missing or has been tampered.'])
+
+    def test_validation_missing_stage(self):
+        """
+        The form is invalid if the stage is not set.
+        """
+        form = PreviewConfirmationForm(data={'nonsense': ''})
+        self.assertFalse(form.is_valid())
+        eq_(form.non_field_errors(),
+            ['Form data is missing or has been tampered.'])
+
+
+class TaskInvalidCriteriaFormSetTests(TestCase):
+    def test_validation_empty_forms(self):
+        """
+        The formset is invalid if any of its forms are empty.
+        """
+        # leave the one form in the formset unfilled
+        data = {'form-TOTAL_FORMS': u'1',
+                'form-INITIAL_FORMS': u'0',
+                'form-MAX_NUM_FORMS': u'1000'}
+        formset = TaskInvalidCriteriaFormSet(initial=None, data=data)
+        self.assertFalse(formset.is_valid())
+        eq_(formset.errors, [{'criterion': [u'This field is required.']}])
+
+
+class TaskImportBatchFormTests(TestCase):
+    def test_validation_invalid_query(self):
+        """
+        The form is invalid when the query has no URL parameters.
+        """
+        data = {'query': 'http://www.example.com',
+                'description': 'foo'}
+        form = TaskImportBatchForm(data=data)
+        self.assertFalse(form.is_valid())
+        eq_(form.non_field_errors(),
+            [('For the query URL, please provide '
+              'a full URL that includes search '
+              'parameters.')])
+
+    def test_validation_no_query_results(self):
+        """
+        The form is invalid when given a query that returns 0 results.
+        """
+        data = {'query': 'http://www.example.com?x=y',
+                'description': 'foo'}
+        with patch('oneanddone.tasks.forms.BugzillaUtils') as BugzillaUtils:
+            BugzillaUtils().request_bugcount.return_value = 0
+            form = TaskImportBatchForm(data=data)
+            self.assertFalse(form.is_valid())
+            eq_(form.non_field_errors(), [('Your query does not return'
+                                           ' any results.')])
+
+    def test_validation_too_many_query_results(self):
+        """
+        The form is invalid when given a query that returns more than
+        max_results.
+        """
+        data = {'query': 'http://www.example.com?x=y',
+                'description': 'foo'}
+        with patch('oneanddone.tasks.forms.BugzillaUtils') as BugzillaUtils:
+            BugzillaUtils().request_bugcount.return_value = 101
+            form = TaskImportBatchForm(data=data)
+            self.assertFalse(form.is_valid())
+            eq_(form.non_field_errors(), [('Your query returns more '
+                                           'than 100 items.')])
+
+    def test_validation_query_returns_external_error(self):
+        """ The form is invalid if given a query that returns any errors """
+        data = {'query': 'http://www.example.com?x=y',
+                'description': 'foo'}
+        with patch('oneanddone.tasks.forms.BugzillaUtils') as BugzillaUtils:
+            message = 'bar'
+            BugzillaUtils().request_bugcount.side_effect = ValueError(message)
+            form = TaskImportBatchForm(data=data)
+            self.assertFalse(form.is_valid())
+            eq_(form.non_field_errors(), ['External error: ' + message])
+
+    def test_validation_query_returns_bugzilla_error(self):
+        """ The form is invalid if given a query that returns any errors """
+        data = {'query': 'http://www.example.com?x=y',
+                'description': 'foo'}
+        with patch('oneanddone.tasks.forms.BugzillaUtils') as BugzillaUtils:
+            request_bugcount = BugzillaUtils().request_bugcount
+            message = ('Sorry. we cannot retrieve any data from Bugzilla at '
+                       'this time. Please report this to the '
+                       'One and Done team.')
+
+            request_bugcount.side_effect = RuntimeError
+            form = TaskImportBatchForm(data=data)
+            self.assertFalse(form.is_valid())
+            eq_(form.non_field_errors(), [message])
+
+            request_bugcount.side_effect = RequestException
+            form = TaskImportBatchForm(data=data)
+            self.assertFalse(form.is_valid())
+            eq_(form.non_field_errors(), [message])
+
+    def test_num_fresh_bugs_with_small_new_query(self):
+        """
+        Given a query that returns n < max_batch_size results, the
+        number of fresh bugs in the form's cleaned data is equal to
+        n if this is the first time the query is ever submitted.
+        """
+        max_batch_size = 20
+        query_params = 'foo'
+        with patch('oneanddone.tasks.forms.BugzillaUtils.request_bugs') as request_bugs:
+            # two fresh bugs
+            request_bugs.return_value = [{u'id': 50, u'summary': u'foo'},
+                                         {u'id': 51, u'summary': u'bar'}]
+            query = 'baz'
+            n = len(request_bugs())
+            fresh_bugs = TaskImportBatchForm._get_fresh_bugs(query,
+                                                             query_params,
+                                                             n, max_batch_size)
+            eq_(len(fresh_bugs), n)
+
+    def test_num_fresh_bugs_with_small_stale_query(self):
+        """
+        Given a query that returns n < max_batch_size results, the
+        number of fresh bugs in the form's cleaned data is equal to 0,
+        if the query has been submitted before
+        """
+        max_batch_size = 20
+        query_params = 'foo'
+        bug1, bug2 = BugzillaBugFactory.create_batch(2)
+        batch1 = TaskImportBatchFactory.create()
+        TaskFactory.create_batch(1, batch=batch1, imported_item=bug1,
+                                 is_invalid=False)
+        TaskFactory.create_batch(1, batch=batch1, imported_item=bug2,
+                                 is_invalid=False)
+        with patch('oneanddone.tasks.forms.BugzillaUtils.request_bugs') as request_bugs:
+            # two bugs previously imported in batch1
+            request_bugs.return_value = [{u'id': bug1.bugzilla_id,
+                                          u'summary': bug1.summary},
+                                         {u'id': bug2.bugzilla_id,
+                                          u'summary': bug2.summary}]
+            bugs = TaskImportBatchForm._get_fresh_bugs(batch1.query,
+                                                       query_params,
+                                                       len(request_bugs()),
+                                                       max_batch_size)
+
+            eq_(len(bugs), 0)
+
+    def test_num_fresh_bugs_with_big_fresh_query(self):
+        """
+        Given a query that returns max_batch_size + n results, where
+        n < max_batch_size, the first max_batch_size bugs are accepted.
+        """
+        max_batch_size = 2
+        query_params = fresh_query = 'foo'
+        with patch('oneanddone.tasks.forms.BugzillaUtils.request_bugs') as request_bugs:
+            request_bugs.return_value = [{u'id': 50, u'summary': u'a'},
+                                         {u'id': 51, u'summary': u'b'},
+                                         {u'id': 52, u'summary': u'c'},
+                                         {u'id': 53, u'summary': u'd'}]
+            bugs = TaskImportBatchForm._get_fresh_bugs(fresh_query,
+                                                       query_params,
+                                                       len(request_bugs()),
+                                                       max_batch_size)
+
+            eq_(bugs, request_bugs()[:max_batch_size])
+
+    def test_num_fresh_bugs_with_big_stale_query(self):
+        """
+        Given a query that returns max_batch_size + n results, where
+        n < max_batch_size, the number of fresh bugs in the form's
+        cleaned data is equal to n the second time the query is submitted
+        (Next n bugs are accepted.)
+        """
+        max_batch_size = 3
+        n = 2
+        query_params = 'foo'
+        db_bugs = BugzillaBugFactory.create_batch(max_batch_size)
+        batch1 = TaskImportBatchFactory.create()
+        for bug in db_bugs:
+            TaskFactory.create_batch(1, batch=batch1, imported_item=bug,
+                                     is_invalid=False)
+
+        with patch('oneanddone.tasks.forms.BugzillaUtils.request_bugs') as request_bugs:
+            stale_bugs = [{u'id': bug.bugzilla_id, u'summary': bug.summary}
+                          for bug in db_bugs]
+            new_bugs = [{u'id': 50 + i, u'summary': u'a'} for i in range(n)]
+            all_bugs = stale_bugs + new_bugs
+
+            def fake_request(request_params, fields=['id', 'summary'],
+                             offset=0, limit=99):
+                return all_bugs[offset:offset + limit]
+
+            request_bugs.side_effect = fake_request
+            bugs = TaskImportBatchForm._get_fresh_bugs(batch1.query,
+                                                       query_params,
+                                                       len(all_bugs),
+                                                       max_batch_size)
+            eq_(bugs, all_bugs[max_batch_size:])

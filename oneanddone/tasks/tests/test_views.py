@@ -1,6 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 from django.core.urlresolvers import reverse
 from django.http import HttpRequest
 
@@ -10,8 +11,15 @@ from tower import ugettext as _
 
 from oneanddone.base.tests import TestCase
 from oneanddone.tasks import views
-from oneanddone.tasks.models import TaskAttempt
-from oneanddone.tasks.tests import TaskFactory, TaskKeywordFactory
+from oneanddone.tasks.forms import (TaskImportBatchForm,
+                                    TaskForm,
+                                    TaskInvalidCriteriaFormSet)
+from oneanddone.tasks.models import (BugzillaBug, Task, TaskAttempt,
+                                     TaskImportBatch)
+from oneanddone.tasks.tests import (TaskAttemptFactory, TaskFactory,
+                                    TaskImportBatchFactory,
+                                    TaskInvalidationCriterionFactory,
+                                    TaskKeywordFactory)
 from oneanddone.tasks.tests.test_forms import get_filled_taskform
 from oneanddone.users.tests import UserFactory
 
@@ -236,3 +244,156 @@ class UpdateTaskViewTests(TestCase):
             ctx = self.view.get_context_data()
             eq_(ctx['action'], 'Update')
             eq_(ctx['cancel_url'], reverse('tasks.detail', args=[1]))
+
+
+class ImportTasksViewTests(TestCase):
+    def setUp(self):
+        self.view = views.ImportTasksView()
+        self.view.request = Mock(spec=HttpRequest,
+                                 _messages=Mock(),
+                                 user=Mock())
+
+    def test_get_context_data_returns_import_action_and_url(self):
+        """
+        The 'Import' action and correct cancel_url
+        should be included in the context data.
+        """
+        with patch('oneanddone.tasks.views.generic.'
+                   'TemplateView.get_context_data') as get_context_data:
+            get_context_data.return_value = {}
+            ctx = self.view.get_context_data()
+            eq_(ctx['action'], 'Import')
+            eq_(ctx['cancel_url'], reverse('tasks.list'))
+
+    def test_context_data_after_get_request_has_all_forms(self):
+        """ Four forms (task, batch, criterion, stage) should be
+            included in the content data.
+        """
+        self.view.request.method = 'GET'
+        response = self.view.get(self.view.request)
+        ok_('stage_form__preview' in response.context_data)
+        ok_('task_form' in response.context_data)
+        ok_('batch_form' in response.context_data)
+        ok_('criterion_formset' in response.context_data)
+
+    def test_fill_stage_after_get_request(self):
+        """ A GET request to ImportTasksView always yields the
+            'fill' stage (i.e. user is entering form data)
+        """
+        self.view.request.method = 'GET'
+        response = self.view.get(self.view.request)
+        eq_(self.view.stage, 'fill')
+
+    def test_form_template_after_get_request(self):
+        """ A GET request to the ImportTasksView always yields the
+            form.html template stage (i.e. user is entering form data)
+        """
+        self.view.request.method = 'GET'
+        response = self.view.get(self.view.request)
+        eq_(response.template_name, ['tasks/form.html'])
+
+    def test_fill_stage_after_preview_form_invalid(self):
+        """ Submitting an invalid form to 'preview' is always followed by being
+            in the "fill" stage (i.e. user must correct form data)
+        """
+        bad_forms = {'form': Mock()}
+        bad_forms['form'].is_valid.return_value = False
+        with patch('oneanddone.tasks.views.ImportTasksView.get_forms') as get_forms:
+            get_forms.return_value = bad_forms
+            self.view.request.method = 'POST'
+            self.view.request.POST = {'stage': 'preview'}
+            response = self.view.post(self.view.request)
+            eq_(self.view.stage, 'fill')
+
+    def test_confirmation_template_after_post_and_preview(self):
+        """ A POST request to ImportTasksView with stage=preview
+            and all forms valid leads to the confirmation.html
+            template.
+        """
+        forms = {'batch_form': Mock(spec=TaskImportBatchForm),
+                 'task_form': Mock(spec=TaskForm)}
+        forms['batch_form'].is_valid.return_value = True
+        forms['batch_form'].cleaned_data = {'_fresh_bugs': ''}
+        forms['task_form'].is_valid.return_value = True
+        forms['task_form'].cleaned_data = {'name': ''}
+
+        with patch('oneanddone.tasks.views.ImportTasksView.get_forms') as get_forms:
+            get_forms.return_value = forms
+            self.view.request.method = 'POST'
+            self.view.request.POST = {'stage': 'preview'}
+            response = self.view.post(self.view.request)
+            eq_(response.template_name, ['tasks/confirmation.html'])
+
+    def test_form_template_after_post_and_fill(self):
+        """ A POST request to ImportTasksView with stage=fill
+            and all forms valid leads to the form.html
+            template. (i.e. user is making changes after preview)
+        """
+        good_forms = {'form': Mock()}
+        good_forms['form'].is_valid.return_value = True
+        with patch('oneanddone.tasks.views.ImportTasksView.get_forms') as get_forms:
+            get_forms.return_value = good_forms
+            self.view.request.method = 'POST'
+            self.view.request.POST = {'stage': 'fill'}
+            response = self.view.post(self.view.request)
+            eq_(response.template_name, ['tasks/form.html'])
+
+    def test_form_template_after_post_and_confirm(self):
+        """ A POST request to ImportTasksView with stage=confirm
+            and all forms valid leads to the tasks.list
+        """
+        forms = {'batch_form': Mock(spec=TaskImportBatchForm),
+                 'task_form': Mock(spec=TaskForm),
+                 'criterion_formset': Mock(spec=TaskInvalidCriteriaFormSet)}
+        forms['batch_form'].is_valid.return_value = True
+        forms['batch_form'].cleaned_data = {'_fresh_bugs': ''}
+        forms['task_form'].is_valid.return_value = True
+        forms['task_form'].cleaned_data = {'name': '', 'keywords': ''}
+        forms['criterion_formset'].is_valid.return_value = True
+        forms['criterion_formset'].forms = []
+
+        with patch('oneanddone.tasks.views.ImportTasksView.get_forms') as get_forms:
+            with patch('oneanddone.tasks.views.redirect') as redirect:
+                get_forms.return_value = forms
+                self.view.request.method = 'POST'
+                self.view.request.POST = {'stage': 'confirm'}
+                eq_(self.view.post(self.view.request), redirect.return_value)
+                redirect.assert_called_with('tasks.list')
+
+    def test_create_batch_of_tasks(self):
+        def save_batch(user):
+            return TaskImportBatchFactory.create(creator=user)
+
+        def save_task(user, **kwargs):
+            return TaskFactory.create(creator=user)
+
+        user = UserFactory.create()
+        self.view.request = Mock(spec=HttpRequest,
+                                 _messages=Mock(),
+                                 user=user)
+        bugs = [{u'id': 51, u'summary': u'a'}, {u'id': 52, u'summary': u'b'}]
+        forms = {'batch_form': Mock(spec=TaskImportBatchForm),
+                 'task_form': Mock(spec=TaskForm),
+                 'criterion_formset': Mock(spec=TaskInvalidCriteriaFormSet)}
+        forms['batch_form'].cleaned_data = {'_fresh_bugs': bugs}
+        forms['batch_form'].save.side_effect = save_batch
+        forms['task_form'].save.side_effect = save_task
+        forms['task_form'].cleaned_data = {'keywords': 'foo, bar'}
+        forms['criterion_formset'].forms = [
+            Mock(
+                cleaned_data={'criterion': TaskInvalidationCriterionFactory.create()})
+            for i in range(2)]
+
+        self.view.done(forms)
+
+        batch = TaskImportBatch.objects.get(creator=user)
+        bug51 = BugzillaBug.objects.get(bugzilla_id=51)
+
+        ok_(Task.objects.filter(creator=user,
+                                batch=batch).exists())
+        eq_(Task.objects.filter(batch=batch).count(), len(bugs))
+        eq_(BugzillaBug.objects.count(), len(bugs))
+        eq_(batch.taskinvalidationcriterion_set.count(),
+            len(forms['criterion_formset'].forms))
+        eq_(sorted(Task.objects.filter(batch=batch)[0].keywords_list),
+            sorted(forms['task_form'].cleaned_data['keywords']))
