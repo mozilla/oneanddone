@@ -37,7 +37,7 @@ class GetSortHeaders(TestCase):
     def setUp(self):
         self.header_list = (
             ('Title 1', 'field_1'),
-            ('Title 2', 'field_2')
+            ('Title 2', 'field_2', 'Long Title 2')
         )
 
     def test_headers_default(self):
@@ -50,11 +50,13 @@ class GetSortHeaders(TestCase):
         eq_(headers[0], {
             'url': '&ot=desc&o=0',
             'text': 'Title 1',
+            'title': 'Title 1',
             'class_attr': {'class': 'orderable sorted asc'},
             'sortable': True})
         eq_(headers[1], {
             'url': '&ot=asc&o=1',
             'text': 'Title 2',
+            'title': 'Long Title 2',
             'class_attr': {'class': 'orderable'},
             'sortable': True})
 
@@ -68,11 +70,13 @@ class GetSortHeaders(TestCase):
         eq_(headers[0], {
             'url': '&ot=asc&o=0',
             'text': 'Title 1',
+            'title': 'Title 1',
             'class_attr': {'class': 'orderable sorted desc'},
             'sortable': True})
         eq_(headers[1], {
             'url': '&ot=asc&o=1',
             'text': 'Title 2',
+            'title': 'Long Title 2',
             'class_attr': {'class': 'orderable'},
             'sortable': True})
 
@@ -86,11 +90,13 @@ class GetSortHeaders(TestCase):
         eq_(headers[0], {
             'url': '&ot=asc&o=0',
             'text': 'Title 1',
+            'title': 'Title 1',
             'class_attr': {'class': 'orderable'},
             'sortable': True})
         eq_(headers[1], {
             'url': '&ot=desc&o=1',
             'text': 'Title 2',
+            'title': 'Long Title 2',
             'class_attr': {'class': 'orderable sorted asc'},
             'sortable': True})
 

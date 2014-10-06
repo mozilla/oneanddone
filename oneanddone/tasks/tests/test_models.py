@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.utils import timezone
 
@@ -70,25 +70,29 @@ class TaskTests(TestCase):
         set them as requiring notification,
         and return the number that were closed.
         """
+        task = TaskFactory.create(end_date=timezone.now() + timedelta(days=1))
+        future_date = timezone.now() + timedelta(days=2)
         user1, user2, user3 = UserFactory.create_batch(3)
         TaskAttemptFactory.create(
             user=user1,
             state=TaskAttempt.STARTED,
-            task=self.task_end_jan)
+            task=task)
         TaskAttemptFactory.create(
             user=user2,
             state=TaskAttempt.STARTED,
-            task=self.task_end_jan)
+            task=task)
         TaskAttemptFactory.create(
             user=user3,
             state=TaskAttempt.STARTED,
             task=self.task_no_draft)
-        eq_(self.task_end_jan.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 2)
+        eq_(task.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 2)
         eq_(self.task_no_draft.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 1)
-        eq_(TaskAttempt.close_expired_task_attempts(), 2)
-        eq_(TaskAttempt.objects.filter(task=self.task_end_jan,
+        with patch('oneanddone.tasks.models.timezone.now') as now:
+            now.return_value = future_date
+            eq_(TaskAttempt.close_expired_task_attempts(), 2)
+        eq_(TaskAttempt.objects.filter(task=task,
                                        state=TaskAttempt.STARTED).count(), 0)
-        eq_(TaskAttempt.objects.filter(task=self.task_end_jan,
+        eq_(TaskAttempt.objects.filter(task=task,
                                        state=TaskAttempt.CLOSED,
                                        requires_notification=True).count(), 2)
         eq_(TaskAttempt.objects.filter(task=self.task_no_draft,
