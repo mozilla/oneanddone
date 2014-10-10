@@ -269,7 +269,7 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
         default=P3,
         verbose_name='task priority')
     repeatable = models.BooleanField(default=True)
-    short_description = models.CharField(max_length=255, verbose_name='description')
+    short_description = models.CharField(blank=True, null=True, max_length=255, verbose_name='description')
     start_date = models.DateTimeField(blank=True, null=True)
     why_this_matters = models.TextField(blank=True)
 
