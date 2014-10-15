@@ -14,7 +14,7 @@ from oneanddone.base.widgets import HorizCheckboxSelect
 
 class ActivityFilterSet(django_filters.FilterSet):
 
-    task__creator = django_filters.ModelChoiceFilter(
+    task__owner = django_filters.ModelChoiceFilter(
         label=_lazy(u'Task Owner'),
         queryset=User.objects.filter(task__isnull=False).distinct())
 
@@ -33,7 +33,7 @@ class ActivityFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = TaskAttempt
-        fields = ('task__creator', 'task__team', 'user', 'modified')
+        fields = ('task__owner', 'task__team', 'user', 'modified')
 
 
 class TasksFilterSet(django_filters.FilterSet):

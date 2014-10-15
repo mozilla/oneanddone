@@ -291,6 +291,7 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     content_type = models.ForeignKey(ContentType, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     imported_item = generic.GenericForeignKey('content_type', 'object_id')
+    owner = models.ForeignKey(User, related_name='owner')
     project = models.ForeignKey(TaskProject, blank=True, null=True)
     team = models.ForeignKey(TaskTeam)
     type = models.ForeignKey(TaskType, blank=True, null=True)

@@ -13,6 +13,7 @@ from oneanddone.tasks.bugzilla_utils import BugzillaUtils
 from oneanddone.tasks.models import (BugzillaBug, Feedback, Task,
                                      TaskImportBatch,
                                      TaskInvalidationCriterion)
+from oneanddone.users.models import User
 
 
 class BaseTaskInvalidCriteriaFormSet(forms.formsets.BaseFormSet):
@@ -49,6 +50,7 @@ class TaskForm(forms.ModelForm):
                 help_text=_('Please use commas to separate your keywords.'),
                 required=False,
                 widget=forms.TextInput(attrs={'class': 'medium-field'})))
+    owner = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=True))
 
     def __init__(self, *args, **kwargs):
         if kwargs['instance']:
@@ -88,7 +90,7 @@ class TaskForm(forms.ModelForm):
         fields = ('name', 'short_description', 'execution_time', 'difficulty',
                   'priority', 'repeatable', 'team', 'project', 'type', 'start_date',
                   'end_date', 'why_this_matters', 'prerequisites', 'instructions',
-                  'is_draft', 'is_invalid')
+                  'is_draft', 'is_invalid', 'owner')
         widgets = {
             'name': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),
             'short_description': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),

@@ -20,7 +20,7 @@
       <tr class="activty-detail">
         <td></td>
         <td colspan="4" class="task-info">
-          <div>{{ _("Owner: {owner}")|fe(owner=attempt.task.creator) }}</div>
+          <div>{{ _("Owner: {owner}")|fe(owner=attempt.task.owner) }}</div>
           <div>{{ _("Team: {team}")|fe(team=attempt.task.team.name) }}</div>
           <div class="feedback{% if not attempt.has_feedback %} no-feedback{% endif %}">
             {{ attempt.feedback_display }}

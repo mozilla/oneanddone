@@ -29,6 +29,17 @@ class CreateTaskViewTests(TestCase):
             eq_(ctx['action'], 'Add')
             eq_(ctx['cancel_url'], reverse('tasks.list'))
 
+    def test_get_form_kwargs_sets_initial_owner_to_current_user(self):
+        """
+        The initial owner for the form should be set to the current user.
+        """
+        user = UserFactory.create()
+        self.view.request = Mock(user=user)
+        with patch('oneanddone.tasks.views.generic.CreateView.get_form_kwargs') as get_form_kwargs:
+            get_form_kwargs.return_value = {'initial': {}}
+            kwargs = self.view.get_form_kwargs()
+        eq_(kwargs['initial']['owner'], user)
+
 
 class RandomTasksViewTests(TestCase):
     def setUp(self):

@@ -16,7 +16,7 @@ def get_filled_taskform(task, **kwargs):
     fields provided as keyword arguments.
     Additional fields overwrite any matching initial fields.
     """
-    data = {'team': task.team.id}
+    data = {'team': task.team.id, 'owner': task.owner.id}
     for field in ('name', 'short_description', 'execution_time', 'difficulty',
                   'repeatable', 'instructions', 'is_draft', 'is_invalid', 'priority'):
             data[field] = getattr(task, field)
@@ -25,6 +25,10 @@ def get_filled_taskform(task, **kwargs):
 
 
 class TaskFormTests(TestCase):
+
+    def setUp(self):
+        self.user = UserFactory.create(is_staff=True)
+        self.task = TaskFactory.create(owner=self.user)
 
     def test_form_widgets_have_expected_class(self):
         """
@@ -58,13 +62,11 @@ class TaskFormTests(TestCase):
         Saving the form should not add a blank keyword when
          keywords are empty.
         """
-        user = UserFactory.create()
-        task = TaskFactory.create()
-        form = get_filled_taskform(task, keywords=' ')
+        form = get_filled_taskform(self.task, keywords=' ')
 
-        form.save(user)
+        form.save(self.user)
 
-        eq_(task.keyword_set.count(), 0)
+        eq_(self.task.keyword_set.count(), 0)
 
     def test_save_processes_keywords_correctly(self):
         """
@@ -73,29 +75,27 @@ class TaskFormTests(TestCase):
         - New keywords should be added
         - Remaining keywords should remain
         """
-        user = UserFactory.create()
-        task = TaskFactory.create()
-        TaskKeywordFactory.create_batch(3, task=task)
-        form = get_filled_taskform(task, keywords='test3, new_keyword')
-        form.save(user)
+        TaskKeywordFactory.create_batch(3, task=self.task)
+        form = get_filled_taskform(self.task, keywords='test3, new_keyword')
+        form.save(self.user)
 
-        removed_keyword = TaskKeyword.objects.filter(task=task, name='test1')
+        removed_keyword = TaskKeyword.objects.filter(task=self.task, name='test1')
         eq_(len(removed_keyword), 0)
 
-        added_keyword = TaskKeyword.objects.filter(task=task, name='new_keyword')
+        added_keyword = TaskKeyword.objects.filter(task=self.task, name='new_keyword')
         eq_(len(added_keyword), 1)
 
-        kept_keyword = TaskKeyword.objects.filter(task=task, name='test3')
+        kept_keyword = TaskKeyword.objects.filter(task=self.task, name='test3')
         eq_(len(kept_keyword), 1)
 
         # double-check on the keywords_list property
-        eq_(task.keywords_list, 'test3, new_keyword')
+        eq_(self.task.keywords_list, 'test3, new_keyword')
 
     def test_validation_same_start_date_as_end_date(self):
         """
         The form is not valid if start date is same as end date.
         """
-        form = get_filled_taskform(TaskFactory.create(),
+        form = get_filled_taskform(self.task,
                                    start_date='2013-08-15',
                                    end_date='2013-08-15')
 
@@ -106,7 +106,7 @@ class TaskFormTests(TestCase):
         """
         The form is not valid if start date is after end date.
         """
-        form = get_filled_taskform(TaskFactory.create(),
+        form = get_filled_taskform(self.task,
                                    start_date='2014-07-01',
                                    end_date='2013-08-15')
 
@@ -118,7 +118,7 @@ class TaskFormTests(TestCase):
         The form is valid if start date is before end date and all other
         field requirements are respected.
         """
-        form = get_filled_taskform(TaskFactory.create(),
+        form = get_filled_taskform(self.task,
                                    start_date='2013-07-01',
                                    end_date='2013-08-15')
 

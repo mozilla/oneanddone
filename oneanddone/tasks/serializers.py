@@ -29,10 +29,11 @@ class TaskSerializer(serializers.ModelSerializer):
     project = serializers.SlugRelatedField(many=False, slug_field='name')
     team = serializers.SlugRelatedField(many=False, slug_field='name')
     type = serializers.SlugRelatedField(many=False, slug_field='name')
+    owner = serializers.SlugRelatedField(many=False, slug_field='email')
 
     class Meta:
         model = Task
-        fields = ('id', 'name', 'short_description', 'instructions',
+        fields = ('id', 'name', 'short_description', 'instructions', 'owner',
                   'prerequisites', 'execution_time', 'start_date', 'end_date',
                   'is_draft', 'is_invalid', 'project', 'team', 'type', 'repeatable',
                   'difficulty', 'why_this_matters', 'keyword_set', 'taskattempt_set')

@@ -109,7 +109,7 @@ class CreateFeedbackView(LoginRequiredMixin, PrivacyPolicyRequiredMixin,
             subject,
             filtered_message,
             'oneanddone@mozilla.com',
-            [feedback.attempt.task.creator.email])
+            [feedback.attempt.task.owner.email])
 
         messages.success(self.request, _('Your feedback has been submitted. Thanks!'))
         return redirect('base.home')
@@ -119,6 +119,11 @@ class CreateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Creat
     model = Task
     form_class = TaskForm
     template_name = 'tasks/form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super(CreateTaskView, self).get_form_kwargs()
+        kwargs['initial']['owner'] = self.request.user
+        return kwargs
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(CreateTaskView, self).get_context_data(*args, **kwargs)
@@ -153,7 +158,9 @@ class ImportTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Temp
         criterion_formset = TaskInvalidCriteriaFormSet(prefix='criterion',
                                                        **kwargs)
         kwargs['initial'] = {'end_date': date.today() + timedelta(days=30),
-                             'repeatable': False}
+                             'repeatable': False,
+                             'owner': self.request.user}
+
         task_form = TaskForm(instance=None, prefix='task', **kwargs)
 
         forms = {'criterion_formset': criterion_formset,

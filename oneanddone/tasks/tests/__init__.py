@@ -60,6 +60,7 @@ class TaskFactory(DjangoModelFactory):
     is_draft = False
     is_invalid = False
     creator = SubFactory(UserFactory)
+    owner = creator
     project = SubFactory(TaskProjectFactory)
     team = SubFactory(TaskTeamFactory)
     type = SubFactory(TaskTypeFactory)

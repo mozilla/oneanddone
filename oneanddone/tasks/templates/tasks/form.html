@@ -40,12 +40,6 @@
 
   <form method="post" class="task-form">
     {{ csrf() }}
-    {% if task_form.instance.pk %}
-      <div class="field">
-        <label for="id_owner">{{ _('Owner') }}</label>
-        <p id="id_owner">{{ task_form.instance.creator }}</p>
-      </div>
-    {% endif %}
     {% if action == 'Import' %}
       {{ stage_form__preview }}
       {{ form_field(batch_form['description'], help_text=True) }}
@@ -64,6 +58,7 @@
     {% endif %}
     {{ form_field(task_form['short_description']) }}
     {{ form_field(task_form['keywords'], help_text=True) }}
+    {{ form_field(task_form['owner']) }}
     <fieldset class="task-category first">
       {{ form_field(task_form['team']) }}
       {{ form_field(task_form['project']) }}

@@ -20,7 +20,7 @@
     <div>{{ task.short_description }}</div>
   </div>
   {% if user.is_staff %}
-    <div class="row"><div>{{ _('Owner') }}: {{ task.creator }}</div>
+    <div class="row"><div>{{ _('Owner') }}: {{ task.owner }}</div>
   {% endif %}
   <div class="row">
     <div class="three-fields">

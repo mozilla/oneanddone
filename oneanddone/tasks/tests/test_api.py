@@ -26,7 +26,7 @@ class APITests(APITestCase):
         project = TaskProjectFactory.create()
         type = TaskTypeFactory.create()
 
-        return TaskFactory.create(team=team, project=project, type=type, creator=creator)
+        return TaskFactory.create(team=team, project=project, type=type, creator=creator, owner=creator)
 
     def setUp(self):
         self.client_user = UserFactory.create()
@@ -75,7 +75,8 @@ class APITests(APITestCase):
                      "start_date": None, "end_date": None, "difficulty": 1,
                      "why_this_matters": "Task matters",
                      "keyword_set": [{"name": "testing"}, {"name": "mozwebqa"}],
-                     "taskattempt_set": [{"user": self.client_user.email, "state": 0}]}
+                     "taskattempt_set": [{"user": self.client_user.email, "state": 0}],
+                     "owner": self.client_user.email}
 
         response = self.client.post(self.uri, task_data, format='json')
         self.assert_response_status(response, status.HTTP_201_CREATED)
@@ -122,9 +123,10 @@ class APITests(APITestCase):
         Test GET details of a task with particular id for authenticated user
         """
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        user = UserFactory.create()
 
-        test_task = self.create_task(self.client_user)
-        task_attempt = TaskAttemptFactory.create(user=self.client_user, task=test_task)
+        test_task = self.create_task(user)
+        task_attempt = TaskAttemptFactory.create(user=user, task=test_task)
         task_uri = self.uri + str(test_task.id) + '/'
 
         task_data = {"id": test_task.id, "name": test_task.name, "short_description": test_task.short_description,
@@ -135,7 +137,8 @@ class APITests(APITestCase):
                      "start_date": test_task.start_date, "end_date": test_task.end_date, "difficulty": test_task.difficulty,
                      "why_this_matters": test_task.why_this_matters,
                      "keyword_set": [{"name": keyword.name} for keyword in test_task.keyword_set.all()],
-                     "taskattempt_set": [{"user": self.client_user.email, "state": task_attempt.state}]}
+                     "taskattempt_set": [{"user": user.email, "state": task_attempt.state}],
+                     "owner": user.email}
 
         response = self.client.get(task_uri)
         self.assert_response_status(response, status.HTTP_200_OK)
@@ -147,9 +150,10 @@ class APITests(APITestCase):
         Test GET task list for authenticated user
         """
         header = {'HTTP_AUTHORIZATION': 'Token {}'.format(self.token)}
+        user = UserFactory.create()
 
-        test_task = self.create_task(self.client_user)
-        task_attempt = TaskAttemptFactory.create(user=self.client_user, task=test_task)
+        test_task = self.create_task(user)
+        task_attempt = TaskAttemptFactory.create(user=user, task=test_task)
         task_data = {"id": test_task.id, "name": test_task.name, "short_description": test_task.short_description,
                      "instructions": test_task.instructions, "prerequisites": test_task.prerequisites,
                      "execution_time": test_task.execution_time, "is_draft": test_task.is_draft,
@@ -158,7 +162,8 @@ class APITests(APITestCase):
                      "start_date": test_task.start_date, "end_date": test_task.end_date, "difficulty": test_task.difficulty,
                      "why_this_matters": test_task.why_this_matters,
                      "keyword_set": [{"name": keyword.name} for keyword in test_task.keyword_set.all()],
-                     "taskattempt_set": [{"user": self.client_user.email, "state": task_attempt.state}]}
+                     "taskattempt_set": [{"user": user.email, "state": task_attempt.state}],
+                     "owner": user.email}
 
         response = self.client.get(reverse('api-task'), {}, **header)
         self.assert_response_status(response, status.HTTP_200_OK)
