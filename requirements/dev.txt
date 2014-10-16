@@ -6,3 +6,6 @@
 -r ../vendor/src/funfactory/funfactory/requirements/dev.txt
 
 factory-boy==2.3.0
+
+# Documentation
+Sphinx==1.1.3
