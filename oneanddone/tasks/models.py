@@ -10,7 +10,7 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import Q
+from django.db.models import Count, Max, Q
 from django.utils import timezone
 
 import bleach
@@ -56,6 +56,12 @@ class TaskAttempt(CachedModel, CreatedModifiedModel):
         (ABANDONED, 'Abandoned'),
         (CLOSED, 'Closed')
     ))
+
+    @property
+    def attempts_by_same_user(self):
+        if self.user:
+            return self.user.taskattempt_set.all()
+        return TaskAttempt.objects.none()
 
     @property
     def attempt_length_in_minutes(self):
@@ -197,6 +203,62 @@ class TaskInvalidationCriterion(CreatedModifiedModel, CreatedByModel):
     """
 
 
+class TaskMetrics(CreatedModifiedModel):
+    task = models.OneToOneField('Task')
+    abandoned_users = models.IntegerField(null=True, blank=True)
+    closed_users = models.IntegerField(null=True, blank=True)
+    completed_users = models.IntegerField(null=True, blank=True)
+    incomplete_users = models.IntegerField(null=True, blank=True)
+    user_completes_then_completes_another_count = models.IntegerField(null=True, blank=True)
+    user_completes_then_takes_another_count = models.IntegerField(null=True, blank=True)
+    user_takes_then_quits_count = models.IntegerField(null=True, blank=True)
+
+    @classmethod
+    def update_task_metrics(self, force_update=False):
+        """
+        Background routine to update the task metrics
+        """
+        HOURS_BETWEEN_UPDATES = 5.5
+        timestamp_of_last_update = timezone.now() - timedelta(hours=HOURS_BETWEEN_UPDATES)
+        if force_update:
+            tasks_to_update = Task.objects.all()
+        else:
+            tasks_to_update = Task.objects.filter(taskattempt_set__modified__gte=timestamp_of_last_update)
+        for task in tasks_to_update:
+            metrics, created = self.objects.get_or_create(task=task)
+            metrics.abandoned_users = task.abandoned_user_count
+            metrics.closed_users = task.closed_user_count
+            metrics.completed_users = task.completed_user_count
+            metrics.incomplete_users = task.incomplete_user_count
+            # Count times that users completed this task and then went on to
+            # take or complete another task
+            completes_then_completes_count = 0
+            completes_then_takes_count = 0
+            for attempt in task.completed_attempts:
+                if attempt.attempts_by_same_user.filter(
+                        created__gt=attempt.modified).exists():
+                    completes_then_takes_count += 1
+                if attempt.attempts_by_same_user.filter(
+                        state=TaskAttempt.FINISHED,
+                        created__gt=attempt.modified).exists():
+                    completes_then_completes_count += 1
+            # Count times that users took this task and then did not
+            # go on to another task
+            takes_then_leaves_count = 0
+            for attempt in task.all_attempts:
+                if not (attempt.attempts_by_same_user
+                        .filter(created__gt=attempt.modified).exists()):
+                    takes_then_leaves_count += 1
+            metrics.user_completes_then_completes_another_count = completes_then_completes_count
+            metrics.user_completes_then_takes_another_count = completes_then_takes_count
+            metrics.user_takes_then_quits_count = takes_then_leaves_count
+            metrics.save()
+        return len(tasks_to_update)
+
+    class Meta():
+        ordering = ['-completed_users']
+
+
 class TaskProject(CachedModel, CreatedModifiedModel, CreatedByModel):
     name = models.CharField(max_length=255)
 
@@ -274,14 +336,66 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     why_this_matters = models.TextField(blank=True)
 
     @property
-    def has_bugzilla_bug(self):
-        return isinstance(self.imported_item, BugzillaBug)
+    def abandoned_attempts(self):
+        return self.taskattempt_set.filter(state=TaskAttempt.ABANDONED)
+
+    @property
+    def abandoned_user_count(self):
+        qs = self.abandoned_attempts.values('task').annotate(
+            user_count=Count('user', distinct=True))
+        if qs:
+            return qs[0]['user_count']
+        return 0
+
+    @property
+    def all_attempts(self):
+        return self.taskattempt_set.all()
 
     @property
     def bugzilla_bug(self):
         if self.has_bugzilla_bug:
             return BugzillaUtils().request_bug(self.imported_item.bugzilla_id)
         return None
+
+    @property
+    def closed_attempts(self):
+        return self.taskattempt_set.filter(state=TaskAttempt.CLOSED)
+
+    @property
+    def closed_user_count(self):
+        qs = self.closed_attempts.values('task').annotate(
+            user_count=Count('user', distinct=True))
+        if qs:
+            return qs[0]['user_count']
+        return 0
+
+    @property
+    def completed_attempts(self):
+        return self.taskattempt_set.filter(state=TaskAttempt.FINISHED)
+
+    @property
+    def completed_user_count(self):
+        qs = self.completed_attempts.values('task').annotate(
+            user_count=Count('user', distinct=True))
+        if qs:
+            return qs[0]['user_count']
+        return 0
+
+    @property
+    def has_bugzilla_bug(self):
+        return isinstance(self.imported_item, BugzillaBug)
+
+    @property
+    def incomplete_attempts(self):
+        return self.taskattempt_set.exclude(state=TaskAttempt.FINISHED)
+
+    @property
+    def incomplete_user_count(self):
+        qs = self.incomplete_attempts.values('task').annotate(
+            user_count=Count('user', distinct=True))
+        if qs:
+            return qs[0]['user_count']
+        return 0
 
     @property
     def instructions_html(self):

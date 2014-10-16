@@ -1,0 +1,24 @@
+{% from 'tasks/macros.html' import table_headers %}
+
+<table class="table metrics-listing">
+  <thead>
+    <tr>
+      {% include 'tasks/sortable_table_headers.html' %}
+    </tr>
+  </thead>
+  <tbody>
+
+    {% for task in metrics %}
+      <tr class="activity-item">
+        <td class="task-name"><a href="{{ task.task.get_absolute_url() }}">{{ task.task.name }}</a></td>
+        <td>{{ task.completed_users }}</td>
+        <td>{{ task.abandoned_users }}</td>
+        <td>{{ task.incomplete_users }}</td>
+        <td>{{ task.user_completes_then_takes_another_count }}</td>
+        <td>{{ task.user_takes_then_quits_count }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% import 'base/pagination.html' as pagination %}
+{{ pagination.arrows(request, page_obj, paginator, is_paginated) }}

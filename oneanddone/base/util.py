@@ -72,7 +72,12 @@ class SortHeaders:
         if additional_params is None:
             additional_params = {}
 
-        self.header_defs = headers
+        self.header_defs = []
+        for header in headers:
+            title = len(header) == 3 and header[2] or header[0]
+            header_def = (header[0], header[1], title)
+            self.header_defs.append(header_def)
+
         self.additional_params = additional_params
         self.order_field, self.order_type = default_order_field, default_order_type
 
@@ -114,7 +119,7 @@ class SortHeaders:
         Generates dicts containing header and sort link details for
         all defined headers.
         """
-        for i, (header, order_criterion) in enumerate(self.header_defs):
+        for i, (header, order_criterion, title) in enumerate(self.header_defs):
             th_classes = ['orderable']
             new_order_type = 'asc'
             if i == self.order_field:
@@ -125,4 +130,5 @@ class SortHeaders:
                 'sortable': order_criterion is not None,
                 'url': self.get_query_string({self.order_var: i, self.order_type_var: new_order_type}),
                 'class_attr': {'class': ' '.join(th_classes)},
+                'title': title,
             }

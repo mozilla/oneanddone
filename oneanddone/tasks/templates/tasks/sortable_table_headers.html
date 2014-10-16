@@ -1,7 +1,8 @@
 {% for header in headers.headers() %}
   <th{{ header.class_attr|xmlattr }}>
     {% if header.sortable %}
-      <a href="{{ page_url(request, page_obj.number) }}{{ header.url|escape }}">
+      <a href="{{ page_url(request, page_obj.number) }}{{ header.url|escape }}"
+          title="{{ header.title }}">
     {% endif %}
     {{ header.text }}
     {% if header.sortable %}
