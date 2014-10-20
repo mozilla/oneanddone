@@ -252,34 +252,9 @@ class ListTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
 
 
 class MetricsView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.ListView):
-    list_headers = (
-        (_lazy(u'Task'), 'task__name'),
-        (_lazy(u'Users Completed'), 'completed_users',
-         _lazy(u'Number of unique users who completed the task')),
-        (_lazy(u'Users Abandoned'), 'abandoned_users',
-         _lazy(u'Number of unique users who explicitly abandoned the task')),
-        (_lazy(u'Users Did Not Complete'), 'incomplete_users',
-         _lazy(u'Number of unique users who took but never completed the task')),
-        (_lazy(u'Moves on to Another'), 'user_completes_then_takes_another_count',
-         _lazy(u'Number of times the task was completed and the the same user takes another task')),
-        (_lazy(u'Takes No Further Tasks'), 'user_takes_then_quits_count',
-         _lazy(u'Number of times the task was taken and then the same user takes no further tasks')),
-    )
     context_object_name = 'metrics'
+    model = TaskMetrics
     template_name = 'tasks/metrics.html'
-    paginate_by = 20
-
-    def get_context_data(self, *args, **kwargs):
-        ctx = super(MetricsView, self).get_context_data(*args, **kwargs)
-        ctx['headers'] = self.sort_headers
-        return ctx
-
-    def get_queryset(self):
-        self.sort_headers = SortHeaders(self.request, self.list_headers,
-                                        default_order_field=1,
-                                        default_order_type='desc')
-        qs = TaskMetrics.objects.all()
-        return qs.order_by(self.sort_headers.get_order_by())
 
 
 class RandomTasksView(TaskMustBeAvailableMixin, generic.ListView):

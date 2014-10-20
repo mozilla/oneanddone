@@ -1,9 +1,22 @@
-{% from 'tasks/macros.html' import table_headers %}
-
-<table class="table metrics-listing">
+<table class="table metrics-listing dataTable display">
   <thead>
     <tr>
-      {% include 'tasks/sortable_table_headers.html' %}
+      <th>{{ _('Task') }}</th>
+      <th title="{{ _('Number of unique users who completed the task') }}">
+        {{ _('Users Completed') }}
+      </th>
+      <th title="{{ _('Number of unique users who explicitly abandoned the task') }}">
+        {{ _('Users Abandoned') }}
+      </th>
+      <th title="{{ _('Number of unique users who took but never completed the task') }}">
+        {{ _('Users Did Not Complete') }}
+      </th>
+      <th title="{{ _('Number of times the task was completed and the the same user takes another task') }}">
+        {{ _('Moves on to Another') }}
+      </th>
+      <th title="{{ _('Number of times the task was taken and then the same user takes no further tasks') }}">
+        {{ _('Takes No Further Tasks') }}
+      </th>
     </tr>
   </thead>
   <tbody>
@@ -20,5 +33,3 @@
     {% endfor %}
   </tbody>
 </table>
-{% import 'base/pagination.html' as pagination %}
-{{ pagination.arrows(request, page_obj, paginator, is_paginated) }}
