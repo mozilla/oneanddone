@@ -214,6 +214,23 @@ class TaskMetrics(CreatedModifiedModel):
     user_takes_then_quits_count = models.IntegerField(null=True, blank=True)
 
     @classmethod
+    def get_medians(cls):
+        metrics = cls.objects.all()
+        medians = {}
+        for metric in ('abandoned_users', 'closed_users', 'completed_users',
+                       'incomplete_users',
+                       'user_completes_then_completes_another_count',
+                       'user_completes_then_takes_another_count',
+                       'user_takes_then_quits_count'):
+            medians[metric] = cls.median_value(metrics, metric)
+        return medians
+
+    @classmethod
+    def median_value(cls, queryset, term):
+        count = queryset.count()
+        return queryset.values_list(term, flat=True).order_by(term)[int(round(count / 2))]
+
+    @classmethod
     def get_averages(cls):
         return cls.objects.aggregate(
             avg_abandoned_users=Avg('abandoned_users'),

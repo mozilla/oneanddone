@@ -27,6 +27,14 @@
       <th>{{ averages['avg_user_completes_then_takes_another_count']|round(2) }}</th>
       <th>{{ averages['avg_user_takes_then_quits_count']|round(2) }}</th>
     </tr>
+    <tr>
+      <th colspan="2" class="title">Median Counts</th>
+      <th>{{ medians['completed_users'] }}</th>
+      <th>{{ medians['abandoned_users'] }}</th>
+      <th>{{ medians['incomplete_users'] }}</th>
+      <th>{{ medians['user_completes_then_takes_another_count'] }}</th>
+      <th>{{ medians['user_takes_then_quits_count'] }}</th>
+    </tr>
   </thead>
   <tbody>
 

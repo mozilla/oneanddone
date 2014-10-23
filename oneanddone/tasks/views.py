@@ -259,6 +259,7 @@ class MetricsView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.ListView
     def get_context_data(self, *args, **kwargs):
         ctx = super(MetricsView, self).get_context_data(*args, **kwargs)
         ctx['averages'] = TaskMetrics.get_averages()
+        ctx['medians'] = TaskMetrics.get_medians()
         return ctx
 
 
