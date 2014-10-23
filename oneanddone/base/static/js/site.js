@@ -128,11 +128,12 @@ $(function () {
 $(function() {
   $('.dataTable.metrics-listing').DataTable(
     {
+      bSortCellsTop: true,
       info: false,
-      paging: false,
-      scrollY: 400,
+      order: [ 2, 'desc' ],
       orderClasses: true,
-      order: [ 1, 'desc' ]
+      paging: false,
+      scrollY: 400
     }
   );
 });

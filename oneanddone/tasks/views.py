@@ -256,6 +256,11 @@ class MetricsView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.ListView
     model = TaskMetrics
     template_name = 'tasks/metrics.html'
 
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(MetricsView, self).get_context_data(*args, **kwargs)
+        ctx['averages'] = TaskMetrics.get_averages()
+        return ctx
+
 
 class RandomTasksView(TaskMustBeAvailableMixin, generic.ListView):
     queryset = Task.objects.order_by('?')

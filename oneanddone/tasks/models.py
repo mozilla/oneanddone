@@ -10,7 +10,7 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import Count, Max, Q
+from django.db.models import Avg, Count, Q
 from django.utils import timezone
 
 import bleach
@@ -214,7 +214,18 @@ class TaskMetrics(CreatedModifiedModel):
     user_takes_then_quits_count = models.IntegerField(null=True, blank=True)
 
     @classmethod
-    def update_task_metrics(self, force_update=False):
+    def get_averages(cls):
+        return cls.objects.aggregate(
+            avg_abandoned_users=Avg('abandoned_users'),
+            avg_closed_users=Avg('closed_users'),
+            avg_completed_users=Avg('completed_users'),
+            avg_incomplete_users=Avg('incomplete_users'),
+            avg_user_completes_then_completes_another_count=Avg('user_completes_then_completes_another_count'),
+            avg_user_completes_then_takes_another_count=Avg('user_completes_then_takes_another_count'),
+            avg_user_takes_then_quits_count=Avg('user_takes_then_quits_count'))
+
+    @classmethod
+    def update_task_metrics(cls, force_update=False):
         """
         Background routine to update the task metrics
         """
@@ -225,33 +236,33 @@ class TaskMetrics(CreatedModifiedModel):
         else:
             tasks_to_update = Task.objects.filter(taskattempt_set__modified__gte=timestamp_of_last_update)
         for task in tasks_to_update:
-            metrics, created = self.objects.get_or_create(task=task)
+            metrics, created = cls.objects.get_or_create(task=task)
             metrics.abandoned_users = task.abandoned_user_count
             metrics.closed_users = task.closed_user_count
             metrics.completed_users = task.completed_user_count
             metrics.incomplete_users = task.incomplete_user_count
             # Count times that users completed this task and then went on to
             # take or complete another task
-            completes_then_completes_count = 0
-            completes_then_takes_count = 0
+            completes_then_completes_users = set()
+            completes_then_takes_users = set()
             for attempt in task.completed_attempts:
                 if attempt.attempts_by_same_user.filter(
                         created__gt=attempt.modified).exists():
-                    completes_then_takes_count += 1
+                    completes_then_takes_users.add(attempt.user)
                 if attempt.attempts_by_same_user.filter(
                         state=TaskAttempt.FINISHED,
                         created__gt=attempt.modified).exists():
-                    completes_then_completes_count += 1
+                    completes_then_completes_users.add(attempt.user)
             # Count times that users took this task and then did not
             # go on to another task
-            takes_then_leaves_count = 0
+            takes_then_leaves_users = set()
             for attempt in task.all_attempts:
                 if not (attempt.attempts_by_same_user
                         .filter(created__gt=attempt.modified).exists()):
-                    takes_then_leaves_count += 1
-            metrics.user_completes_then_completes_another_count = completes_then_completes_count
-            metrics.user_completes_then_takes_another_count = completes_then_takes_count
-            metrics.user_takes_then_quits_count = takes_then_leaves_count
+                    takes_then_leaves_users.add(attempt.user)
+            metrics.user_completes_then_completes_another_count = len(completes_then_completes_users)
+            metrics.user_completes_then_takes_another_count = len(completes_then_takes_users)
+            metrics.user_takes_then_quits_count = len(takes_then_leaves_users)
             metrics.save()
         return len(tasks_to_update)
 

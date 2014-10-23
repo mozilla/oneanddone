@@ -1,7 +1,8 @@
 <table class="table metrics-listing dataTable display">
   <thead>
-    <tr>
+    <tr class="title">
       <th>{{ _('Task') }}</th>
+      <th>{{ _('Owner') }}</th>
       <th title="{{ _('Number of unique users who completed the task') }}">
         {{ _('Users Completed') }}
       </th>
@@ -18,12 +19,21 @@
         {{ _('Takes No Further Tasks') }}
       </th>
     </tr>
+    <tr>
+      <th colspan="2" class="title">Average Counts</th>
+      <th>{{ averages['avg_completed_users']|round(2) }}</th>
+      <th>{{ averages['avg_abandoned_users']|round(2) }}</th>
+      <th>{{ averages['avg_incomplete_users']|round(2) }}</th>
+      <th>{{ averages['avg_user_completes_then_takes_another_count']|round(2) }}</th>
+      <th>{{ averages['avg_user_takes_then_quits_count']|round(2) }}</th>
+    </tr>
   </thead>
   <tbody>
 
     {% for task in metrics %}
       <tr class="activity-item">
-        <td class="task-name"><a href="{{ task.task.get_absolute_url() }}">{{ task.task.name }}</a></td>
+        <td class="task-name title"><a href="{{ task.task.get_absolute_url() }}">{{ task.task.name }}</a></td>
+        <td class="title">{{ task.task.owner }}</td>
         <td>{{ task.completed_users }}</td>
         <td>{{ task.abandoned_users }}</td>
         <td>{{ task.incomplete_users }}</td>

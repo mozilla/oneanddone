@@ -511,8 +511,7 @@ div.filter-button {
     }
 }
 
-table.activity-listing thead th,
-table.metrics-listing thead th {
+table.activity-listing thead th {
     .open-sans;
     background: #FCFCFC url(/static/img/ui/header-bg.png) left bottom repeat-x;
     padding: 2px 5px;
@@ -534,6 +533,17 @@ table.metrics-listing thead th {
         }
 
     }
+}
+
+table.metrics-listing th,
+table.metrics-listing td {
+    text-align: right;
+}
+
+table.metrics-listing th.title,
+table.metrics-listing td.title,
+table.metrics-listing tr.title th {
+    text-align: left;
 }
 
 div.row h2 {
