@@ -13,62 +13,62 @@ class Migration(DataMigration):
         # Use orm.ModelName to refer to models in this application,
         # and orm['appname.ModelName'] for models in other applications.
 
-        # Load teams into the team table
-        teams = ('Automation', 'Desktop Firefox', 'Firefox for Android',
-                 'Firefox OS', 'General', 'Web QA', 'Services QA',
-                 'Thunderbird')
-        for team in teams:
-            orm.TaskTeam.objects.create(name=team)
-
-        # Load projects into the project table
-        projects = ('Firefox Accounts and Sync', 'Browser', 'Settings', 'Music',
-                 'Video', 'Email', 'Automation', 'SUMO', 'Moztrap', 'Add-ons',
-                 'Mozillians', 'Marketplace', 'Tools')
-        for project in projects:
-            orm.TaskProject.objects.create(name=project)
-
-        # Load types into the type table
-        types = ('Manual test', 'Automated test', 'Bug Verification')
-        for type in types:
-            orm.TaskType.objects.create(name=type)
-
-        # get the team for General
-        general_team = orm.TaskTeam.objects.get(name='General')
-
-        # update existing tasks
-        for task in orm.Task.objects.all():
-
-            # find a team to assign to the task
-            if task.area.parent:
-                team_name = task.area.parent.name
-            else:
-                team_name = task.area.name
-            try:
-                team = orm.TaskTeam.objects.get(name=team_name)
-            except orm.TaskTeam.DoesNotExist:
-                team = general_team
-            task.team = team
-
-            # find a project to assign to the task
-            if task.area.parent:
-                project_name = task.area.name
-                try:
-                    project = orm.TaskProject.objects.get(name=project_name)
-                    task.project = project
-                except orm.TaskProject.DoesNotExist:
-                    pass
-
-            # also set execution time to one of the 4 values
-            if task.execution_time <= 15:
-                ex_time = 15
-            elif task.execution_time <= 30:
-                ex_time = 30
-            elif task.execution_time <= 45:
-                ex_time = 45
-            else:
-                ex_time = 60
-            task.execution_time = ex_time
-            task.save()
+        # # Load teams into the team table
+        # teams = ('Automation', 'Desktop Firefox', 'Firefox for Android',
+        #          'Firefox OS', 'General', 'Web QA', 'Services QA',
+        #          'Thunderbird')
+        # for team in teams:
+        #     orm.TaskTeam.objects.create(name=team)
+        #
+        # # Load projects into the project table
+        # projects = ('Firefox Accounts and Sync', 'Browser', 'Settings', 'Music',
+        #          'Video', 'Email', 'Automation', 'SUMO', 'Moztrap', 'Add-ons',
+        #          'Mozillians', 'Marketplace', 'Tools')
+        # for project in projects:
+        #     orm.TaskProject.objects.create(name=project)
+        #
+        # # Load types into the type table
+        # types = ('Manual test', 'Automated test', 'Bug Verification')
+        # for type in types:
+        #     orm.TaskType.objects.create(name=type)
+        #
+        # # get the team for General
+        # general_team = orm.TaskTeam.objects.get(name='General')
+        #
+        # # update existing tasks
+        # for task in orm.Task.objects.all():
+        #
+        #     # find a team to assign to the task
+        #     if task.area.parent:
+        #         team_name = task.area.parent.name
+        #     else:
+        #         team_name = task.area.name
+        #     try:
+        #         team = orm.TaskTeam.objects.get(name=team_name)
+        #     except orm.TaskTeam.DoesNotExist:
+        #         team = general_team
+        #     task.team = team
+        #
+        #     # find a project to assign to the task
+        #     if task.area.parent:
+        #         project_name = task.area.name
+        #         try:
+        #             project = orm.TaskProject.objects.get(name=project_name)
+        #             task.project = project
+        #         except orm.TaskProject.DoesNotExist:
+        #             pass
+        #
+        #     # also set execution time to one of the 4 values
+        #     if task.execution_time <= 15:
+        #         ex_time = 15
+        #     elif task.execution_time <= 30:
+        #         ex_time = 30
+        #     elif task.execution_time <= 45:
+        #         ex_time = 45
+        #     else:
+        #         ex_time = 60
+        #     task.execution_time = ex_time
+        #     task.save()
 
     def backwards(self, orm):
         "Write your backwards methods here."
