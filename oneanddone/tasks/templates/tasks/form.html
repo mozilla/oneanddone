@@ -24,12 +24,6 @@
 {% block content %}
 <main class="billboard content-container feedback">
 
-{% if action == 'Add' %}
-  <div style="float:right">
-    <a href="{{ url('tasks.import') }}" class="button">{{ _('Import Tasks') }}</a>
-  </div>
-{% endif %}
-
   <h4>{{ title }}</h4>
 
 {% if action == 'Import' %}

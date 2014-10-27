@@ -495,6 +495,9 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     def get_edit_url(self):
         return reverse('tasks.edit', args=[self.id])
 
+    def get_clone_url(self):
+        return reverse('tasks.clone', args=[self.id])
+
     def is_available_to_user(self, user):
         repeatable_filter = Q(~Q(user=user) & ~Q(state=TaskAttempt.ABANDONED))
         return self.is_available and (
@@ -513,6 +516,9 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
             self.taskattempt_set.filter(state=TaskAttempt.STARTED).update(
                 state=TaskAttempt.CLOSED,
                 requires_notification=True)
+
+    def __unicode__(self):
+        return self.name
 
     @classmethod
     def invalidate_tasks(self):
