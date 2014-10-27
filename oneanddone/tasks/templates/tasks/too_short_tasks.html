@@ -1,0 +1,15 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
+{% extends 'base/base.html' %}
+
+{% set title = _('Tasks Completed Too Quickly') %}
+
+{% block content %}
+<main class="billboard task-activity-container content-container">
+  <h1>{{ _('Tasks Completed Too Quickly') }}</h1>
+
+  {% include 'tasks/too_short_tasks_listing.html' %}
+
+</main>
+{% endblock %}

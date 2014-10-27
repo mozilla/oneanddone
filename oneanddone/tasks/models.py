@@ -212,6 +212,7 @@ class TaskMetrics(CreatedModifiedModel):
     user_completes_then_completes_another_count = models.IntegerField(null=True, blank=True)
     user_completes_then_takes_another_count = models.IntegerField(null=True, blank=True)
     user_takes_then_quits_count = models.IntegerField(null=True, blank=True)
+    too_short_completed_attempts_count = models.IntegerField(null=True, blank=True)
 
     @classmethod
     def get_medians(cls):
@@ -221,7 +222,8 @@ class TaskMetrics(CreatedModifiedModel):
                        'incomplete_users',
                        'user_completes_then_completes_another_count',
                        'user_completes_then_takes_another_count',
-                       'user_takes_then_quits_count'):
+                       'user_takes_then_quits_count',
+                       'too_short_completed_attempts_count'):
             medians[metric] = cls.median_value(metrics, metric)
         return medians
 
@@ -239,7 +241,8 @@ class TaskMetrics(CreatedModifiedModel):
             avg_incomplete_users=Avg('incomplete_users'),
             avg_user_completes_then_completes_another_count=Avg('user_completes_then_completes_another_count'),
             avg_user_completes_then_takes_another_count=Avg('user_completes_then_takes_another_count'),
-            avg_user_takes_then_quits_count=Avg('user_takes_then_quits_count'))
+            avg_user_takes_then_quits_count=Avg('user_takes_then_quits_count'),
+            avg_too_short_completed_attempts_count=Avg('too_short_completed_attempts_count'))
 
     @classmethod
     def update_task_metrics(cls, force_update=False):
@@ -258,6 +261,7 @@ class TaskMetrics(CreatedModifiedModel):
             metrics.closed_users = task.closed_user_count
             metrics.completed_users = task.completed_user_count
             metrics.incomplete_users = task.incomplete_user_count
+            metrics.too_short_completed_attempts_count = task.too_short_completed_attempts.count()
             # Count times that users completed this task and then went on to
             # take or complete another task
             completes_then_completes_users = set()
@@ -473,6 +477,12 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     @property
     def prerequisites_html(self):
         return self._yield_html(self.prerequisites)
+
+    @property
+    def too_short_completed_attempts(self):
+        all_completed = self.taskattempt_set.filter(state=TaskAttempt.FINISHED)
+        return all_completed.extra(
+            where=['TIMESTAMPDIFF(SECOND, tasks_taskattempt.created, tasks_taskattempt.modified) <= %s' % self.MIN_DURATION_FOR_CLOSED_ATTEMPTS])
 
     @property
     def why_this_matters_html(self):
