@@ -260,6 +260,12 @@ class ListTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
     filterset_class = TasksFilterSet
 
 
+class ListTooShortTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.ListView):
+    context_object_name = 'metrics'
+    queryset = TaskMetrics.objects.filter(too_short_completed_attempts_count__gt=0)
+    template_name = 'tasks/too_short_tasks.html'
+
+
 class MetricsView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.ListView):
     context_object_name = 'metrics'
     model = TaskMetrics
