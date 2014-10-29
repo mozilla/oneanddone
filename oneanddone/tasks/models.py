@@ -323,6 +323,7 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     content_type = models.ForeignKey(ContentType, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     imported_item = generic.GenericForeignKey('content_type', 'object_id')
+    next_task = models.ForeignKey('Task', null=True, blank=True, related_name='previous_task')
     owner = models.ForeignKey(User, related_name='owner')
     project = models.ForeignKey(TaskProject, blank=True, null=True)
     team = models.ForeignKey(TaskTeam)
@@ -419,6 +420,13 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
         return 0
 
     @property
+    def first_previous_task(self):
+        previous_tasks = self.previous_task.all().order_by('created')
+        if len(previous_tasks):
+            return previous_tasks[0]
+        return None
+
+    @property
     def has_bugzilla_bug(self):
         return isinstance(self.imported_item, BugzillaBug)
 
@@ -504,6 +512,11 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
 
     def get_edit_url(self):
         return reverse('tasks.edit', args=[self.id])
+
+    def get_next_task_url(self):
+        if self.next_task:
+            return reverse('tasks.detail', args=[self.next_task.id])
+        return ''
 
     def get_clone_url(self):
         return reverse('tasks.clone', args=[self.id])

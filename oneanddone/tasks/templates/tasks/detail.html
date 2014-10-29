@@ -97,8 +97,20 @@
   <div class="actions-container">
     {% if user.is_staff %}
       <div class="without-message">
-          <a href="{{ task.get_edit_url() }}" class="button" id="edit-task">{{ _('Edit task') }}</a>
-          <a href="{{ task.get_clone_url() }}" class="button" id="edit-task">{{ _('Clone task') }}</a>
+          <a href="{{ task.get_edit_url() }}">
+            <button class="button" id="edit-task">{{ _('Edit task') }}</button>
+          </a>
+          <a href="{{ task.get_clone_url() }}">
+            <button class="button" id="clone-task">{{ _('Clone task') }}</button>
+          </a>
+      </div>
+    {% endif %}
+    {% if task.first_previous_task %}
+      <div class="without-message">
+        <a href="{{ task.first_previous_task.get_absolute_url() }}"
+           title="{{ _('The task to complete before this task is: {task_name}')|fe(task_name=task.first_previous_task.name) }}">
+          <button class="button" id="previous-task">{{ _('Previous task') }}</button>
+        </a>
       </div>
     {% endif %}
     {% if attempt %}
@@ -140,6 +152,14 @@
           </form>
         {% endif %}
       {% endif %}
+    {% endif %}
+    {% if task.next_task %}
+      <div class="without-message">
+        <a href="{{ task.get_next_task_url() }}"
+           title="{{ _('The next task to complete after this task is: {task_name}')|fe(task_name=task.next_task.name) }}">
+          <button class="button" id="next-task">{{ _('Next task') }}</button>
+        </a>
+      </div>
     {% endif %}
   </div>
 </main>

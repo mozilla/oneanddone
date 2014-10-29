@@ -95,6 +95,22 @@ class TaskTests(TestCase):
         eq_(tasks[4], t5)
         eq_(tasks[5], t6)
 
+    def test_first_previous_task(self):
+        task1, task2, task3 = TaskFactory.create_batch(3)
+        eq_(task2.first_previous_task, None)
+        task1.next_task = task2
+        task1.save()
+        task3.next_task = task2
+        task3.save()
+        eq_(task1, task2.first_previous_task)
+
+    def test_get_next_task_url(self):
+        task1, task2 = TaskFactory.create_batch(2)
+        eq_(task1.get_next_task_url(), '')
+        task2.next_task = task1
+        task2.save()
+        ok_(str(task1.id) in task2.get_next_task_url())
+
     def test_has_bugzilla_bug_false(self):
         task = TaskFactory.create()
         ok_(not task.has_bugzilla_bug)
