@@ -21,6 +21,11 @@
      https://oneanddone.mozilla.org/profile/
     {{ form.username }}
     </p>
+    {{ form.personal_url.errors }}
+    <p>
+    {{ form.personal_url.label }}
+    {{ form.personal_url }}
+    </p>	
     {% if form.consent_to_email %}
       <p>
       {{ form.consent_to_email }}

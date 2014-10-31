@@ -88,6 +88,7 @@ class UserProfile(CachedModel, models.Model):
     name = models.CharField(_lazy(u'Display Name:'), max_length=255)
     privacy_policy_accepted = models.BooleanField(default=False)
     username = models.CharField(_lazy(u'Username'), max_length=30, unique=True, null=True)
+    personal_url = models.URLField(blank=True, null=True, max_length=200)
 
     @property
     def email(self):

@@ -2,6 +2,7 @@ from django import forms
 
 from tower import ugettext as _
 
+from oneanddone.base.widgets import MyURLField
 from oneanddone.users.models import UserProfile
 
 
@@ -18,10 +19,11 @@ class SignUpForm(forms.ModelForm):
         label=_("Username:"),
         max_length=30, regex=r'^[a-zA-Z0-9]+$',
         error_messages={'invalid': _("This value may contain only alphanumeric characters.")})
+    personal_url = MyURLField(label=_('Personal URL:'))
 
     class Meta:
         model = UserProfile
-        fields = ('name', 'username', 'pp_checkbox')
+        fields = ('name', 'username', 'pp_checkbox', 'personal_url')
 
     def save(self, *args, **kwargs):
         # We will only reach the save() method if the pp_checkbox was checked
@@ -35,7 +37,8 @@ class UserProfileForm(forms.ModelForm):
         max_length=30, regex=r'^[a-zA-Z0-9]+$',
         error_messages={'invalid': _("This value may contain only alphanumeric characters.")})
     consent_to_email = forms.BooleanField(required=False)
+    personal_url = MyURLField(label=_('Personal URL:'))
 
     class Meta:
         model = UserProfile
-        fields = ('name', 'username', 'consent_to_email')
+        fields = ('name', 'username', 'consent_to_email', 'personal_url')

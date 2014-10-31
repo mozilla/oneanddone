@@ -1,9 +1,15 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-from django.forms import CheckboxSelectMultiple, MultiWidget
+from urlparse import urlparse
+
+from django.forms import CheckboxSelectMultiple, MultiWidget, URLField
+from django.forms import ValidationError
 from django.forms.widgets import DateInput, Input, RadioSelect
 from django.utils.safestring import mark_safe
+
+import requests
+from tower import ugettext as _
 
 
 class CalendarInput(DateInput):
@@ -68,3 +74,18 @@ class RangeInput(Input):
         """.format(input=super(RangeInput, self).render(name, value, attrs))
 
         return mark_safe(markup)
+
+
+class MyURLField(URLField):
+
+    def clean(self, value):
+        if not value:
+            return None
+        url = urlparse(value)
+        if url.scheme == '':
+            value = 'http://' + value
+        try:
+            r = requests.get(value, timeout=10, verify=False)
+        except requests.exceptions.RequestException:
+            raise ValidationError(_('The website is not reachable. Please enter a valid url.'))
+        return super(MyURLField, self).clean(value)
