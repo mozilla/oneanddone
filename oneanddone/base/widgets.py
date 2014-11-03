@@ -86,6 +86,8 @@ class MyURLField(URLField):
             value = 'http://' + value
         try:
             r = requests.get(value, timeout=10, verify=False)
+            if not r.ok:
+                raise ValidationError(_('The website is not reachable. Please enter a valid url.'))
         except requests.exceptions.RequestException:
             raise ValidationError(_('The website is not reachable. Please enter a valid url.'))
         return super(MyURLField, self).clean(value)
