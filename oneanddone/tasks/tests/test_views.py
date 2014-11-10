@@ -37,24 +37,27 @@ class CreateTaskViewTests(TestCase):
         """
         user = UserFactory.create()
         self.view.request = Mock(user=user)
+        self.view.kwargs = {}
         with patch('oneanddone.tasks.views.generic.CreateView.get_form_kwargs') as get_form_kwargs:
             get_form_kwargs.return_value = {'initial': {}}
             kwargs = self.view.get_form_kwargs()
         eq_(kwargs['initial']['owner'], user)
 
-    def test_get_initial_populates_form_with_data_to_be_cloned(self):
+    def test_get_form_kwargs_populates_form_with_data_to_be_cloned(self):
         """
         When accessed via the tasks.clone url, the view displays a form
         whose initial data is that of the task being cloned, except for
         the 'name' field, which should be prefixed with 'Copy of '
         """
+        user = UserFactory.create()
         original_task = TaskFactory.create()
         TaskKeywordFactory.create_batch(3, task=original_task)
         original_data = get_filled_taskform(original_task).data
-        self.view.kwargs = {'clone': original_task.pk }
-        with patch('oneanddone.tasks.views.generic.CreateView.get_initial') as get_initial:
-            get_initial.return_value = {}
-            initial = self.view.get_initial()
+        self.view.kwargs = {'clone': original_task.pk}
+        self.view.request = Mock(user=user)
+        with patch('oneanddone.tasks.views.generic.CreateView.get_form_kwargs') as get_form_kwargs:
+            get_form_kwargs.return_value = {'initial': {}}
+            initial = self.view.get_form_kwargs()['initial']
         eq_(initial['keywords'], original_task.keywords_list)
         eq_(initial['name'], ' '.join(['Copy of', original_task.name]))
         del original_data['name']
