@@ -28,6 +28,7 @@ from oneanddone.tasks.mixins import GetUserAttemptMixin
 from oneanddone.tasks.models import (BugzillaBug, Feedback, Task, TaskAttempt,
                                      TaskMetrics)
 from oneanddone.tasks.serializers import TaskSerializer
+from oneanddone.users.models import User
 from oneanddone.users.mixins import (MyStaffUserRequiredMixin,
                                      PrivacyPolicyRequiredMixin)
 
@@ -255,6 +256,12 @@ class ListTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
     template_name = 'tasks/list.html'
     paginate_by = 20
     filterset_class = TasksFilterSet
+
+
+class LeaderboardView(generic.ListView):
+    template_name = 'tasks/leaderboard.html'
+    queryset = User.users_with_valid_completed_attempt_counts()[0:20]
+    context_object_name = 'leaders'
 
 
 class ListTooShortTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.ListView):

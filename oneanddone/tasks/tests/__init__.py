@@ -1,3 +1,7 @@
+from datetime import timedelta
+
+from django.utils import timezone
+
 from factory import DjangoModelFactory, fuzzy, Sequence, SubFactory
 
 from oneanddone.tasks import models
@@ -75,6 +79,27 @@ class TaskAttemptFactory(DjangoModelFactory):
     task = SubFactory(TaskFactory)
     state = models.TaskAttempt.STARTED
     requires_notification = False
+
+
+class ValidTaskAttemptFactory(TaskAttemptFactory):
+    """
+    Creates task attempts where the created time is
+    60 seconds before the current time.
+    """
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        """Override the default ``_create`` with our custom call."""
+        manager = cls._get_manager(target_class)
+
+        if cls.FACTORY_DJANGO_GET_OR_CREATE:
+            attempt = cls._get_or_create(target_class, *args, **kwargs)
+        else:
+            attempt = manager.create(*args, **kwargs)
+
+        attempt.created = timezone.now() + timedelta(seconds=-60)
+        attempt.save()
+        return attempt
 
 
 class TaskKeywordFactory(DjangoModelFactory):

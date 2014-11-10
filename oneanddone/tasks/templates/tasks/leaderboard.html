@@ -1,0 +1,28 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
+{% extends 'base/base.html' %}
+
+{% set title = _('One and Done Leaderboard') %}
+
+{% block content %}
+<main class="billboard task-activity-container content-container">
+  <h1>{{ _('One and Done Leaderboard') }}</h1>
+
+  <table class="table activity-listing">
+    <thead>
+      <tr>
+        <th>{{ _('Contributor') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in leaders %}
+        <tr>
+          <td><a href="{{ user.profile.profile_url }}">{{ user.profile.name }}</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</main>
+{% endblock %}

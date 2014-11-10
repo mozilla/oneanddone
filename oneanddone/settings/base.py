@@ -203,6 +203,10 @@ DJANGO_MEMCACHED_REQUIRE_STAFF = True
 # Number of days that a one-time task attempt can be open before it expires
 TASK_ATTEMPT_EXPIRATION_DURATION = 30
 
+# The minimum duration for a complete task attempt, in seconds, to
+# be considered valid
+MIN_DURATION_FOR_COMPLETED_ATTEMPTS = 120
+
 # Whitelisted tags allowed to be used in task instructions.
 INSTRUCTIONS_ALLOWED_TAGS = [
     'a',

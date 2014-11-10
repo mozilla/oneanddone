@@ -1,11 +1,14 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+from django.test.utils import override_settings
+
 from nose.tools import eq_
 
 from oneanddone.base.tests import TestCase
 from oneanddone.tasks.models import TaskAttempt
-from oneanddone.tasks.tests import TaskAttemptFactory
+from oneanddone.tasks.tests import TaskAttemptFactory, TaskFactory, ValidTaskAttemptFactory
+from oneanddone.users.models import User
 from oneanddone.users.tests import UserFactory, UserProfileFactory
 
 
@@ -105,3 +108,37 @@ class UserTests(TestCase):
         """
         user = UserFactory.build(email='foo@example.com')
         eq_(unicode(user), u'Anonymous (Email consent denied)')
+
+    @override_settings(MIN_DURATION_FOR_COMPLETED_ATTEMPTS=10)
+    def test_users_with_valid_completed_attempt_counts(self):
+        """
+        users_with_valid_completed_attempt_counts should return counts of all attempts completed
+        within the time threshold, sorted by highest number of attempts
+        """
+        task = TaskFactory.create()
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        # Invalid attempt
+        TaskAttemptFactory.create(user=user1,
+                                  state=TaskAttempt.FINISHED,
+                                  task=task)
+        # Valid attempts
+        ValidTaskAttemptFactory.create_batch(2,
+                                             user=user1,
+                                             state=TaskAttempt.FINISHED,
+                                             task=task)
+        ValidTaskAttemptFactory.create(user=user2,
+                                       state=TaskAttempt.FINISHED,
+                                       task=task)
+        ValidTaskAttemptFactory.create(user=user1,
+                                       state=TaskAttempt.STARTED,
+                                       task=task)
+        eq_(user1.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 1)
+        eq_(user1.taskattempt_set.filter(state=TaskAttempt.FINISHED).count(), 3)
+        eq_(user2.taskattempt_set.filter(state=TaskAttempt.FINISHED).count(), 1)
+        qs = User.users_with_valid_completed_attempt_counts()
+        eq_(len(qs), 2)
+        eq_(qs[0], user1)
+        eq_(qs[0].valid_completed_attempts_count, 2)
+        eq_(qs[1], user2)
+        eq_(qs[1].valid_completed_attempts_count, 1)

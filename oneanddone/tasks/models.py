@@ -317,10 +317,6 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     Task for a user to attempt to fulfill.
     """
 
-    # The minimum duration for a task attempt, in seconds, to
-    # be considered valid for metrics
-    MIN_DURATION_FOR_CLOSED_ATTEMPTS = 120
-
     batch = models.ForeignKey(TaskImportBatch, blank=True, null=True)
     # imported_item may be BugzillaBug for now. In future, other sources such
     # as Moztrap may be possible
@@ -410,7 +406,9 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     def completed_attempts(self):
         all_completed = self.taskattempt_set.filter(state=TaskAttempt.FINISHED)
         return all_completed.extra(
-            where=['TIMESTAMPDIFF(SECOND, tasks_taskattempt.created, tasks_taskattempt.modified) > %s' % self.MIN_DURATION_FOR_CLOSED_ATTEMPTS])
+            where=[
+                'TIMESTAMPDIFF(SECOND, tasks_taskattempt.created, tasks_taskattempt.modified) > %s'
+                % settings.MIN_DURATION_FOR_COMPLETED_ATTEMPTS])
 
     @property
     def completed_user_count(self):
@@ -482,7 +480,9 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     def too_short_completed_attempts(self):
         all_completed = self.taskattempt_set.filter(state=TaskAttempt.FINISHED)
         return all_completed.extra(
-            where=['TIMESTAMPDIFF(SECOND, tasks_taskattempt.created, tasks_taskattempt.modified) <= %s' % self.MIN_DURATION_FOR_CLOSED_ATTEMPTS])
+            where=[
+                'TIMESTAMPDIFF(SECOND, tasks_taskattempt.created, tasks_taskattempt.modified) <= %s'
+                % settings.MIN_DURATION_FOR_COMPLETED_ATTEMPTS])
 
     @property
     def why_this_matters_html(self):

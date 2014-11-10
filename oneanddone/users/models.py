@@ -1,8 +1,13 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+from datetime import timedelta
+
+from django.conf import settings
 from django.contrib.auth.models import User, UserManager
+from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models import Count, F
 
 from caching.base import CachingManager, CachingMixin
 from tower import ugettext_lazy as _lazy
@@ -70,6 +75,18 @@ def user_attempts_requiring_notification(self):
 User.add_to_class('attempts_requiring_notification', user_attempts_requiring_notification)
 
 
+@classmethod
+def user_users_with_valid_completed_attempt_counts(self):
+    users = User.objects.filter(
+        taskattempt__in=TaskAttempt.objects.filter(
+            modified__gt=F('created') + timedelta(seconds=settings.MIN_DURATION_FOR_COMPLETED_ATTEMPTS),
+            state=TaskAttempt.FINISHED)
+    ).annotate(valid_completed_attempts_count=Count('taskattempt')).order_by('-valid_completed_attempts_count')
+    return users
+User.add_to_class('users_with_valid_completed_attempt_counts',
+                  user_users_with_valid_completed_attempt_counts)
+
+
 class OneAndDoneUserManager(CachingManager, UserManager):
     # UserManager that prefetches user profiles when getting users.
     def get_query_set(self):
@@ -93,6 +110,10 @@ class UserProfile(CachedModel, models.Model):
     @property
     def email(self):
         return self.user.display_email
+
+    @property
+    def profile_url(self):
+        return reverse('users.profile.details', args=[self.username])
 
     def delete(self):
         self.user.delete()
