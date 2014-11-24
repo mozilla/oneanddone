@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     url(r'^tasks/leaderboard/$', views.LeaderboardView.as_view(), name='tasks.leaderboard'),
     url(r'^tasks/metrics/$', views.MetricsView.as_view(), name='tasks.metrics'),
     url(r'^tasks/too_short/$', views.ListTooShortTasksView.as_view(), name='tasks.too_short'),
+    url(r'^tasks/(?P<pk>\d+)/whatsnext/$', views.WhatsNextView.as_view(), name='tasks.whats_next'),
 
     # API for interacting with tasks and task areas
     url(r'^api/v1/task/$', views.TaskListAPI.as_view(), name='api-task'),

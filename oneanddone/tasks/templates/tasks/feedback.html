@@ -34,7 +34,7 @@
   <form method="post" class="feedback-form">
     {{ csrf() }}
     {{ form.as_p() }}
-    <a href="{{ url('base.home') }}" class="no-feedback">{{ _('No, thanks.') }}</a>
+    <a href="{{ url('tasks.whats_next', attempt.task.id) }}" class="no-feedback">{{ _('No, thanks.') }}</a>
     <button type="submit" class="button">{{ _('Submit feedback') }}</button>
   </form>
 </main>

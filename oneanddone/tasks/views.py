@@ -114,7 +114,7 @@ class CreateFeedbackView(LoginRequiredMixin, PrivacyPolicyRequiredMixin,
             [feedback.attempt.task.owner.email])
 
         messages.success(self.request, _('Your feedback has been submitted. Thanks!'))
-        return redirect('base.home')
+        return redirect('tasks.whats_next', feedback.attempt.task.id)
 
 
 class CreateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.CreateView):
@@ -383,6 +383,11 @@ class UpdateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Updat
 
         messages.success(self.request, _('Your task has been updated.'))
         return redirect('tasks.list')
+
+
+class WhatsNextView(LoginRequiredMixin, generic.DetailView):
+    model = Task
+    template_name = 'tasks/whats_next.html'
 
 
 class TaskDetailAPI(APIOnlyCreatorMayDeleteMixin,
