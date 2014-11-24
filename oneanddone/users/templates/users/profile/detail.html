@@ -31,7 +31,16 @@
     </h4>
     <ul>
       {% for attempt in attempts_finished %}
-        <li><a href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a></li>
+        <li>
+          <a href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a>
+          {% if userprofile.user == user and attempt.next_task %}
+            -
+            <a href="{{ attempt.task.get_next_task_url() }}"
+               title="{{ _('The next task to complete after this task is: {task_name}')|fe(task_name=attempt.next_task.name) }}">
+              {{ _('Try the next task') }}
+            </a>
+          {% endif %}
+        </li>
       {% endfor %}
     </ul>
 

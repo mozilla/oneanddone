@@ -632,6 +632,14 @@ class TaskAttemptTests(TestCase):
         FeedbackFactory.create(attempt=self.attempt)
         eq_(self.attempt.has_feedback, True)
 
+    def test_next_task(self):
+        attempt = self.attempt
+        task2 = TaskFactory.create()
+        eq_(attempt.next_task, None)
+        attempt.task.next_task = task2
+        attempt.task.save()
+        eq_(attempt.next_task, task2)
+
 
 class TaskInvalidationCriterionTests(TestCase):
 
