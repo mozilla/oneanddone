@@ -3,18 +3,19 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from datetime import datetime, timedelta
 
+from django.test.utils import override_settings
 from django.utils import timezone
 
 from mock import patch
 from nose.tools import eq_, ok_
 
 from oneanddone.base.tests import TestCase
-from oneanddone.tasks.models import (Task, TaskInvalidationCriterion, TaskKeyword,
-                                     TaskAttempt)
+from oneanddone.tasks.models import (Task, TaskAttempt, TaskInvalidationCriterion,
+                                     TaskKeyword)
 from oneanddone.tasks.tests import (BugzillaBugFactory, FeedbackFactory,
                                     TaskFactory, TaskImportBatchFactory,
                                     TaskInvalidationCriterionFactory, TaskKeywordFactory,
-                                    TaskAttemptFactory)
+                                    TaskAttemptFactory, ValidTaskAttemptFactory)
 from oneanddone.users.tests import UserFactory
 
 
@@ -432,6 +433,79 @@ class TaskTests(TestCase):
         eq_(TaskAttempt.objects.filter(task=self.task_no_draft,
                                        state=TaskAttempt.CLOSED,
                                        requires_notification=True).count(), 2)
+
+
+class TaskMetricsSupportTests(TestCase):
+    def setUp(self):
+        user1, user2 = UserFactory.create_batch(2)
+        self.task1, self.task2 = TaskFactory.create_batch(2)
+        TaskAttemptFactory.create_batch(2,
+                                        user=user1,
+                                        task=self.task1,
+                                        state=TaskAttempt.FINISHED)
+        ValidTaskAttemptFactory.create_batch(2,
+                                             user=user1,
+                                             task=self.task1,
+                                             state=TaskAttempt.FINISHED)
+        ValidTaskAttemptFactory.create(user=user1,
+                                       task=self.task2,
+                                       state=TaskAttempt.FINISHED)
+        ValidTaskAttemptFactory.create(user=user2,
+                                       task=self.task1,
+                                       state=TaskAttempt.FINISHED)
+        ValidTaskAttemptFactory.create_batch(2,
+                                             user=user1,
+                                             task=self.task1,
+                                             state=TaskAttempt.ABANDONED)
+        ValidTaskAttemptFactory.create(user=user2,
+                                       task=self.task1,
+                                       state=TaskAttempt.ABANDONED)
+        ValidTaskAttemptFactory.create(user=user1,
+                                       task=self.task2,
+                                       state=TaskAttempt.ABANDONED)
+        ValidTaskAttemptFactory.create_batch(2,
+                                             user=user1,
+                                             task=self.task1,
+                                             state=TaskAttempt.CLOSED)
+        ValidTaskAttemptFactory.create(user=user2,
+                                       task=self.task1,
+                                       state=TaskAttempt.CLOSED)
+        ValidTaskAttemptFactory.create(user=user1,
+                                       task=self.task2,
+                                       state=TaskAttempt.CLOSED)
+
+    def test_abandoned_attempts(self):
+        eq_(len(self.task1.abandoned_attempts), 3)
+
+    def test_abandoned_user_count(self):
+        eq_(self.task1.abandoned_user_count, 2)
+
+    def test_all_attempts(self):
+        eq_(len(self.task1.all_attempts), 11)
+
+    def test_incomplete_attempts(self):
+        eq_(len(self.task1.closed_attempts), 3)
+
+    def test_closed_user_count(self):
+        eq_(self.task1.closed_user_count, 2)
+
+    @override_settings(MIN_DURATION_FOR_COMPLETED_ATTEMPTS=10)
+    def test_completed_attempts(self):
+        eq_(len(self.task1.completed_attempts), 3)
+
+    @override_settings(MIN_DURATION_FOR_COMPLETED_ATTEMPTS=10)
+    def test_completed_user_count(self):
+        eq_(self.task1.completed_user_count, 2)
+
+    def test_incomplete_attempts(self):
+        eq_(len(self.task1.incomplete_attempts), 6)
+
+    def test_incomplete_user_count(self):
+        eq_(self.task1.incomplete_user_count, 2)
+
+    @override_settings(MIN_DURATION_FOR_COMPLETED_ATTEMPTS=10)
+    def test_too_short_completed_attempts(self):
+        eq_(len(self.task1.too_short_completed_attempts), 2)
 
 
 class TaskAttemptTests(TestCase):

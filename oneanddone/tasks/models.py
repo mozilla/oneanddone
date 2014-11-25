@@ -10,7 +10,7 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count, F, Q
 from django.utils import timezone
 
 import bleach
@@ -404,11 +404,10 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
 
     @property
     def completed_attempts(self):
-        all_completed = self.taskattempt_set.filter(state=TaskAttempt.FINISHED)
-        return all_completed.extra(
-            where=[
-                'TIMESTAMPDIFF(SECOND, tasks_taskattempt.created, tasks_taskattempt.modified) > %s'
-                % settings.MIN_DURATION_FOR_COMPLETED_ATTEMPTS])
+
+        return self.taskattempt_set.filter(
+            modified__gt=F('created') + timedelta(seconds=settings.MIN_DURATION_FOR_COMPLETED_ATTEMPTS),
+            state=TaskAttempt.FINISHED)
 
     @property
     def completed_user_count(self):
@@ -478,11 +477,9 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
 
     @property
     def too_short_completed_attempts(self):
-        all_completed = self.taskattempt_set.filter(state=TaskAttempt.FINISHED)
-        return all_completed.extra(
-            where=[
-                'TIMESTAMPDIFF(SECOND, tasks_taskattempt.created, tasks_taskattempt.modified) <= %s'
-                % settings.MIN_DURATION_FOR_COMPLETED_ATTEMPTS])
+        return self.taskattempt_set.filter(
+            modified__lte=F('created') + timedelta(seconds=settings.MIN_DURATION_FOR_COMPLETED_ATTEMPTS),
+            state=TaskAttempt.FINISHED)
 
     @property
     def why_this_matters_html(self):
