@@ -87,6 +87,12 @@ User.add_to_class('users_with_valid_completed_attempt_counts',
                   user_users_with_valid_completed_attempt_counts)
 
 
+def user_has_completed_task(self, task):
+    """Has the user completed the specified task?"""
+    return self.taskattempt_set.filter(task=task).exists()
+User.add_to_class('has_completed_task', user_has_completed_task)
+
+
 class OneAndDoneUserManager(CachingManager, UserManager):
     # UserManager that prefetches user profiles when getting users.
     def get_query_set(self):

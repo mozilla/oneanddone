@@ -51,6 +51,9 @@ class TaskForm(forms.ModelForm):
                 required=False,
                 widget=forms.TextInput(attrs={'class': 'medium-field'})))
     owner = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=True))
+    next_task = forms.ModelChoiceField(
+        queryset=Task.objects.filter(Task.is_available_filter()).order_by('name'),
+        required=False)
 
     def __init__(self, *args, **kwargs):
         if kwargs['instance']:
@@ -64,7 +67,7 @@ class TaskForm(forms.ModelForm):
         # When cloning a task we need to process/add the keywords even
         # they weren't changed in the form.
         if ('keywords' in self.changed_data or
-            self.instance.keyword_set.count() != len(form_keywords)):
+                self.instance.keyword_set.count() != len(form_keywords)):
             kw = [k.strip() for k in form_keywords]
             self.instance.replace_keywords(kw, creator)
 
@@ -94,7 +97,7 @@ class TaskForm(forms.ModelForm):
         fields = ('name', 'short_description', 'execution_time', 'difficulty',
                   'priority', 'repeatable', 'team', 'project', 'type', 'start_date',
                   'end_date', 'why_this_matters', 'prerequisites', 'instructions',
-                  'is_draft', 'is_invalid', 'owner')
+                  'is_draft', 'is_invalid', 'owner', 'next_task')
         widgets = {
             'name': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),
             'short_description': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),

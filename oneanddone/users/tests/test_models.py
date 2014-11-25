@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.test.utils import override_settings
 
-from nose.tools import eq_
+from nose.tools import eq_, ok_
 
 from oneanddone.base.tests import TestCase
 from oneanddone.tasks.models import TaskAttempt
@@ -73,6 +73,23 @@ class UserTests(TestCase):
         """
         user = UserFactory.build()
         eq_(user.display_name, None)
+
+    def test_has_completed_task_true(self):
+        """
+        has_completed_task should return true if the user has completed the task.
+        """
+        user = UserFactory.create()
+        task = TaskFactory.create()
+        TaskAttemptFactory.create(user=user, task=task, state=TaskAttempt.FINISHED)
+        ok_(user.has_completed_task(task))
+
+    def test_has_completed_task_false(self):
+        """
+        has_completed_task should return false if the user has not completed the task.
+        """
+        user = UserFactory.create()
+        task = TaskFactory.create()
+        ok_(not user.has_completed_task(task))
 
     def test_profile_email_with_consent(self):
         """
