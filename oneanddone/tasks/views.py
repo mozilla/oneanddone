@@ -293,7 +293,8 @@ class RandomTasksView(TaskMustBeAvailableMixin, generic.ListView):
         return ctx
 
 
-class StartTaskView(PrivacyPolicyRequiredMixin, HideNonRepeatableTaskMixin,
+class StartTaskView(LoginRequiredMixin, PrivacyPolicyRequiredMixin,
+                    HideNonRepeatableTaskMixin,
                     generic.detail.SingleObjectMixin, generic.View):
     model = Task
 
@@ -313,7 +314,8 @@ class StartTaskView(PrivacyPolicyRequiredMixin, HideNonRepeatableTaskMixin,
         return redirect(task)
 
 
-class TaskAttemptView(PrivacyPolicyRequiredMixin, generic.detail.SingleObjectMixin, generic.View):
+class TaskAttemptView(LoginRequiredMixin, PrivacyPolicyRequiredMixin,
+                      generic.detail.SingleObjectMixin, generic.View):
     def get_queryset(self):
         return TaskAttempt.objects.filter(user=self.request.user, state=TaskAttempt.STARTED)
 
