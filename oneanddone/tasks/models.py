@@ -83,6 +83,10 @@ class TaskAttempt(CachedModel, CreatedModifiedModel):
         except Feedback.DoesNotExist:
             return False
 
+    @property
+    def next_task(self):
+        return self.task.next_task
+
     @classmethod
     def close_expired_task_attempts(self):
         """
