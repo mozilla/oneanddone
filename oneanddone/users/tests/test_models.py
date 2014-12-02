@@ -111,6 +111,15 @@ class UserTests(TestCase):
             user__email='foo@example.com')
         eq_(profile.email, 'Email consent denied')
 
+    def test_profile_url_with_username(self):
+        user = UserProfileFactory.create(username='foo')
+        eq_(user.profile_url, '/profile/foo/')
+
+    def test_profile_url_with_no_username(self):
+        user = UserProfileFactory.create(username=None)
+        profile_url = '/profile/%s/' % user.user.id
+        eq_(user.profile_url, profile_url)
+     
     def test_unicode(self):
         """
         The string representation of a user should include their

@@ -497,6 +497,12 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     def why_this_matters_html(self):
         return self._yield_html(self.why_this_matters)
 
+    @property
+    def users_who_completed_this_task(self):
+        return User.objects.filter(
+            taskattempt__in=TaskAttempt.objects.filter(
+               task=self.id, state=TaskAttempt.FINISHED)).distinct()
+
     def _yield_html(self, field):
         """
         Return the requested field for a task after parsing them as

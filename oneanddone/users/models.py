@@ -119,7 +119,10 @@ class UserProfile(CachedModel, models.Model):
 
     @property
     def profile_url(self):
-        return reverse('users.profile.details', args=[self.username])
+        if self.username is not None:
+            return reverse('users.profile.details', args=[self.username])
+        else:
+            return reverse('users.profile.details', args=[self.user.id])
 
     def delete(self):
         self.user.delete()
