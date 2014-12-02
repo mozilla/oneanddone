@@ -22,6 +22,8 @@
         <td colspan="4" class="task-info">
           <div>{{ _("Owner: {owner}")|fe(owner=attempt.task.owner) }}</div>
           <div>{{ _("Team: {team}")|fe(team=attempt.task.team.name) }}</div>
+          <div>{{ _('Date {state}: {modified}')|fe(state=attempt.get_state_display(),
+            modified=attempt.modified.strftime('%Y-%m-%d: %I:%M:%S %p').lower()) }}</div>
           <div class="feedback{% if not attempt.has_feedback %} no-feedback{% endif %}">
             {{ attempt.feedback_display }}
           </div>
