@@ -6,3 +6,8 @@
 -r ../vendor/src/funfactory/funfactory/requirements/dev.txt
 
 factory-boy==2.3.0
+
+# Documentation
+
+sphinx_rtd_theme
+sphinx-autobuild
