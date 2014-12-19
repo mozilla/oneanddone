@@ -16,7 +16,7 @@ class ActivityFilterSet(django_filters.FilterSet):
 
     task__owner = django_filters.ModelChoiceFilter(
         label=_lazy(u'Task Owner'),
-        queryset=User.objects.filter(task__isnull=False).distinct())
+        queryset=User.objects.filter(task__isnull=False).distinct().order_by('profile__name'))
 
     task__team = django_filters.ModelChoiceFilter(
         label=_lazy(u'Team'),
