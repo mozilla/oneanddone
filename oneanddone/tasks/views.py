@@ -66,6 +66,11 @@ class AvailableTasksView(TaskMustBeAvailableMixin, FilterView):
     template_name = 'tasks/list.html'
     paginate_by = 10
     filterset_class = TasksFilterSet
+    
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(AvailableTasksView, self).get_context_data(*args, **kwargs)
+        ctx['task_list_heading'] = _('Tasks')
+        return ctx
 
 
 class CreateFeedbackView(LoginRequiredMixin, PrivacyPolicyRequiredMixin,
@@ -256,6 +261,11 @@ class ListTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
     template_name = 'tasks/list.html'
     paginate_by = 20
     filterset_class = TasksFilterSet
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(ListTasksView, self).get_context_data(*args, **kwargs)
+        ctx['task_list_heading'] = _('Tasks')
+        return ctx
 
 
 class LeaderboardView(generic.ListView):

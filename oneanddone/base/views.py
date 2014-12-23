@@ -4,6 +4,8 @@
 from django.shortcuts import redirect
 from django_filters.views import FilterView
 
+from tower import ugettext as _
+
 from oneanddone.tasks.filters import TasksFilterSet
 from oneanddone.tasks.models import Task
 from oneanddone.tasks.mixins import TaskMustBeAvailableMixin
@@ -16,6 +18,11 @@ class HomeView(TaskMustBeAvailableMixin, FilterView):
     context_object_name = 'tasks'
     paginate_by = 10
     filterset_class = TasksFilterSet
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(HomeView, self).get_context_data(*args, **kwargs)
+        ctx['task_list_heading'] = _('Suggested First Tasks')
+        return ctx
 
     def dispatch(self, request, *args, **kwargs):
         if (request.user.is_authenticated() and
