@@ -153,3 +153,12 @@ class Verify(django_browserid.views.Verify):
             logging in, let us know by emailing <a href="mailto:{email}">{email}</a>.
         """).format(email='oneanddone@mozilla.com'), extra_tags='safe')
         return super(Verify, self).login_failure(*args, **kwargs)
+
+    @property
+    def success_url(self):
+        if not UserProfile.objects.filter(user=self.user).exists():
+            return reverse_lazy('users.profile.create')
+        elif not UserProfile.objects.get(user=self.user).privacy_policy_accepted:
+            return reverse_lazy('users.profile.update')
+        else:
+            return super(Verify, self).success_url

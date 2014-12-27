@@ -32,8 +32,7 @@ from oneanddone.tasks.models import (BugzillaBug, Feedback, Task, TaskAttempt,
                                      TaskAttemptCommunication, TaskMetrics, TaskTeam)
 from oneanddone.tasks.serializers import TaskSerializer
 from oneanddone.users.models import User
-from oneanddone.users.mixins import (MyStaffUserRequiredMixin,
-                                     PrivacyPolicyRequiredMixin)
+from oneanddone.users.mixins import MyStaffUserRequiredMixin
 
 
 class ActivityView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
@@ -77,10 +76,7 @@ class AvailableTasksView(TaskMustBeAvailableMixin, FilterView):
 
 
 class CreateFeedbackView(LoginRequiredMixin,
-                         PrivacyPolicyRequiredMixin,
-                         BaseURLMixin,
-                         HideNonRepeatableTaskMixin,
-                         GetUserAttemptMixin,
+                         HideNonRepeatableTaskMixin, GetUserAttemptMixin,
                          generic.CreateView):
     model = Feedback
     form_class = FeedbackForm
@@ -279,8 +275,7 @@ class RandomTasksView(TaskMustBeAvailableMixin, generic.ListView):
         return ctx
 
 
-class StartTaskView(LoginRequiredMixin, PrivacyPolicyRequiredMixin,
-                    HideNonRepeatableTaskMixin,
+class StartTaskView(LoginRequiredMixin, HideNonRepeatableTaskMixin,
                     generic.detail.SingleObjectMixin, generic.View):
     model = Task
 
@@ -296,8 +291,8 @@ class StartTaskView(LoginRequiredMixin, PrivacyPolicyRequiredMixin,
         return redirect(task)
 
 
-class TaskAttemptView(LoginRequiredMixin, PrivacyPolicyRequiredMixin,
-                      generic.detail.SingleObjectMixin, generic.View):
+class TaskAttemptView(LoginRequiredMixin, generic.detail.SingleObjectMixin,
+                      generic.View):
     def get_queryset(self):
         return TaskAttempt.objects.filter(user=self.request.user, state=TaskAttempt.STARTED)
 
