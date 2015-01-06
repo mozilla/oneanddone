@@ -13,7 +13,7 @@
   </h1>
 {% if userprofile.personal_url %}
   <h4 id ="user-profile-url">
- {{ _('Personal URL:') }} <a href="{{userprofile.personal_url }}"><span>{{ userprofile.personal_url }}</span></a>
+ {{ _('Personal URL:') }} <a href="{{userprofile.personal_url }}" target="_blank"><span>{{ userprofile.personal_url }}</span></a>
  </h4>
 {% endif %}
   {% if userprofile.user == user %}
