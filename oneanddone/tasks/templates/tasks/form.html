@@ -18,7 +18,7 @@
 {% if action == 'Import' %}
   {% set title = _('{action} task batch')|f(action=action) %}
 {% else %}
-  {% set title = _('{action} task {task_name}')|f(action=action,task_name=task_form['name'].value() or '') %}
+  {% set title = _('{action} task: {task_name}')|f(action=action,task_name=task_form['name'].value() or '') %}
 {% endif %}
 
 {% block content %}
