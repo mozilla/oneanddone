@@ -453,40 +453,40 @@ class TaskTests(TestCase):
 
 class TaskMetricsSupportTests(TestCase):
     def setUp(self):
-        user1, user2 = UserFactory.create_batch(2)
+        self.user1, self.user2 = UserFactory.create_batch(2)
         self.task1, self.task2 = TaskFactory.create_batch(2)
         TaskAttemptFactory.create_batch(2,
-                                        user=user1,
+                                        user=self.user1,
                                         task=self.task1,
                                         state=TaskAttempt.FINISHED)
         ValidTaskAttemptFactory.create_batch(2,
-                                             user=user1,
+                                             user=self.user1,
                                              task=self.task1,
                                              state=TaskAttempt.FINISHED)
-        ValidTaskAttemptFactory.create(user=user1,
+        ValidTaskAttemptFactory.create(user=self.user1,
                                        task=self.task2,
                                        state=TaskAttempt.FINISHED)
-        ValidTaskAttemptFactory.create(user=user2,
+        ValidTaskAttemptFactory.create(user=self.user2,
                                        task=self.task1,
                                        state=TaskAttempt.FINISHED)
         ValidTaskAttemptFactory.create_batch(2,
-                                             user=user1,
+                                             user=self.user1,
                                              task=self.task1,
                                              state=TaskAttempt.ABANDONED)
-        ValidTaskAttemptFactory.create(user=user2,
+        ValidTaskAttemptFactory.create(user=self.user2,
                                        task=self.task1,
                                        state=TaskAttempt.ABANDONED)
-        ValidTaskAttemptFactory.create(user=user1,
+        ValidTaskAttemptFactory.create(user=self.user1,
                                        task=self.task2,
                                        state=TaskAttempt.ABANDONED)
         ValidTaskAttemptFactory.create_batch(2,
-                                             user=user1,
+                                             user=self.user1,
                                              task=self.task1,
                                              state=TaskAttempt.CLOSED)
-        ValidTaskAttemptFactory.create(user=user2,
+        ValidTaskAttemptFactory.create(user=self.user2,
                                        task=self.task1,
                                        state=TaskAttempt.CLOSED)
-        ValidTaskAttemptFactory.create(user=user1,
+        ValidTaskAttemptFactory.create(user=self.user1,
                                        task=self.task2,
                                        state=TaskAttempt.CLOSED)
 
@@ -522,6 +522,9 @@ class TaskMetricsSupportTests(TestCase):
     @override_settings(MIN_DURATION_FOR_COMPLETED_ATTEMPTS=10)
     def test_too_short_completed_attempts(self):
         eq_(len(self.task1.too_short_completed_attempts), 2)
+
+    def test_users_who_completed_this_task(self):
+        eq_(set(self.task1.users_who_completed_this_task), set([self.user1, self.user2]))
 
 
 class TaskAttemptTests(TestCase):

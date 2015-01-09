@@ -93,7 +93,16 @@
       <div class="markdown">{{ task.instructions_html }}</div>
     </div>
   </div>
-
+  {% if users %}
+    <div class ="row">
+      <div>
+        <h2>{{_('List of users who completed this task') }}</h2>
+        {% for each_user in users %}
+          <a href="{{ each_user.profile.profile_url }}">{{ each_user.profile.name }}</a>{% if not loop.last %},{% endif %}         
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
   <div class="actions-container">
     {% if user.is_staff %}
       <div class="without-message">

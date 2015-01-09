@@ -97,6 +97,11 @@ class ProfileDetailsView(generic.DetailView):
 
     def get_object(self, *args, **kwargs):
         username = self.kwargs.get('username')
+        if username is None:
+            try:
+                return self.get_queryset().get(user=self.kwargs.get('id'))
+            except ObjectDoesNotExist:
+                raise Http404(_(u'No UserProfiles found matching the userid'))
         try:
             return self.get_queryset().get(username=username)
         except (ObjectDoesNotExist, MultipleObjectsReturned):

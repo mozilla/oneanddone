@@ -349,6 +349,7 @@ class TaskDetailView(generic.DetailView):
         if self.request.user.is_authenticated():
             ctx['attempt'] = get_object_or_none(TaskAttempt, user=self.request.user,
                                                 task=task, state=TaskAttempt.STARTED)
+        ctx['users'] = task.users_who_completed_this_task
 
         # determine label for Get Started button
         if task.is_taken:

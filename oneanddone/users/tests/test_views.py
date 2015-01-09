@@ -85,6 +85,15 @@ class ProfileDetailsViewTests(TestCase):
         self.view.kwargs = {}
         self.request = Mock()
 
+    def test_get_object_existing_userid(self):
+        """ 
+        If a userid is passed in ,return that user's profile.
+        """
+        user = UserProfileFactory.create().user
+        self.view.kwargs['username'] = None
+        self.view.kwargs['id'] = user.id
+        eq_(self.view.get_object(), user.profile)
+
     def test_get_object_existing_username(self):
         """
         If an existing username is passed in, return that user's profile.
