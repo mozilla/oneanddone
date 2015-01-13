@@ -64,7 +64,7 @@ ENGAGE_ROBOTS = True
 #
 # In development, this is typically 'http://localhost:8000' or similar. In
 # production, this is typically the protocol and domain for the site.
-BROWSERID_AUDIENCES = ['http://localhost:8000']
+BROWSERID_AUDIENCES = ['http://localhost:8000', 'http://127.0.0.1:8000']
 
 # Path to lessc binary (can be `lessc` if it's already on your path).
 # This isn't used if TEMPLATE_DEBUG is True.
