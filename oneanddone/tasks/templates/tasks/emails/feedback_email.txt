@@ -5,3 +5,5 @@ The task: {{ task_name }} ({{ task_link }}) was {{ task_state }}.
 Feedback:
 
 {{ feedback }}
+
+({{ feedback_link }})
