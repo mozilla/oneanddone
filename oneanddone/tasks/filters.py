@@ -43,6 +43,14 @@ class TasksFilterSet(django_filters.FilterSet):
         label=_lazy(u'Search for tasks')
     )
 
+    difficulty = django_filters.MultipleChoiceFilter(
+        choices=(
+            (Task.BEGINNER, 'Beginner'),
+            (Task.INTERMEDIATE, 'Intermediate'),
+            (Task.ADVANCED, 'Advanced')),
+        widget=forms.CheckboxSelectMultiple,
+        label=_lazy(u'Task Difficulty'))
+
     execution_time = django_filters.MultipleChoiceFilter(
         choices=((15, 15), (30, 30), (45, 45), (60, 60)),
         widget=HorizCheckboxSelect,
@@ -69,4 +77,4 @@ class TasksFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = Task
-        fields = ('search', 'execution_time', 'team', 'project', 'type', 'keyword')
+        fields = ('search', 'difficulty', 'execution_time', 'team', 'project', 'type', 'keyword')
