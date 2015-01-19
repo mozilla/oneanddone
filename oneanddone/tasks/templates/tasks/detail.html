@@ -132,12 +132,12 @@
 
       <form method="post" action="{{ url('tasks.abandon', attempt.id) }}">
         {{ csrf() }}
-        <button type="submit" title="{{ _('Abandon this task') }}" class="button" id="abandon-task">{{ _('Abandon this task') }}</button>
+        <button type="submit" title="{{ _('Abandon this task') }}" class="button" id="abandon-task">{{ _('Abandon task') }}</button>
       </form>
 
       <form method="post" action="{{ url('tasks.finish', attempt.id) }}">
         {{ csrf() }}
-        <button type="submit" title="{{ _('Complete this task') }}" class="button" id="complete-task">{{ _('Complete this task') }}</button>
+        <button type="submit" title="{{ _('Complete this task') }}" class="button" id="complete-task">{{ _('Complete task') }}</button>
       </form>
     {% else %}
       {% if task.is_available %}
