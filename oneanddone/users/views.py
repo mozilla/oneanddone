@@ -157,19 +157,18 @@ class Verify(django_browserid.views.Verify):
         return super(Verify, self).login_failure(*args, **kwargs)
 
 
-class UserDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+class UserDetailAPI(generics.UpdateAPIView, generics.DestroyAPIView):
     """
-    API endpoint used to get, update and delete user data.
+    API endpoint used to update and delete user data.
     """
     lookup_field = 'email'
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
-class UserListAPI(generics.ListCreateAPIView):
+class UserCreateAPI(generics.CreateAPIView):
     """
-    API endpoint used to get a complete list of users
-    and create a new user.
+    API endpoint used to create a new user.
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer

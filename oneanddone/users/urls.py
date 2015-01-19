@@ -16,6 +16,6 @@ urlpatterns = patterns('',
     url(r'^profile/(?P<username>[^/\\]+)/$', views.ProfileDetailsView.as_view(), name='users.profile.details'),
 
     # API URL's for interacting with User objects
-    url(r'^api/v1/user/$', views.UserListAPI.as_view(), name='api-user'),
+    url(r'^api/v1/user/$', views.UserCreateAPI.as_view(), name='api-user'),
     url(r'^api/v1/user/(?P<email>[^/\\]+)/$', views.UserDetailAPI.as_view(), name='api-user-detail'),
 )
