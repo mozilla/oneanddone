@@ -206,16 +206,18 @@ footer {
     text-align: right;
     form {
         display: inline-block;
-        margin-left: .5rem;
         vertical-align: top;
     }
     .without-message {
         display: inline-block;
-        margin-left: .5rem;
         vertical-align: top;
         a {
-            padding-top: 7px;
-            padding-bottom: 6px;
+              line-height: 1.2;
+	    }
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+            a {
+                line-height: 1.1;
+            }
         }
     }
     .with-message {
