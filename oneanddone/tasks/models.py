@@ -358,7 +358,7 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     instructions = models.TextField()
     is_draft = models.BooleanField(verbose_name='draft')
     is_invalid = models.BooleanField(verbose_name='invalid')
-    name = models.CharField(max_length=255, verbose_name='title')
+    name = models.CharField(max_length=255, verbose_name='title', unique=True)
     prerequisites = models.TextField(blank=True)
     priority = models.IntegerField(
         choices=(
