@@ -96,6 +96,7 @@ JINGO_EXCLUDE_APPS = [
     'registration',
     'browserid',
     'memcached',
+    'rest_framework'
 ]
 
 # Accepted locales
