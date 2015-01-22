@@ -66,7 +66,7 @@ class AvailableTasksView(TaskMustBeAvailableMixin, FilterView):
     template_name = 'tasks/list.html'
     paginate_by = 10
     filterset_class = TasksFilterSet
-    
+
     def get_context_data(self, *args, **kwargs):
         ctx = super(AvailableTasksView, self).get_context_data(*args, **kwargs)
         ctx['task_list_heading'] = _('Tasks')
@@ -393,7 +393,7 @@ class UpdateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Updat
         form.save(self.request.user)
 
         messages.success(self.request, _('Your task has been updated.'))
-        return redirect('tasks.list')
+        return redirect('tasks.detail', self.get_object().id)
 
 
 class WhatsNextView(LoginRequiredMixin, generic.DetailView):
