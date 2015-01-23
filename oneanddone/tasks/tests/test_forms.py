@@ -7,7 +7,7 @@ from oneanddone.base.tests import TestCase
 from oneanddone.tasks.forms import TaskForm
 from oneanddone.tasks.models import TaskKeyword
 from oneanddone.tasks.tests import TaskFactory, TaskKeywordFactory
-from oneanddone.users.tests import UserFactory
+from oneanddone.users.tests import UserProfileFactory
 
 
 def get_filled_taskform(task, **kwargs):
@@ -27,7 +27,7 @@ def get_filled_taskform(task, **kwargs):
 class TaskFormTests(TestCase):
 
     def setUp(self):
-        self.user = UserFactory.create(is_staff=True)
+        self.user = UserProfileFactory.create(user__is_staff=True, name='Foo bar').user
         self.task = TaskFactory.create(owner=self.user)
 
     def test_form_widgets_have_expected_class(self):

@@ -53,7 +53,9 @@ class TaskForm(forms.ModelForm):
                 help_text=_('Please use commas to separate your keywords.'),
                 required=False,
                 widget=forms.TextInput(attrs={'class': 'medium-field'})))
-    owner = forms.ModelChoiceField(queryset=User.objects.filter(is_staff=True).order_by('profile__name'))
+    owner = forms.ModelChoiceField(
+        queryset=User.objects.filter(
+            is_staff=True).order_by('profile__name').exclude(profile__name=None))
     next_task = forms.ModelChoiceField(
         queryset=Task.objects.filter(Task.is_available_filter()).order_by('name'),
         required=False)
