@@ -499,7 +499,7 @@ class TaskMetricsSupportTests(TestCase):
     def test_all_attempts(self):
         eq_(len(self.task1.all_attempts), 11)
 
-    def test_incomplete_attempts(self):
+    def test_closed_attempts(self):
         eq_(len(self.task1.closed_attempts), 3)
 
     def test_closed_user_count(self):
@@ -524,7 +524,10 @@ class TaskMetricsSupportTests(TestCase):
         eq_(len(self.task1.too_short_completed_attempts), 2)
 
     def test_users_who_completed_this_task(self):
-        eq_(set(self.task1.users_who_completed_this_task), set([self.user1, self.user2]))
+        ql = self.task1.users_who_completed_this_task
+        eq_(len(ql), 2)
+        eq_(ql[0], self.user1)
+        eq_(ql[1], self.user2)
 
 
 class TaskAttemptTests(TestCase):

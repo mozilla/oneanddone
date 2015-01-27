@@ -508,9 +508,14 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
 
     @property
     def users_who_completed_this_task(self):
-        return User.objects.filter(
+        users = []
+        ql = User.objects.filter(
             taskattempt__in=TaskAttempt.objects.filter(
-                task=self.id, state=TaskAttempt.FINISHED)).distinct()
+                task=self.id, state=TaskAttempt.FINISHED)).order_by('taskattempt')
+        for user in ql:
+            if user not in users:
+                users.append(user)
+        return users
 
     def _yield_html(self, field):
         """
