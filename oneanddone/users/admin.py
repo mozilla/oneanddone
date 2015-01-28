@@ -10,11 +10,11 @@ class MyUserAdmin(UserAdmin):
     list_display = ('username', 'display_email', 'is_staff', 'is_superuser',
                     'last_login', 'date_joined')
 
-    def queryset(self, request):
+    def get_queryset(self, request):
         """
         Only return users if they have signed the privacy policy.
         """
-        qs = super(MyUserAdmin, self).queryset(request)
+        qs = super(MyUserAdmin, self).get_queryset(request)
         return qs.filter(profile__privacy_policy_accepted=True)
 
 
@@ -22,11 +22,11 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('name', 'username', 'privacy_policy_accepted', 'email')
     readonly_fields = ('user', 'name', 'username', 'email')
 
-    def queryset(self, request):
+    def get_queryset(self, request):
         """
         Only return profiles for users if they have signed the privacy policy.
         """
-        qs = super(UserProfileAdmin, self).queryset(request)
+        qs = super(UserProfileAdmin, self).get_queryset(request)
         return qs.filter(privacy_policy_accepted=True)
 
 

@@ -1,0 +1,6 @@
+.form-field-error {
+  border-color: #af3232;
+  -webkit-box-shadow: 0 0 0 2px rgba(175, 50, 50, 0.4);
+  -moz-box-shadow: 0 0 0 2px rgba(175, 50, 50, 0.4);
+  box-shadow: 0 0 0 2px rgba(175, 50, 50, 0.4);
+}

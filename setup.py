@@ -1,10 +1,8 @@
-import os
-
 from setuptools import setup, find_packages
 
 
 setup(name='oneanddone',
-      version='1.0',
+      version='2.0',
       description='Django application.',
       long_description='',
       author='',
@@ -12,6 +10,6 @@ setup(name='oneanddone',
       license='',
       url='',
       include_package_data=True,
-      classifiers = [],
+      classifiers=[],
       packages=find_packages(exclude=['tests']),
       install_requires=[])

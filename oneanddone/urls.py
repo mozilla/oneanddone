@@ -1,19 +1,12 @@
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.conf import settings
-from django.conf.urls.defaults import patterns, include
+from django.conf.urls import patterns, include
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.http import HttpResponse
 from django.shortcuts import render
 
-import funfactory.monkeypatches
-
-
-# Activate monkeypatches.
-funfactory.monkeypatches.patch()
-
+from oneanddone.base.monkeypatches import patch
+patch()
 
 # Auto-discover admin interface definitions.
 admin.autodiscover()
@@ -39,8 +32,6 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
 
     (r'', include('django_browserid.urls')),
-
-    (r'^cache/', include('django_memcached.urls')),
 
     # Generate robots.txt
     (r'^robots\.txt$',

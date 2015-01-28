@@ -5,7 +5,6 @@ import random
 import json
 
 from django.contrib.auth.models import Permission
-from django.contrib.auth.models import User
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -103,7 +102,8 @@ class APITests(APITestCase):
         self.assert_response_status(delete_response, status.HTTP_204_NO_CONTENT)
 
         # Verify that the user has been deleted
-        eq_(User.objects.filter(username=test_user.username).count(), 0)
+        get_response = self.client.get(user_uri)
+        self.assert_response_status(get_response, status.HTTP_404_NOT_FOUND)
 
     def test_forbidden_client(self):
         """
@@ -120,6 +120,24 @@ class APITests(APITestCase):
         # Make a DELETE request
         delete_response = self.client.delete(user_uri)
         self.assert_response_status(delete_response, status.HTTP_403_FORBIDDEN)
+
+    def test_get_user_details(self):
+        """
+        Test GET details of a user with particular email for authenticated user
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        test_user = UserFactory.create()
+        user_uri = self.uri + test_user.email + '/'
+        response = self.client.get(user_uri)
+        self.assert_response_status(response, status.HTTP_200_OK)
+
+    def test_get_user_list(self):
+        """
+        Test GET user list for authenticated user
+        """
+        header = {'HTTP_AUTHORIZATION': 'Token {}'.format(self.token)}
+        response = self.client.get(reverse('api-user'), {}, **header)
+        self.assert_response_status(response, status.HTTP_200_OK)
 
     def test_unauthenticated_client(self):
         """

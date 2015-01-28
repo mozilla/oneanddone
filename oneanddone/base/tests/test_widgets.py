@@ -5,7 +5,6 @@ from django.forms import ValidationError
 
 from mock import Mock, patch
 from nose.tools import eq_
-import requests
 
 from oneanddone.base.tests import TestCase
 from oneanddone.base.widgets import MyURLField

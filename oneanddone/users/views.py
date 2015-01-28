@@ -12,11 +12,11 @@ from django.views import generic
 from rest_framework import generics
 from braces.views import LoginRequiredMixin
 import django_browserid.views
-from funfactory.urlresolvers import reverse_lazy
 from tower import ugettext as _
 from random import randint
 import re
 
+from oneanddone.base.urlresolvers import reverse_lazy
 from oneanddone.tasks.models import TaskAttempt
 from oneanddone.users.forms import UserProfileForm, SignUpForm
 from oneanddone.users.mixins import UserProfileRequiredMixin
@@ -157,18 +157,19 @@ class Verify(django_browserid.views.Verify):
         return super(Verify, self).login_failure(*args, **kwargs)
 
 
-class UserDetailAPI(generics.UpdateAPIView, generics.DestroyAPIView):
+class UserDetailAPI(generics.RetrieveUpdateDestroyAPIView):
     """
-    API endpoint used to update and delete user data.
+    API endpoint used to get, update and delete user data.
     """
     lookup_field = 'email'
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
-class UserCreateAPI(generics.CreateAPIView):
+class UserListAPI(generics.ListCreateAPIView):
     """
-    API endpoint used to create a new user.
+    API endpoint used to get a complete list of users
+    and create a new user.
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
