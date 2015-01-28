@@ -12,6 +12,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Avg, Count, F, Q
 from django.utils import timezone
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 import bleach
 import jinja2
@@ -34,6 +35,8 @@ class BugzillaBug(models.Model):
 class Feedback(CachedModel, CreatedModifiedModel):
     attempt = models.OneToOneField('TaskAttempt')
     text = models.TextField()
+    time_spent_in_minutes = models.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(99999)], blank=True, null=True)
 
     def __unicode__(self):
         return u'Feedback: {user} for {task}'.format(
@@ -68,6 +71,12 @@ class TaskAttempt(CachedModel, CreatedModifiedModel):
         start_seconds = time.mktime(self.created.timetuple())
         end_seconds = time.mktime(self.modified.timetuple())
         return round((end_seconds - start_seconds) / 60, 1)
+
+    @property
+    def time_spent_in_minutes(self):
+        if self.has_feedback:
+            return self.feedback.time_spent_in_minutes
+        return None
 
     @property
     def feedback_display(self):
@@ -501,7 +510,7 @@ class Task(CachedModel, CreatedModifiedModel, CreatedByModel):
     def users_who_completed_this_task(self):
         return User.objects.filter(
             taskattempt__in=TaskAttempt.objects.filter(
-               task=self.id, state=TaskAttempt.FINISHED)).distinct()
+                task=self.id, state=TaskAttempt.FINISHED)).distinct()
 
     def _yield_html(self, field):
         """

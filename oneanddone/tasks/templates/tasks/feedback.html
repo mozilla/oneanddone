@@ -33,9 +33,19 @@
 
   <form method="post" class="feedback-form">
     {{ csrf() }}
-    {{ form.as_p() }}
-    <a href="{{ url('tasks.whats_next', attempt.task.id) }}" class="no-feedback">{{ _('No, thanks.') }}</a>
-    <button type="submit" class="button">{{ _('Submit feedback') }}</button>
+    <p>
+      {{ form.text }}
+      {{ form.text.errors }}
+    </p>
+    <p>
+      {{ form.time_spent_in_minutes.label }}
+      {{ form.time_spent_in_minutes}}
+      {{ form.time_spent_in_minutes.errors }}
+    </p>
+    <div class="right">
+      <a href="{{ url('tasks.whats_next', attempt.task.id) }}" class="no-feedback">{{ _('No, thanks.') }}</a>
+      <button type="submit" class="button">{{ _('Submit feedback') }}</button>
+    </div>
   </form>
 </main>
 {% endblock %}

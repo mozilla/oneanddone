@@ -66,7 +66,7 @@ class AvailableTasksView(TaskMustBeAvailableMixin, FilterView):
     template_name = 'tasks/list.html'
     paginate_by = 10
     filterset_class = TasksFilterSet
-    
+
     def get_context_data(self, *args, **kwargs):
         ctx = super(AvailableTasksView, self).get_context_data(*args, **kwargs)
         ctx['task_list_heading'] = _('Tasks')
@@ -109,7 +109,8 @@ class CreateFeedbackView(LoginRequiredMixin, PrivacyPolicyRequiredMixin,
             'task_link': task_link,
             'task_state': feedback.attempt.get_state_display(),
             'feedback': feedback.text,
-            'feedback_link': feedback_link})
+            'feedback_link': feedback_link,
+            'time_spent_on_task': feedback.time_spent_in_minutes})
 
         # Manually replace quotes and double-quotes as these get
         # escaped by the template and this makes the message look bad.

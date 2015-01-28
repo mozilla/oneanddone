@@ -25,9 +25,12 @@ class BaseTaskInvalidCriteriaFormSet(forms.formsets.BaseFormSet):
 
 
 class FeedbackForm(forms.ModelForm):
+    time_spent_in_minutes = forms.IntegerField(
+        label=_(' How many minutes did you spend on the task?'))
+
     class Meta:
         model = Feedback
-        fields = ('text',)
+        fields = ('text', 'time_spent_in_minutes')
 
 
 class PreviewConfirmationForm(forms.Form):

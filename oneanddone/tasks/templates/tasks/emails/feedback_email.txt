@@ -7,3 +7,6 @@ Feedback:
 {{ feedback }}
 
 ({{ feedback_link }})
+
+Time spent on the task: {{ time_spent_on_task }}m
+
