@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.core.urlresolvers import reverse
+from django.http import HttpRequest
 
 from mock import Mock, patch
 from nose.tools import eq_, ok_, assert_dict_contains_subset
@@ -104,7 +105,9 @@ class StartTaskViewTests(TestCase):
         profile detail page.
         """
         attempt = TaskAttemptFactory.create()
-        self.view.request = Mock(user=attempt.user)
+        self.view.request = Mock(spec=HttpRequest,
+                                 _messages=Mock(),
+                                 user=attempt.user)
 
         with patch('oneanddone.tasks.views.redirect') as redirect:
             eq_(self.view.post(), redirect.return_value)
@@ -119,7 +122,9 @@ class StartTaskViewTests(TestCase):
         self.task.is_draft = True
         self.task.save()
         user = UserFactory.create()
-        self.view.request = Mock(user=user)
+        self.view.request = Mock(spec=HttpRequest,
+                                 _messages=Mock(),
+                                 user=user)
 
         with patch('oneanddone.tasks.views.redirect') as redirect:
             eq_(self.view.post(), redirect.return_value)

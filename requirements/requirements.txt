@@ -134,6 +134,12 @@ fancy-tag==0.2.0
 # sha256: rxL5lFTolenkMMdXI8O5QZwLzNDqd4A2YtaprFb2Qls
 py-bcrypt==0.3
 
+# sha256: 1wEkmeUt5aRBPiKu1R34lIUzaFRS3-FrQQAfKPnOWxw
+factory-boy==2.4.1
+
+# sha256: uDndLZwRfHAUMMFJlWkYpCOphjtIsJyQ4wpgE-fS9E8
+mock==1.0.1
+
 # Requirements tied to specific commits
 # sha256: dl9O1PvKLw0OAH7JFDAdBJF1_-OMBMyyfgjkojAd8Zs
 https://github.com/jsocol/jingo-minify/archive/2beb546949ed2cb4eb866bab6dd643047d803a95.zip#egg=jingo-minify
@@ -158,3 +164,6 @@ https://github.com/jbalogh/django-multidb-router/archive/f6ff9379eef9dceffbb7bfd
 
 # sha256: uUMeohGZBz7HGJQTjybYoIOh0XNpND3isezYVNLIYV0
 https://github.com/jbalogh/jingo/archive/fce09043542e71d972cc97d2ae703740741f80d0.zip#egg=jingo
+
+# sha256: i8pS00-rg-P2l9AuFWJb12bqLJL7FVXGYFfsElkMwZ0
+https://github.com/jbalogh/test-utils/archive/e42e031d31ea63d593e47d564545149a0f30b95f.zip#egg=test-utils

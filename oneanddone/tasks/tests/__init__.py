@@ -60,7 +60,7 @@ class TaskFactory(DjangoModelFactory):
     name = Sequence(lambda n: 'test{0}'.format(n))
     short_description = Sequence(lambda n: 'test_description{0}'.format(n))
     instructions = Sequence(lambda n: 'test_instructions{0}'.format(n))
-    execution_time = fuzzy.FuzzyChoice((15, 30, 45, 60))
+    execution_time = fuzzy.FuzzyChoice((15, 30, 45))
     is_draft = False
     is_invalid = False
     creator = SubFactory(UserFactory)
@@ -92,7 +92,7 @@ class ValidTaskAttemptFactory(TaskAttemptFactory):
         """Override the default ``_create`` with our custom call."""
         manager = cls._get_manager(target_class)
 
-        if cls.FACTORY_DJANGO_GET_OR_CREATE:
+        if cls._meta.django_get_or_create:
             attempt = cls._get_or_create(target_class, *args, **kwargs)
         else:
             attempt = manager.create(*args, **kwargs)
