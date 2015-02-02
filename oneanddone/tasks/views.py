@@ -397,7 +397,7 @@ class UpdateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Updat
         form.save(self.request.user)
 
         messages.success(self.request, _('Your task has been updated.'))
-        return redirect('tasks.list')
+        return redirect('tasks.detail', self.get_object().id)
 
 
 class WhatsNextView(LoginRequiredMixin, generic.DetailView):
