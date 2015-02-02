@@ -24,6 +24,11 @@
           <div>{{ _("Team: {team}")|fe(team=attempt.task.team.name) }}</div>
           <div>{{ _('Date {state}: {modified}')|fe(state=attempt.get_state_display(),
             modified=attempt.modified.strftime('%Y-%m-%d: %I:%M:%S %p').lower()) }}</div>
+          {% if attempt.time_spent_in_minutes %}
+            <div>
+              {{ _("Time spent in minutes: {time}")|fe(time=attempt.time_spent_in_minutes) }}m
+            </div>
+          {% endif %}
           <div class="feedback{% if not attempt.has_feedback %} no-feedback{% endif %}">
             {{ attempt.feedback_display }}
           </div>
