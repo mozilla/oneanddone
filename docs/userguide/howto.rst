@@ -26,12 +26,12 @@ for new contributors. Available Tasks features all possible tasks, sorted by
 difficulty.
 
 From here you have a few options:
-    #. Explore! Click on the name of any task that sounds interesting, and read
+    * Explore! Click on the name of any task that sounds interesting, and read
     all about it on the Task Detail page.
-    #. Search. Add words in the Search Box that match your interests or skills.
+    * Search. Add words in the Search Box that match your interests or skills.
     The search feature will bring up matching tasks based on the name, the
     content, tags, product names, etc.
-    #. Filter. Select one or more checkboxes from the Filter by Area sidebar.
+    * Filter. Select one or more checkboxes from the Filter by Area sidebar.
     You may filter by team name, by product, or by the type of task you are
     interested in. Click the "Filter tasks" button when you are ready to see the
     results. If no results appear, try running it with different choices.
@@ -45,7 +45,6 @@ You have found a task you would like to try, so what is next?
 
 Steps
 ^^^^^
-    #. Begin by finding a task you would like to try.
     #. Click the linked name of the task so you can view the task detail page.
     An example would be Exploratory Testing on Mozillians
     [https://oneanddone.mozilla.org/en-US/tasks/10/].
