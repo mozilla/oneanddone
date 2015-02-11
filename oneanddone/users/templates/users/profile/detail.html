@@ -11,11 +11,16 @@
   <h1 id="user-profile-name">
     {{ _("<span>{name}</span>'s Profile")|fe(name=userprofile.name) }}
   </h1>
-{% if userprofile.personal_url %}
-  <h4 id ="user-profile-url">
- {{ _('Personal URL:') }} <a href="{{userprofile.personal_url }}" target="_blank"><span>{{ userprofile.personal_url }}</span></a>
- </h4>
-{% endif %}
+  {% if userprofile.personal_url %}
+    <h4 id ="user-profile-url">
+      {{ _('Personal URL:') }} <a href="{{ userprofile.personal_url }}" target="_blank"><span>{{ userprofile.personal_url }}</span></a>
+    </h4>
+  {% endif %}
+  {% if userprofile.bugzilla_email %}
+    <h4 id ="bugzilla-email">
+      {{ _('Bugzilla Email:') }} <a href="{{ userprofile.bugzilla_url }}" target="_blank"><span>{{ userprofile.bugzilla_email }}</span></a>
+    </h4>
+  {% endif %}
   {% if userprofile.user == user %}
     {% include 'base/dashboard.html' %}
   {% endif %}

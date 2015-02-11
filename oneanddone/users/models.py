@@ -107,6 +107,15 @@ class UserProfile(models.Model):
     privacy_policy_accepted = models.BooleanField(default=False)
     username = models.CharField(_lazy(u'Username'), max_length=30, unique=True, null=True)
     personal_url = models.URLField(blank=True, null=True, max_length=200)
+    bugzilla_email = models.EmailField(blank=True, null=True)
+
+    @property
+    def bugzilla_url(self):
+        if self.bugzilla_email:
+            activity_url = 'https://bugzilla.mozilla.org/page.cgi?'\
+                'id=user_activity.html&action=run&from=-14d&who=%s' % (self.bugzilla_email)
+            return activity_url
+        return None
 
     @property
     def email(self):

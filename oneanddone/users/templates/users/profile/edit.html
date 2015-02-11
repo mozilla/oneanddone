@@ -25,7 +25,12 @@
     <p>
     {{ form.personal_url.label }}
     {{ form.personal_url }}
-    </p>	
+    </p>
+    <p>
+      {{ form.bugzilla_email.label }}
+      {{ form.bugzilla_email }}
+      {{ form.bugzilla_email.errors }}
+    </p>
     {% if form.consent_to_email %}
       <p>
       {{ form.consent_to_email }}
