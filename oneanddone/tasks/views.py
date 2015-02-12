@@ -149,10 +149,10 @@ class CreateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Creat
         return ctx
 
     def form_valid(self, form):
-        form.save(self.request.user)
+        task = form.save(self.request.user)
 
         messages.success(self.request, _('Your task has been created.'))
-        return redirect('tasks.list')
+        return redirect('tasks.detail', task.id)
 
 
 class ImportTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.TemplateView):
