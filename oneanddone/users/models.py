@@ -89,7 +89,7 @@ User.add_to_class('users_with_valid_completed_attempt_counts',
 
 def user_has_completed_task(self, task):
     """Has the user completed the specified task?"""
-    return self.taskattempt_set.filter(task=task).exists()
+    return self.taskattempt_set.filter(task=task, state=TaskAttempt.FINISHED).exists()
 User.add_to_class('has_completed_task', user_has_completed_task)
 
 
