@@ -1,7 +1,7 @@
 # Adding peep so we can track it on requires.io. For packages
 # installation we use peep.py shipped in ./bin
-# sha256: D3VN0_wgThq7_XnEfyVZXFqU0kfOWuUrsmmZWqLnmTM
-peep==2.1
+# sha256: 4bmcawK_tCp_yJB624zuXkZLRPiAM1kSArLlYFTjZQU
+peep==2.4
 
 # sha256: QW014kelmSc9QP0Bp8pIJmbr2UZ7lYUsqUpV3bzxDuA
 # sha256: 49SRYStWkFJZgEtdIpJhJr7ZoMKoMXSFgrhQUAkgs3A
@@ -96,9 +96,11 @@ MySQL-python==1.2.5
 django-ace==1.0.2
 
 # sha256: OV37hPc_reMsCh_JRr2dSkmP_zxQWpEbJsuY3vF4cDs
+# sha256: U2oNq2KzDFQWWxkblbx6hL5b-QH3tD-fv1ZVrS_PSp4
 django-braces==1.4.0
 
 # sha256: G-VKDAhWZhNTQRlZRnkQnibuG3Pj4uQCBoL8WxWNc5M
+# sha256: JeEXgXLGQWwA4JSzsaNo0-Fv58a-A2gHSqyZlAGKg6k
 djangorestframework==2.3.10
 
 # sha256: KE6X5W25raA-3pwO0ocMplkM54afMRkQTVNRDevxUz0
@@ -111,9 +113,11 @@ python-memcached==1.53
 django-browserid==0.11.1
 
 # sha256: pW8UU2y7fX5GbSmQsXL2gaBdfpRNAoEazBHazqu8yzw
+# sha256: GnvU61NePCzyYdlVhUvc9L8HyOpXWSgBJz0BMujbAEc
 django-filter==0.9.1
 
 # sha256: HwRtz17HEu076GhLnzPJW3bijNHIJdsPXhVXv9h7N0U
+# sha256: e3c179Ox4jI9yfzvBgs4DQX18YvQ8kf16edKYoJ53mY
 requests==2.5.1
 
 # sha256: nwLQNXGE3h8JPBABK1LnRUoQCL5qXBhat6Mwes6x0S4
@@ -123,6 +127,7 @@ Babel==1.3
 html5lib==0.999
 
 # sha256: QYqTw5en7asj5ViNvAZ6x0pyPts9VBvUk295R252Rdo
+# sha256: 4kBSQR_E-9H2cmNVN8P8IzDZSBsYwDF2lbRiWVEskdU
 six==1.9.0
 
 # sha256: sGqGRRqZ1sJr-mUIKZnb9ljgh-WW6SkszmiLU-q6qto
@@ -139,6 +144,9 @@ factory-boy==2.4.1
 
 # sha256: uDndLZwRfHAUMMFJlWkYpCOphjtIsJyQ4wpgE-fS9E8
 mock==1.0.1
+
+# sha256: A3VLx7JWOXwbZG5QSOIpFZD1CAFxrbiwD04tc4THbu4
+GitPython==0.1.7
 
 # Requirements tied to specific commits
 # sha256: dl9O1PvKLw0OAH7JFDAdBJF1_-OMBMyyfgjkojAd8Zs
