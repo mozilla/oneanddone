@@ -13,8 +13,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'oneanddone.settings')
 from django.conf import settings
 from django.core.wsgi import get_wsgi_application
 
-import newrelic
-from decouple import config
+import newrelic.agent
 from whitenoise.django import DjangoWhiteNoise
 
 application = get_wsgi_application()
@@ -25,8 +24,8 @@ if settings.MEDIA_ROOT and settings.MEDIA_URL:
     application.add_files(settings.MEDIA_ROOT, prefix=settings.MEDIA_URL)
 
 # Add NewRelic
-newrelic_ini = config('NEW_RELIC_CONFIG_FILE', default='newrelic.ini')
-newrelic_license_key = config('NEW_RELIC_LICENSE_KEY', default=None)
-if newrelic_ini and newrelic_license_key:
-    newrelic.agent.initialize(newrelic_ini)
+NEW_RELIC_LICENSE_KEY = os.environ.get('NEW_RELIC_LICENSE_KEY', False)
+NEW_RELIC_APP_NAME = os.environ.get('NEW_RELIC_APP_NAME', False)
+if NEW_RELIC_LICENSE_KEY and NEW_RELIC_APP_NAME:
+    newrelic.agent.initialize()
     application = newrelic.agent.wsgi_application()(application)

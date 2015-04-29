@@ -9,6 +9,10 @@ fi
 python manage.py collectstatic
 python manage.py compress_assets
 
+# copy stackato .env file
+cp .env .env.saved
+cp .env.stackato .env
+
 echo "Do you want to deploy to Dev, Stage or Prod?"
 select env in "Dev" "Stage" "Prod"; do
     case $env in
@@ -38,5 +42,8 @@ select yn in "Yes" "No"; do
 done
 
 $STACKATO_EXECUTABLE push
+
+# copy back .env file
+cp .env.saved .env
 
 cp stackato-plain.yml stackato.yml

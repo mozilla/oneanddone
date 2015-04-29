@@ -135,13 +135,13 @@ LOCALE_PATHS = (
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 DEV = config('DEV', default=DEBUG, cast=bool)
 
 TEMPLATE_DEBUG = config('DEBUG', default=DEBUG, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
 
 ROOT_URLCONF = 'oneanddone.urls'
 

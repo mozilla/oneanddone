@@ -44,7 +44,7 @@ ENGAGE_ROBOTS = True
 
 # Uncomment this line if you are running a local development install without
 # HTTPS to disable HTTPS-only cookies.
-SESSION_COOKIE_SECURE = False
+# SESSION_COOKIE_SECURE = False
 
 # django-browserid requires you to specify audiences that are valid for your
 # site. An audience is a protocol + hosename + port that users will use to
