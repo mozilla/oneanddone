@@ -1,108 +1,17 @@
 # This is an example settings/local.py file.
 # These settings overrides what's in settings/base.py
 
+import base
+
 # To extend any settings from settings/base.py here's an example:
 # INSTALLED_APPS = base.INSTALLED_APPS + ['debug_toolbar']
 
-from . import base
-
-
-# Database
+# Caching
 ##############################################################################
 
-DATABASES = {
+CACHES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'oneanddone',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-        'OPTIONS': {
-            'init_command': 'SET storage_engine=InnoDB',
-            'charset' : 'utf8',
-            'use_unicode' : True,
-        },
-        'TEST_CHARSET': 'utf8',
-        'TEST_COLLATION': 'utf8_general_ci',
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'TIMEOUT': 60,
     },
-    # 'slave': {
-    # ...
-    # },
 }
-
-# Uncomment this and set to all slave DBs in use on the site.
-# SLAVE_DATABASES = ['slave']
-
-
-# Environment-specific Settings
-##############################################################################
-
-# Debugging displays nice error messages, but leaks memory. Set this to False
-# on all server instances and True only for development.
-DEBUG = TEMPLATE_DEBUG = True
-
-# Is this a development instance? Set this to True on development/master
-# instances and False on stage/prod.
-DEV = True
-
-# Time zone for the current installation. Default is America/Chicago. See
-# http://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of
-# valid timezone values.
-#TIME_ZONE = 'America/New_York'
-
-# Should robots.txt allow web crawlers? Set this to True for production
-ENGAGE_ROBOTS = True
-
-# Uncomment this line if you are running a local development install without
-# HTTPS to disable HTTPS-only cookies.
-# SESSION_COOKIE_SECURE = False
-
-# django-browserid requires you to specify audiences that are valid for your
-# site. An audience is a protocol + hosename + port that users will use to
-# access your site.
-#
-# In development, this is typically 'http://localhost:8000' or similar. In
-# production, this is typically the protocol and domain for the site.
-BROWSERID_AUDIENCES = ['http://localhost:8000', 'http://127.0.0.1:8000']
-
-# Path to lessc binary (can be `lessc` if it's already on your path).
-# This isn't used if TEMPLATE_DEBUG is True.
-LESS_BIN = 'lessc'
-
-
-# Error Reporting
-##############################################################################
-
-# Recipients of traceback emails and other notifications.
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
-MANAGERS = ADMINS
-
-
-# Security
-##############################################################################
-
-# Playdoh ships with Bcrypt+HMAC by default because it's the most secure.
-# To use bcrypt, fill in a secret HMAC key. It cannot be blank.
-HMAC_KEYS = {
-    #'2012-06-06': 'some secret',
-}
-
-from django_sha2 import get_password_hashers
-PASSWORD_HASHERS = get_password_hashers(base.BASE_PASSWORD_HASHERS, HMAC_KEYS)
-
-# Make this unique, and don't share it with anybody. It cannot be blank.
-SECRET_KEY = ''
-
-
-# Logging
-##############################################################################
-
-# SYSLOG_TAG = "oneanddone_app"
-# LOGGING = dict(loggers=dict(playdoh={'level': logging.DEBUG}))
-
-# Common Event Format logging parameters
-#CEF_PRODUCT = 'Playdoh'
-#CEF_VENDOR = 'Mozilla'
