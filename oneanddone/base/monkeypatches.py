@@ -23,9 +23,6 @@ def patch():
     import session_csrf
     session_csrf.monkeypatch()
 
-    from jingo import load_helpers
-    load_helpers()
-
     logging.debug("Note: monkey patches executed in %s" % __file__)
 
     # Prevent it from being run again later.

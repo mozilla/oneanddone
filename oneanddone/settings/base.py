@@ -61,9 +61,6 @@ INSTALLED_APPS = [
     'session_csrf',
 ]
 
-for app in config('EXTRA_APPS', default='', cast=Csv()):
-    INSTALLED_APPS.append(app)
-
 MIDDLEWARE_CLASSES = (
     'oneanddone.base.middleware.LocaleURLMiddleware',
     'multidb.middleware.PinningRouterMiddleware',
@@ -116,8 +113,9 @@ BASE_PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.MD5PasswordHasher',
     'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
 )
-HMAC_KEYS = {  # for bcrypt only
-    # '2012-06-06': 'cheesecake',
+
+HMAC_KEYS = {
+    '2015-04-30': config('HMAC_KEY'),
 }
 
 from django_sha2 import get_password_hashers
