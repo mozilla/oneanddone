@@ -115,25 +115,19 @@ BASE_PASSWORD_HASHERS = (
 )
 
 HMAC_KEYS = {
-    '2015-04-30': config('HMAC_KEY'),
+    '2015-04-30': config('DJANGO_HMAC_KEY'),
 }
 
 from django_sha2 import get_password_hashers
 PASSWORD_HASHERS = get_password_hashers(BASE_PASSWORD_HASHERS, HMAC_KEYS)
 
+SECRET_KEY = config('DJANGO_SECRET_KEY')
+
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 
 DEV = config('DEV', default=DEBUG, cast=bool)
 
@@ -145,6 +139,10 @@ ROOT_URLCONF = 'oneanddone.urls'
 
 WSGI_APPLICATION = 'oneanddone.wsgi.application'
 
+# Email
+
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+SERVER_EMAIL = config('SERVER_EMAIL', default='root@localhost')
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
@@ -165,7 +163,7 @@ DATABASE_ROUTERS = ('multidb.PinningMasterSlaveRouter',)
 
 LANGUAGE_CODE = config('LANGUAGE_CODE', default='en-us')
 
-TIME_ZONE = config('TIME_ZONE', default='UTC')
+TIME_ZONE = config('DJANGO_TIME_ZONE', default='America/New_York')
 
 USE_I18N = config('USE_I18N', default=True, cast=bool)
 
@@ -314,7 +312,7 @@ JAVA_BIN = '/usr/bin/java'
 
 # Do not preprocess LESS files.
 LESS_PREPROCESS = False
-LESS_BIN = 'lessc'
+LESS_BIN = config('LESSC_BIN', default='lessc')
 
 # Testing configuration.
 NOSE_ARGS = ['--logging-clear-handlers', '--logging-filter=-factory,-south']
@@ -322,7 +320,7 @@ NOSE_ARGS = ['--logging-clear-handlers', '--logging-filter=-factory,-south']
 # Should robots.txt deny everything or disallow a calculated list of URLs we
 # don't want to be crawled?  Default is false, disallow everything.
 # Also see http://www.google.com/support/webmasters/bin/answer.py?answer=93710
-ENGAGE_ROBOTS = False
+ENGAGE_ROBOTS = True
 
 # Always generate a CSRF token for anonymous users.
 ANON_ALWAYS = True
@@ -340,6 +338,15 @@ DOMAIN_METHODS = {
     ],
 }
 
+# Error Reporting
+##############################################################################
+
+# Recipients of traceback emails and other notifications.
+ADMINS = (
+    ('One and Done Admin', config('DJANGO_ADMIN_EMAIL', default='')),
+)
+MANAGERS = ADMINS
+
 
 # Authentication settings.
 BROWSERID_VERIFY_CLASS = 'oneanddone.users.views.Verify'
@@ -347,6 +354,10 @@ LOGIN_URL = reverse_lazy('users.login')
 LOGIN_REDIRECT_URL = reverse_lazy('base.home')
 LOGIN_REDIRECT_URL_FAILURE = reverse_lazy('users.login')
 LOGOUT_REDIRECT_URL = reverse_lazy('base.home')
+
+BROWSERID_AUDIENCES = config('BROWSERID_AUDIENCE',
+                             default='http://localhost:8000, http://127.0.0.1:8000',
+                             cast=Csv())
 
 # Paths that don't require a locale code in the URL.
 SUPPORTED_NONLOCALES = ['media', 'static', 'admin', 'api', 'browserid']
@@ -447,4 +458,4 @@ INSTRUCTIONS_ALLOWED_ATTRIBUTES = {
 }
 
 # Google Analytics ID
-GOOGLE_ANALYTICS_ID = ''
+GOOGLE_ANALYTICS_ID = config('GOOGLE_ANALYTICS_ID', default='')

@@ -7,5 +7,5 @@ before_script:
 install:
   - pip install -r requirements/requirements.txt
 env:
-  - DEBUG=False SECRET_KEY='FOO' ALLOWED_HOSTS=localhost, DATABASE_URL=mysql://root:@localhost:3306/oneanddone
+  - DJANGO_DEBUG=False DJANGO_SECRET_KEY='FOO' DJANGO_HMAC_KEY='FOO' ALLOWED_HOSTS=localhost, DATABASE_URL=mysql://root:@localhost:3306/oneanddone
 script: python manage.py test
