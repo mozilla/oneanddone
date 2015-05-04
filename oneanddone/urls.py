@@ -37,7 +37,7 @@ urlpatterns = patterns('',
     (r'^robots\.txt$',
         lambda r: HttpResponse(
             'User-agent: *\n{0}: /'.format('Allow' if settings.ENGAGE_ROBOTS else 'Disallow'),
-            mimetype='text/plain'
+            content_type='text/plain'
         )
     )
 )
