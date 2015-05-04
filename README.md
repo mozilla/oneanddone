@@ -125,7 +125,7 @@ run the following:
    $ ./manage.py migrate oneanddone.tasks && ./manage.py migrate oneanddone.users
    ```
 
-If you make changes to an existing model, say `oneanddone.tasks`, you will need to regeneratre the schema migration as follows:
+If you make changes to an existing model, say `oneanddone.tasks`, you will need to regenerate the schema migration as follows:
 
    ```sh
    $ ./manage.py schemamigration oneanddone.tasks --auto
@@ -168,7 +168,7 @@ You can run all the unit tests in verbose mode as follows:
 ```sh
 $ python manage.py test -v 2
 ```
-You can also run spefic tests:
+You can also run specific tests:
 ```sh
 # All tests in tasks/tests/test_helpers module.
 $ python manage.py test oneanddone.tasks.tests.test_helpers -v 2
@@ -182,8 +182,8 @@ REST API Support
 There is a REST API support which enables:
 
 * Getting complete list of Tasks.
-* Getting detail about a Task with particular id.
-* Create and Delete Tasks with particular id.
+* Getting details about a Task with a particular id.
+* Create and Delete Tasks with a particular id.
 The Task queries can be made by appending `api/v1/task/` to the base url.
 
 GET and DELETE queries example.
@@ -193,9 +193,9 @@ curl -X GET http://127.0.0.1:8000/api/v1/task/1/ -H 'Authorization: Token d81e33
 curl -X DELETE http://127.0.0.1:8000/api/v1/task/1/ -H 'Authorization: Token d81e33c57b2d9471f4d6849bab3cb233b3b30468'
 ```
 
-* Getting complete list of Users.
-* Getting details about a User with particular email.
-* Create and Delete Users with with particular email.
+* Getting a complete list of Users.
+* Getting details about a User with a particular email.
+* Create and Delete Users with a particular email.
 The User queries can be made by appending `api/v1/user/` to the base url.
 
 GET and DELETE queries example.
@@ -207,7 +207,7 @@ curl -X DELETE http://127.0.0.1:8000/api/v1/user/testuser@testmail.com/ -H 'Auth
 
 #### The API uses a Token Authentication system.
 
-Token used in examples above is just a sample and actual Tokens can be generated from the admin pannel by going to `Authtoken > Tokens`.
+Token used in examples above is just a sample and actual Tokens can be generated from the admin panel by going to `Authtoken > Tokens`.
 
 
 Functional Tests
