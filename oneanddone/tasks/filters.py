@@ -16,7 +16,7 @@ class ActivityFilterSet(django_filters.FilterSet):
 
     task__owner = django_filters.ModelChoiceFilter(
         label=_lazy(u'Task Owner'),
-        queryset=User.objects.filter(task__isnull=False).distinct().order_by('profile__name'))
+        queryset=User.objects.filter(is_staff=True).order_by('profile__name'))
 
     task__team = django_filters.ModelChoiceFilter(
         label=_lazy(u'Team'),
@@ -42,14 +42,6 @@ class TasksFilterSet(django_filters.FilterSet):
          'prerequisites', 'instructions', 'keyword_set__name'],
         label=_lazy(u'Search for tasks')
     )
-
-    difficulty = django_filters.MultipleChoiceFilter(
-        choices=(
-            (Task.BEGINNER, 'Beginner'),
-            (Task.INTERMEDIATE, 'Intermediate'),
-            (Task.ADVANCED, 'Advanced')),
-        widget=forms.CheckboxSelectMultiple,
-        label=_lazy(u'Task Difficulty'))
 
     execution_time = django_filters.MultipleChoiceFilter(
         choices=((15, 15), (30, 30), (45, 45), (60, 60)),
@@ -77,4 +69,4 @@ class TasksFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = Task
-        fields = ('search', 'difficulty', 'execution_time', 'team', 'project', 'type', 'keyword')
+        fields = ('search', 'execution_time', 'team', 'project', 'type', 'keyword')

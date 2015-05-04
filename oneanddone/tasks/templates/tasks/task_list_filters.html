@@ -6,14 +6,8 @@
       <fieldset>
         <legend class="visually-hidden">{{ _('Select filters below to filter tasks.') }}</legend>
         <p>
-          <div title ="{{ _('Filter on task name, description, or keywords.') }}">
           {{ filter.form['search'].label_tag() }}
           {{ filter.form['search'] }}
-          </div>
-        </p>
-        <p>
-          {{ filter.form['difficulty'].label_tag() }}
-          {{ filter.form['difficulty'] }}
         </p>
         <p>
           {{ filter.form['execution_time'].label_tag() }}

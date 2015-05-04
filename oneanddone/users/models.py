@@ -9,10 +9,8 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Count, F
 
-from caching.base import CachingManager, CachingMixin
 from tower import ugettext_lazy as _lazy
 
-from oneanddone.base.models import CachedModel
 from oneanddone.tasks.models import TaskAttempt
 
 
@@ -93,18 +91,15 @@ def user_has_completed_task(self, task):
 User.add_to_class('has_completed_task', user_has_completed_task)
 
 
-class OneAndDoneUserManager(CachingManager, UserManager):
+class OneAndDoneUserManager(UserManager):
     # UserManager that prefetches user profiles when getting users.
-    def get_query_set(self):
-        return super(OneAndDoneUserManager, self).get_query_set().prefetch_related('profile')
+    def get_queryset(self):
+        return super(OneAndDoneUserManager, self).get_queryset().prefetch_related('profile')
         # Note: changed this from select_related to prefetch_related due to https://code.djangoproject.com/ticket/15040
 User.add_to_class('objects', OneAndDoneUserManager())
 
-# Add CachingMixin to User's base classes so that it can be cached.
-User.__bases__ = (CachingMixin,) + User.__bases__
 
-
-class UserProfile(CachedModel, models.Model):
+class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile')
 
     consent_to_email = models.BooleanField(default=True)

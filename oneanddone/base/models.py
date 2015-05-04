@@ -4,8 +4,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-import caching.base
-
 
 class BaseModel(models.Model):
     """
@@ -23,17 +21,6 @@ class BaseModel(models.Model):
             exp += "WHEN %s THEN '%s' " % (choice[0], choice[1])
         exp += "END"
         return exp
-
-
-class CachedModel(caching.base.CachingMixin, models.Model):
-    """
-    Base class for models which adds caching via django-cache-machine.
-    """
-
-    objects = caching.base.CachingManager()
-
-    class Meta:
-        abstract = True
 
 
 class CreatedByModel(models.Model):

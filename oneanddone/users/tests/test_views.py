@@ -86,7 +86,7 @@ class ProfileDetailsViewTests(TestCase):
         self.request = Mock()
 
     def test_get_object_existing_userid(self):
-        """ 
+        """
         If a userid is passed in ,return that user's profile.
         """
         user = UserProfileFactory.create().user
