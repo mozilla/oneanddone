@@ -145,13 +145,6 @@
           <a href="{{ url('users.login')|urlparams(next=request.path) }}"
              class="button{% if gs_button_disabled %} insensitive" disabled="disabled{% endif %}"
              id="get-started">{{ gs_button_label }}</a>
-        {% elif user.attempts_in_progress.exists() %}
-          <div class="with-message">
-            <button class="button insensitive" disabled="disabled" id="get-started">{{ gs_button_label }}</button>
-            <small>
-              {{ _('There is an outstanding task. You need to complete / abandon it in order to start on a new task.') }}
-            </small>
-          </div>
         {% else %}
           <form method="post" action="{{ url('tasks.start', task.id) }}">
             {{ csrf() }}

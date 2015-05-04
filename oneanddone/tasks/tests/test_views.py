@@ -99,21 +99,6 @@ class StartTaskViewTests(TestCase):
             ok_(TaskAttempt.objects.filter(user=user, task=self.task, state=TaskAttempt.STARTED)
                 .exists())
 
-    def test_post_existing_attempts(self):
-        """
-        If the user has an existing task attempt, redirect them to the
-        profile detail page.
-        """
-        attempt = TaskAttemptFactory.create()
-        self.view.request = Mock(spec=HttpRequest,
-                                 _messages=Mock(),
-                                 user=attempt.user)
-
-        with patch('oneanddone.tasks.views.redirect') as redirect:
-            eq_(self.view.post(), redirect.return_value)
-            redirect.assert_called_with('base.home')
-            ok_(not TaskAttempt.objects.filter(user=attempt.user, task=self.task).exists())
-
     def test_post_unavailable_task(self):
         """
         If the task is unavailable, redirect to the available tasks view
