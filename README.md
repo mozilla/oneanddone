@@ -7,14 +7,14 @@ If you're interested in helping us out, please read through the
 [project wiki][wiki] and reach out to us!
 
 About the project:
->Contribute to Mozilla QA - One task at a time, One day at a time.
+>Contribute to Mozilla - One task at a time, One day at a time.
 >
 >One and Done gives users a wide variety of ways to contribute to Mozilla. 
 >You can pick an easy task that only takes a few minutes - or take on a 
 >bigger challenge. This includes working on manual testing, automation, bug 
->verification, mobile testing and more. Tasks are from all QA teams - so you 
+>verification, mobile testing and more. Tasks are from a variety of Mozilla teams - so you 
 >can get involved with Automation, Firefox OS, Desktop Firefox, Mozilla 
->websites, Services, or Thunderbird.
+>websites, Services, Thunderbird and more.
 
 [django]: http://www.djangoproject.com/
 [playdoh]: https://github.com/mozilla/playdoh
