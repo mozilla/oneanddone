@@ -2,7 +2,7 @@
 Welcome to One and Done
 =======================
 
-One and Done is a QA tool built by Mozilla.  One and Done matches new contributors with tasks to help out Mozilla QA.
+One and Done is a tool built by Mozilla.  One and Done matches new contributors with tasks to help out a variety of Mozilla teams.
 
 Useful links
 ------------
