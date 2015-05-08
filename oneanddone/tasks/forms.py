@@ -5,14 +5,15 @@ from django import forms
 
 from django_ace import AceWidget
 from requests.exceptions import RequestException
-from tower import ugettext as _
+from tower import ugettext as _, ugettext_lazy as _lazy
 from urlparse import urlparse, parse_qs
 
 from oneanddone.base.widgets import CalendarInput
 from oneanddone.tasks.bugzilla_utils import BugzillaUtils
 from oneanddone.tasks.models import (BugzillaBug, Feedback, Task,
                                      TaskImportBatch,
-                                     TaskInvalidationCriterion)
+                                     TaskInvalidationCriterion,
+                                     TaskTeam)
 from oneanddone.users.models import User
 
 
@@ -26,7 +27,7 @@ class BaseTaskInvalidCriteriaFormSet(forms.formsets.BaseFormSet):
 
 class FeedbackForm(forms.ModelForm):
     time_spent_in_minutes = forms.IntegerField(
-        label=_(' How many minutes did you spend on the task?'))
+        label=_lazy(' How many minutes did you spend on the task?'))
 
     class Meta:
         model = Feedback
@@ -50,7 +51,7 @@ class PreviewConfirmationForm(forms.Form):
 
 class TaskForm(forms.ModelForm):
     keywords = (forms.CharField(
-                help_text=_('Please use commas to separate your keywords.'),
+                help_text=_lazy('Please use commas to separate your keywords.'),
                 required=False,
                 widget=forms.TextInput(attrs={'class': 'medium-field'})))
     owner = forms.ModelChoiceField(
@@ -198,3 +199,31 @@ class TaskInvalidationCriterionForm(forms.Form):
 TaskInvalidCriteriaFormSet = forms.formsets.formset_factory(
     TaskInvalidationCriterionForm,
     formset=BaseTaskInvalidCriteriaFormSet)
+
+
+class TeamForm(forms.ModelForm):
+    url_code = forms.RegexField(
+        label=_lazy("Team url suffix:"),
+        help_text=_lazy('This will be added to the end of https://oneanddone.mozilla.org/'),
+        max_length=30, regex=r'^[a-zA-Z0-9]+$',
+        error_messages={'invalid': _lazy("This value may contain only alphanumeric characters.")})
+
+    def save(self, creator, *args, **kwargs):
+        self.instance.creator = creator
+        return super(TeamForm, self).save(*args, **kwargs)
+
+    class Media:
+        css = {
+            'all': ('css/admin_ace.css',)
+        }
+
+    class Meta:
+        model = TaskTeam
+        fields = ('description', 'name', 'url_code')
+        widgets = {
+            'description': AceWidget(mode='markdown', theme='textmate', width='800px',
+                                     height='300px', wordwrap=True,
+                                     attrs={'class': 'fill-width'}),
+            'name': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),
+            'url_code': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),
+        }

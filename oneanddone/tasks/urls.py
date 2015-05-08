@@ -17,6 +17,7 @@ urlpatterns = patterns('',
     url(r'^tasks/clone/(?P<clone>\d+)/$', views.CreateTaskView.as_view(), name='tasks.clone'),
     url(r'^tasks/create/$', views.CreateTaskView.as_view(), name='tasks.create'),
     url(r'^tasks/edit/(?P<pk>\d+)/$', views.UpdateTaskView.as_view(), name='tasks.edit'),
+    url(r'^tasks/edit_team/(?P<pk>\d+)/$', views.UpdateTeamView.as_view(), name='tasks.edit_team'),
     url(r'^tasks/feedback/(?P<pk>\d+)/$', views.CreateFeedbackView.as_view(), name='tasks.feedback'),
     url(r'^tasks/import/$', views.ImportTasksView.as_view(), name='tasks.import'),
     url(r'^tasks/list/$', views.ListTasksView.as_view(), name='tasks.list'),
@@ -24,6 +25,10 @@ urlpatterns = patterns('',
     url(r'^tasks/metrics/$', views.MetricsView.as_view(), name='tasks.metrics'),
     url(r'^tasks/too_short/$', views.ListTooShortTasksView.as_view(), name='tasks.too_short'),
     url(r'^tasks/(?P<pk>\d+)/whatsnext/$', views.WhatsNextView.as_view(), name='tasks.whats_next'),
+    url(r'^team/(?P<pk>\d+)/$', views.TeamView.as_view(), name='tasks.team'),
+    # the next line allows for arbitraty team names to act as urls
+    # e.g., oneanddone.mozilla.org/myteam/
+    url(r'^(?P<url_code>[^/\\]+)/$', views.TeamView.as_view(), name='tasks.team_short'),
 
     # API for interacting with tasks and task areas
     url(r'^api/v1/task/$', views.TaskListAPI.as_view(), name='api-task'),

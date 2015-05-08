@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from datetime import datetime, timedelta
 
+from django.http import Http404
 from django.test.utils import override_settings
 from django.utils import timezone
 
@@ -11,11 +12,12 @@ from nose.tools import eq_, ok_
 
 from oneanddone.base.tests import TestCase
 from oneanddone.tasks.models import (Task, TaskAttempt, TaskInvalidationCriterion,
-                                     TaskKeyword)
+                                     TaskKeyword, TaskTeam)
 from oneanddone.tasks.tests import (BugzillaBugFactory, FeedbackFactory,
-                                    TaskFactory, TaskImportBatchFactory,
+                                    TaskAttemptFactory, TaskFactory,
+                                    TaskImportBatchFactory,
                                     TaskInvalidationCriterionFactory, TaskKeywordFactory,
-                                    TaskAttemptFactory, ValidTaskAttemptFactory)
+                                    TaskTeamFactory, ValidTaskAttemptFactory)
 from oneanddone.users.tests import UserFactory
 
 
@@ -692,3 +694,38 @@ class TaskInvalidationCriterionTests(TestCase):
             field_value='not value')
         bug = {'name': 'value'}
         ok_(criterion.passes(bug))
+
+
+class TaskTeamTests(TestCase):
+
+    def test_get_team_by_id_or_url_code_with_id(self):
+        """
+        get_team_by_id_or_url_code should return a team given an id
+        """
+        team = TaskTeamFactory.create()
+        kwargs = {'pk': team.id}
+        eq_(TaskTeam.get_team_by_id_or_url_code(kwargs), team)
+
+    def test_get_team_by_id_or_url_code_with_url_code(self):
+        """
+        get_team_by_id_or_url_code should return a team given a url_code
+        """
+        team = TaskTeamFactory.create()
+        kwargs = {'url_code': team.url_code}
+        eq_(TaskTeam.get_team_by_id_or_url_code(kwargs), team)
+
+    def test_get_team_by_id_or_url_code_bad_id_raises_404(self):
+        """
+        If there is no team with the given id, return a 404.
+        """
+        kwargs = {'pk': 0}
+        with self.assertRaises(Http404):
+            TaskTeam.get_team_by_id_or_url_code(kwargs)
+
+    def test_get_team_by_id_or_url_code_bad_url_code_raises_404(self):
+        """
+        If there is no team with the given url_code, return a 404.
+        """
+        kwargs = {'url_code': ''}
+        with self.assertRaises(Http404):
+            TaskTeam.get_team_by_id_or_url_code(kwargs)

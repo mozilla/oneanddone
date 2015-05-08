@@ -1,0 +1,29 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
+{% extends 'base/base.html' %}
+
+{% set title = team.name %}
+
+{% block content %}
+<main class="billboard task-activity-container content-container">
+  <h2>{{ _('{team} Team')|fe(team=team.name) }}</h2>
+  {% if user.is_staff %}
+    <div>{{ _('Url suffix:') }} <a href="{{ team.get_friendly_url() }}">{{ team.url_code }}</a></div>
+  {% endif %}
+  <div class="markdown">{{ team.description_html }}</div>
+  {% if user.is_staff %}
+    <div class="actions-container">
+      <div class="without-message">
+          <a href="{{ team.get_edit_url() }}">
+            <button class="button" id="edit-team">{{ _('Edit team') }}</button>
+          </a>
+      </div>
+    </div>
+  {% endif %}
+
+  {% include 'tasks/short_task_list_filters.html' %}
+  {% include 'tasks/task_listing.html' %}
+
+</main>
+{% endblock %}

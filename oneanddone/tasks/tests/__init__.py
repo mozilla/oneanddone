@@ -19,6 +19,8 @@ class TaskTeamFactory(DjangoModelFactory):
     FACTORY_FOR = models.TaskTeam
 
     name = Sequence(lambda n: 'test{0}'.format(n))
+    description = Sequence(lambda n: 'team_description{0}'.format(n))
+    url_code = Sequence(lambda n: 'url{0}'.format(n))
     creator = SubFactory(UserFactory)
 
 

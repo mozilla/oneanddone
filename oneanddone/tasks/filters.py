@@ -36,12 +36,42 @@ class ActivityFilterSet(django_filters.FilterSet):
         fields = ('task__owner', 'task__team', 'user', 'modified')
 
 
+class SmallTasksFilterSet(django_filters.FilterSet):
+
+    difficulty = django_filters.ChoiceFilter(
+        choices=(
+            ('', _lazy('Any')),
+            (Task.BEGINNER, _lazy('Beginner')),
+            (Task.INTERMEDIATE, _lazy('Intermediate')),
+            (Task.ADVANCED, _lazy('Advanced'))),
+        label=_lazy(u'Task Difficulty'),
+        required=False)
+
+    execution_time = django_filters.ChoiceFilter(
+        choices=(('', _lazy('Any')), (15, 15), (30, 30), (45, 45), (60, 60)),
+        label=_lazy(u'Estimated minutes'),
+        required=False)
+
+    class Meta:
+        model = Task
+        fields = ('difficulty', 'execution_time')
+
+
 class TasksFilterSet(django_filters.FilterSet):
     search = MultiFieldFilter(
         ['name', 'short_description', 'why_this_matters',
          'prerequisites', 'instructions', 'keyword_set__name'],
         label=_lazy(u'Search for tasks')
     )
+
+    difficulty = django_filters.ChoiceFilter(
+        choices=(
+            ('', _lazy('Any')),
+            (Task.BEGINNER, _lazy('Beginner')),
+            (Task.INTERMEDIATE, _lazy('Intermediate')),
+            (Task.ADVANCED, _lazy('Advanced'))),
+        label=_lazy(u'Task Difficulty'),
+        required=False)
 
     execution_time = django_filters.MultipleChoiceFilter(
         choices=((15, 15), (30, 30), (45, 45), (60, 60)),
@@ -69,4 +99,4 @@ class TasksFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = Task
-        fields = ('search', 'execution_time', 'team', 'project', 'type', 'keyword')
+        fields = ('search', 'difficulty', 'execution_time', 'team', 'project', 'type', 'keyword')
