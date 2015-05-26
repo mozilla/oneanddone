@@ -117,3 +117,10 @@ class FeedbackFactory(DjangoModelFactory):
 
     attempt = SubFactory(TaskAttemptFactory)
     text = Sequence(lambda n: 'feedback{0}'.format(n))
+
+
+class TaskAttemptCommunicationFactory(DjangoModelFactory):
+    FACTORY_FOR = models.TaskAttemptCommunication
+
+    attempt = SubFactory(TaskAttemptFactory)
+    content = Sequence(lambda n: 'content{0}'.format(n))

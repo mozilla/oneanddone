@@ -114,7 +114,7 @@ class TaskFormTests(TestCase):
                                    end_date='2013-08-15')
 
         self.assertFalse(form.is_valid())
-        eq_(form.non_field_errors(), ["'End date' must be after 'Start date'"])
+        eq_(form.errors['start_date'], ["'End date' must be after 'Start date'"])
 
     def test_validation_start_date_after_end_date(self):
         """
@@ -125,7 +125,7 @@ class TaskFormTests(TestCase):
                                    end_date='2013-08-15')
 
         self.assertFalse(form.is_valid())
-        eq_(form.non_field_errors(), ["'End date' must be after 'Start date'"])
+        eq_(form.errors['start_date'], ["'End date' must be after 'Start date'"])
 
     def test_validation_start_date_before_end_date(self):
         """
@@ -137,3 +137,15 @@ class TaskFormTests(TestCase):
                                    end_date='2013-08-15')
 
         self.assertTrue(form.is_valid())
+
+    def test_validation_verification_instructions(self):
+        """
+        The form is not valid if must_be_verified is True but
+        verification_instructions is blank.
+        """
+        form = get_filled_taskform(self.task,
+                                   must_be_verified=True)
+
+        self.assertFalse(form.is_valid())
+        eq_(form.errors['verification_instructions'],
+            ['If the task is a Verified task then you must provide some verification instructions'])

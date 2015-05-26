@@ -2,11 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.contrib import messages
-from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.forms.models import model_to_dict
-from django.shortcuts import redirect
-from django.template.loader import get_template
+from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
 
 from braces.views import LoginRequiredMixin
@@ -18,17 +16,19 @@ from tower import ugettext as _, ugettext_lazy as _lazy
 from oneanddone.base.util import get_object_or_none, SortHeaders
 from oneanddone.tasks.filters import (ActivityFilterSet, SmallTasksFilterSet,
                                       TasksFilterSet)
-from oneanddone.tasks.forms import (FeedbackForm, PreviewConfirmationForm,
+from oneanddone.tasks.forms import (FeedbackForm, SubmitVerifiedTaskForm,
+                                    PreviewConfirmationForm,
                                     TaskImportBatchForm,
                                     TaskInvalidCriteriaFormSet, TaskForm,
                                     TeamForm)
-from oneanddone.tasks.mixins import (APIRecordCreatorMixin,
-                                     APIOnlyCreatorMayDeleteMixin)
-from oneanddone.tasks.mixins import (TaskMustBeAvailableMixin,
-                                     HideNonRepeatableTaskMixin)
-from oneanddone.tasks.mixins import GetUserAttemptMixin
+from oneanddone.tasks.mixins import (APIOnlyCreatorMayDeleteMixin,
+                                     APIRecordCreatorMixin,
+                                     BaseURLMixin,
+                                     GetUserAttemptMixin,
+                                     HideNonRepeatableTaskMixin,
+                                     TaskMustBeAvailableMixin)
 from oneanddone.tasks.models import (BugzillaBug, Feedback, Task, TaskAttempt,
-                                     TaskMetrics, TaskTeam)
+                                     TaskAttemptCommunication, TaskMetrics, TaskTeam)
 from oneanddone.tasks.serializers import TaskSerializer
 from oneanddone.users.models import User
 from oneanddone.users.mixins import (MyStaffUserRequiredMixin,
@@ -75,8 +75,11 @@ class AvailableTasksView(TaskMustBeAvailableMixin, FilterView):
         return ctx
 
 
-class CreateFeedbackView(LoginRequiredMixin, PrivacyPolicyRequiredMixin,
-                         HideNonRepeatableTaskMixin, GetUserAttemptMixin,
+class CreateFeedbackView(LoginRequiredMixin,
+                         PrivacyPolicyRequiredMixin,
+                         BaseURLMixin,
+                         HideNonRepeatableTaskMixin,
+                         GetUserAttemptMixin,
                          generic.CreateView):
     model = Feedback
     form_class = FeedbackForm
@@ -93,36 +96,7 @@ class CreateFeedbackView(LoginRequiredMixin, PrivacyPolicyRequiredMixin,
         feedback.save()
 
         # Send email to task owner
-        task_name = feedback.attempt.task.name
-        subject = 'Feedback on %s from One and Done' % task_name
-        link_prefix = 'http'
-        if self.request.is_secure():
-            link_prefix += 's'
-        task_link = link_prefix + '://%s%s' % (
-            self.request.get_host(),
-            feedback.attempt.task.get_absolute_url())
-        feedback_link = link_prefix + '://%s/admin/tasks/feedback/%s' % (
-            self.request.get_host(), feedback.id)
-        template = get_template('tasks/emails/feedback_email.txt')
-
-        message = template.render({
-            'feedback_user': feedback.attempt.user,
-            'task_name': task_name,
-            'task_link': task_link,
-            'task_state': feedback.attempt.get_state_display(),
-            'feedback': feedback.text,
-            'feedback_link': feedback_link,
-            'time_spent_on_task': feedback.time_spent_in_minutes})
-
-        # Manually replace quotes and double-quotes as these get
-        # escaped by the template and this makes the message look bad.
-        filtered_message = message.replace('&#34;', '"').replace('&#39;', "'")
-
-        send_mail(
-            subject,
-            filtered_message,
-            'oneanddone@mozilla.com',
-            [feedback.attempt.task.owner.email])
+        form.send_email(feedback.attempt, self.base_url, 'feedback', feedback=feedback)
 
         messages.success(self.request, _('Your feedback has been submitted. Thanks!'))
         return redirect('tasks.whats_next', feedback.attempt.task.id)
@@ -350,18 +324,105 @@ class FinishTaskView(TaskAttemptView):
         return redirect('tasks.feedback', attempt.pk)
 
 
-class TaskDetailView(generic.DetailView):
-    model = Task
-    template_name = 'tasks/detail.html'
-    allow_expired_tasks = True
+class TaskAttemptDetailView(LoginRequiredMixin,
+                            MyStaffUserRequiredMixin,
+                            generic.View):
+
+    def get(self, request, *args, **kwargs):
+        view = TaskAttemptDisplayView.as_view()
+        return view(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        view = SubmitAdminVerificationResponseView.as_view()
+        return view(request, *args, **kwargs)
+
+
+class TaskAttemptDisplayView(LoginRequiredMixin,
+                             MyStaffUserRequiredMixin,
+                             generic.DetailView):
+    model = TaskAttempt
+    template_name = 'tasks/attempt_detail.html'
 
     def get_context_data(self, *args, **kwargs):
-        ctx = super(TaskDetailView, self).get_context_data(*args, **kwargs)
+        ctx = super(TaskAttemptDisplayView, self).get_context_data(*args, **kwargs)
+        ctx['form'] = SubmitVerifiedTaskForm()
+        return ctx
+
+
+class SubmitAdminVerificationResponseView(LoginRequiredMixin,
+                                          MyStaffUserRequiredMixin,
+                                          BaseURLMixin,
+                                          generic.detail.SingleObjectMixin,
+                                          generic.FormView):
+
+    form_class = SubmitVerifiedTaskForm
+    model = TaskAttempt
+    template_name = 'tasks/attempt_detail.html'
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(SubmitAdminVerificationResponseView, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+
+        attempt = self.get_object()
+
+        communication = form.save(commit=False)
+        communication.attempt = attempt
+        communication.type = TaskAttemptCommunication.ADMIN
+        communication.creator = self.request.user
+        communication.save()
+
+        # Send email to attempt user
+        if attempt.user.profile.consent_to_email:
+            form.send_email(attempt,
+                            self.base_url,
+                            'verify_from_admin',
+                            communication.content)
+
+        messages.success(self.request, _('Your response to the user has been recorded. Thanks!'))
+        return redirect('tasks.attempt', attempt.id)
+
+
+class TaskVerificationListView(LoginRequiredMixin, MyStaffUserRequiredMixin,
+                               generic.ListView):
+    queryset = TaskAttempt.objects.filter(state=TaskAttempt.STARTED,
+                                          task__must_be_verified=True)
+    context_object_name = 'attempts'
+    template_name = 'tasks/verification_list.html'
+    paginate_by = 20
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super(TaskVerificationListView, self).get_queryset(*args, **kwargs)
+        return qs.filter(task__owner=self.request.user)
+
+
+class TaskDetailView(generic.View):
+
+    def get(self, request, *args, **kwargs):
+        view = TaskDisplayView.as_view()
+        return view(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        view = SubmitTaskForVerificationView.as_view()
+        return view(request, *args, **kwargs)
+
+
+class TaskDetailContextMixin(object):
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(TaskDetailContextMixin, self).get_context_data(*args, **kwargs)
         task = self.object
         if self.request.user.is_authenticated():
             ctx['attempt'] = get_object_or_none(TaskAttempt, user=self.request.user,
                                                 task=task, state=TaskAttempt.STARTED)
         ctx['users'] = task.users_who_completed_this_task
+
+        # add verification form to the context
+        if self.request.method == 'GET':
+            ctx['verification_form'] = SubmitVerifiedTaskForm()
+        else:
+            ctx['verification_form'] = ctx['form']
 
         # determine label for Get Started button
         if task.is_taken:
@@ -377,6 +438,48 @@ class TaskDetailView(generic.DetailView):
         ctx['gs_button_disabled'] = gs_button_disabled
 
         return ctx
+
+
+class TaskDisplayView(TaskDetailContextMixin, generic.DetailView):
+    allow_expired_tasks = True
+    model = Task
+    template_name = 'tasks/detail.html'
+
+
+class SubmitTaskForVerificationView(LoginRequiredMixin,
+                                    BaseURLMixin,
+                                    TaskDetailContextMixin,
+                                    generic.detail.SingleObjectMixin,
+                                    generic.FormView):
+
+    form_class = SubmitVerifiedTaskForm
+    model = Task
+    template_name = 'tasks/detail.html'
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(SubmitTaskForVerificationView, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+
+        attempt = get_object_or_404(TaskAttempt, task=self.get_object(),
+                                    user=self.request.user,
+                                    state=TaskAttempt.STARTED)
+
+        communication = form.save(commit=False)
+        communication.attempt = attempt
+        communication.type = TaskAttemptCommunication.USER
+        communication.creator = self.request.user
+        communication.save()
+
+        # Send email to task owner
+        form.send_email(attempt,
+                        self.base_url,
+                        'verify_from_user',
+                        communication.content)
+
+        messages.success(self.request, _('Your request to verify has been submitted. Thanks!'))
+        return redirect('tasks.detail', attempt.task.id)
 
 
 class TeamView(TaskMustBeAvailableMixin, FilterView):
@@ -432,6 +535,28 @@ class UpdateTeamView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Updat
 
         messages.success(self.request, _('The team has been updated.'))
         return redirect('tasks.team', self.get_object().id)
+
+
+class VerifyTaskView(LoginRequiredMixin,
+                     MyStaffUserRequiredMixin,
+                     BaseURLMixin,
+                     generic.detail.SingleObjectMixin,
+                     generic.View):
+
+    model = TaskAttempt
+
+    def post(self, *args, **kwargs):
+        attempt = self.get_object()
+        attempt.state = TaskAttempt.FINISHED
+        attempt.save()
+
+        # Send email to attempt user
+        if attempt.user.profile.consent_to_email:
+            SubmitVerifiedTaskForm().send_email(attempt,
+                                                self.base_url,
+                                                'verified')
+
+        return redirect('tasks.attempt', attempt.pk)
 
 
 class WhatsNextView(LoginRequiredMixin, generic.DetailView):
