@@ -149,29 +149,29 @@ mock==1.0.1
 GitPython==0.1.7
 
 # Requirements tied to specific commits
-# sha256: dl9O1PvKLw0OAH7JFDAdBJF1_-OMBMyyfgjkojAd8Zs
+# sha256: 1rhJV1lByVPZ-yeMIc8aLkpmilR1XeBa0DUAiHGrt1c
 https://github.com/jsocol/jingo-minify/archive/2beb546949ed2cb4eb866bab6dd643047d803a95.zip#egg=jingo-minify
 
-# sha256: SL_ToRB7H-EDD_r5aexy6_LUPRf0PzajWxYBAIUrszk
+# sha256: CjPtzXJMot4J4bM5LQRovBDDJbtEKG68S07AhCek_DY
 https://github.com/mozilla/django-mozilla-product-details/archive/d168ab2e689a1b54a30a923386fe7948a74ff334.zip#egg=django-mozilla-product-details
 
-# sha256: WwvQf-bIPQScrzQlOaHAOcjY6gqYpzIQACEgD0Jy5bc
+# sha256: mErDoqC0PlVGWZXcYv9OvnmgV8SkXUWGv0WyQ3R8UUI
 https://github.com/jsocol/bleach/archive/7947b26140cd1c380eabf90ed15826de1c454256.zip#egg=bleach
 
-# sha256: uDA8a2lQGB1uEg_sdygAueYurQsQAD6-utf81kFmE9g
+# sha256: vsCdiBnI0dPE-Z_55Mb4faMhyrJsYNMdbCvAlYdwGY8
 https://github.com/mozilla/django-session-csrf/archive/f00ad913c62e139d36078e8a7e07dab65a021386.zip#egg=django-session-csrf
 
-# sha256: SPQb7ZDe6StnH6bon-UA9E-6y32EPd6wuC1SxFX8vyE
+# sha256: YGxwkMz10Xa-hQf4ePwx4s2rJcoL70yhD6M4TOEZgjE
 https://github.com/clouserw/tower/archive/1df74f9c7c353b9fc76d28a50f511ad452093340.zip#egg=tower
 
-# sha256: A1gwhyCNozcxug18_9RjJTmJQa1rctOt-AnP7_yR0PM
+# sha256: o2HP2_WwSljbspF8fp7FRyWPZqltTE5THiIoh7GFuxE
 https://github.com/jsocol/commonware/archive/b5544185b2d24adc1eb512735990752400ce9cbd.zip#egg=commonware
 
-# sha256: y5uYrsgqVKDHucaCQP1Az_suL73ibAB-wbt_YjTqjnk
+# sha256: chnrGa1bo7O6z0ZexwrpRd_HdMsTOALQoGH9nlB9dX4
 https://github.com/jbalogh/django-multidb-router/archive/f6ff9379eef9dceffbb7bfdf0cb6aa4eef7549a1.zip#egg=django-multidb-router
 
-# sha256: uUMeohGZBz7HGJQTjybYoIOh0XNpND3isezYVNLIYV0
+# sha256: HBcgpkWQEwtCrzxWtT4n9kjZus00ogWz4yTqmti1BB0
 https://github.com/jbalogh/jingo/archive/fce09043542e71d972cc97d2ae703740741f80d0.zip#egg=jingo
 
-# sha256: i8pS00-rg-P2l9AuFWJb12bqLJL7FVXGYFfsElkMwZ0
+# sha256: ih29HHrehSBq53DJzl9DCBoJjJX5lK8RP2Q06QBVmmc
 https://github.com/jbalogh/test-utils/archive/e42e031d31ea63d593e47d564545149a0f30b95f.zip#egg=test-utils
