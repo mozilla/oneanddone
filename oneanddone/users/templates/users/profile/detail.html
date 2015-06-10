@@ -51,9 +51,7 @@
 
   {% if userprofile.user == user %}
     <div class="actions-container">
-        {% if not user.attempts_in_progress %}
-        <a href="{{ url('tasks.available') }}" class="button" id="pick-a-task">{{ _('Pick a task to do') }}</a>
-        {% endif %}
+      <a href="{{ url('tasks.available') }}" class="button" id="pick-a-task">{{ _('Pick a task to do') }}</a>
       <a href="{{ url('users.profile.update') }}" id="edit-profile" class="button">{{ _('Edit profile') }}</a>
     </div>
   {% endif %}

@@ -313,10 +313,6 @@ class StartTaskView(LoginRequiredMixin, PrivacyPolicyRequiredMixin,
     model = Task
 
     def post(self, *args, **kwargs):
-        # Do not allow users to take more than one task at a time
-        if self.request.user.attempts_in_progress.exists():
-            messages.error(self.request, _('You may only work on one task at a time.'))
-            return redirect('base.home')
 
         task = self.get_object()
         if not task.is_available:

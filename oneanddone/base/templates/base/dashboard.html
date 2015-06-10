@@ -23,9 +23,7 @@
 
   {% if not page == 'ProfileDetails' %}
       <nav class="actions-container">
-      {% if not user.attempts_in_progress %}
-          <a href="{{ url('tasks.available') }}" class="button" id="pick-a-task">{{ _('Pick a task to do') }}</a>
-      {% endif %}
+        <a href="{{ url('tasks.available') }}" class="button" id="pick-a-task">{{ _('Pick a task to do') }}</a>
       </nav>
   {% endif %}
 </section>
