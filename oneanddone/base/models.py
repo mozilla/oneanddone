@@ -1,8 +1,13 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+
+import bleach
+import jinja2
+from markdown import markdown
 
 
 class BaseModel(models.Model):
@@ -12,6 +17,17 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+
+    def _yield_html(self, field):
+        """
+        Return the requested field for a task after parsing them as
+        markdown and bleaching/linkifying them.
+        """
+        linkified_field = bleach.linkify(field, parse_email=True)
+        html = markdown(linkified_field, output_format='html5')
+        cleaned_html = bleach.clean(html, tags=settings.INSTRUCTIONS_ALLOWED_TAGS,
+                                    attributes=settings.INSTRUCTIONS_ALLOWED_ATTRIBUTES)
+        return jinja2.Markup(cleaned_html)
 
     @classmethod
     def choice_display_extra_expression(self, field):

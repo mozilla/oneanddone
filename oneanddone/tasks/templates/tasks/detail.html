@@ -25,7 +25,7 @@
   <div class="row">
     <div class="three-fields">
       {{ _('Team') }}:
-      <a href="{{ url('tasks.available')|urlparams(team=task.team.pk) }}">
+      <a href="{{ task.team.get_absolute_url() }}">
         {{ task.team.name }}
       </a>
     </div>

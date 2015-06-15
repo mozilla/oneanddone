@@ -7,7 +7,7 @@ from django_filters.views import FilterView
 from tower import ugettext as _
 
 from oneanddone.tasks.filters import TasksFilterSet
-from oneanddone.tasks.models import Task
+from oneanddone.tasks.models import Task, TaskTeam
 from oneanddone.tasks.mixins import TaskMustBeAvailableMixin
 from oneanddone.users.models import UserProfile
 
@@ -22,6 +22,7 @@ class HomeView(TaskMustBeAvailableMixin, FilterView):
     def get_context_data(self, *args, **kwargs):
         ctx = super(HomeView, self).get_context_data(*args, **kwargs)
         ctx['task_list_heading'] = _('Suggested First Tasks')
+        ctx['teams'] = TaskTeam.objects.all()
         return ctx
 
     def dispatch(self, request, *args, **kwargs):

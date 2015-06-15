@@ -11,8 +11,7 @@ from tower import ugettext as _
 from oneanddone.base.tests import TestCase
 from oneanddone.tasks import views
 from oneanddone.tasks.models import TaskAttempt
-from oneanddone.tasks.tests import (TaskAttemptFactory, TaskFactory,
-                                    TaskKeywordFactory)
+from oneanddone.tasks.tests import TaskFactory, TaskKeywordFactory
 from oneanddone.tasks.tests.test_forms import get_filled_taskform
 from oneanddone.users.tests import UserFactory
 
@@ -193,6 +192,31 @@ class TaskDetailViewTests(TestCase):
             ctx = self.view.get_context_data()
             eq_(ctx['gs_button_label'], _('Taken'))
             eq_(ctx['gs_button_disabled'], True)
+
+
+class TeamViewTests(TestCase):
+    def setUp(self):
+        self.view = views.TeamView()
+        self.view.request = Mock()
+        self.view.object = Mock()
+        self.view.object.name = 'name'
+        self.view.kwargs = {}
+
+    def test_get_context_data_additional_fields(self):
+        """
+        context_data should include team and task_list_heading.
+        """
+        team = Mock()
+        team.name = 'team name'
+
+        get_team_patch = patch('oneanddone.tasks.models.TaskTeam.get_team_by_id_or_url_code')
+        context_patch = patch('oneanddone.tasks.views.FilterView.get_context_data')
+        with get_team_patch as get_team, context_patch as get_context_data:
+            get_team.return_value = team
+            get_context_data.return_value = {}
+            ctx = self.view.get_context_data()
+            eq_(ctx['team'].name, 'team name')
+            eq_(ctx['task_list_heading'], _('team name Tasks'))
 
 
 class UpdateTaskViewTests(TestCase):

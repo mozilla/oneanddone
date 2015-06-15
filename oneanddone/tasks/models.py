@@ -8,15 +8,14 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.urlresolvers import reverse
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Avg, Count, F, Q
+from django.http import Http404
 from django.utils import timezone
-from django.core.validators import MaxValueValidator, MinValueValidator
 
-import bleach
-import jinja2
-from markdown import markdown
 from tower import ugettext as _
 
 from oneanddone.base.models import CreatedByModel, CreatedModifiedModel
@@ -312,10 +311,39 @@ class TaskProject(CreatedModifiedModel, CreatedByModel):
 
 
 class TaskTeam(CreatedModifiedModel, CreatedByModel):
+    description = models.TextField(blank=True)
     name = models.CharField(max_length=255)
+    url_code = models.CharField(max_length=30, verbose_name='team url suffix',
+                                unique=True, null=True)
 
     def __unicode__(self):
         return self.name
+
+    @property
+    def description_html(self):
+        return self._yield_html(self.description)
+
+    def get_absolute_url(self):
+        return reverse('tasks.team', args=[self.id])
+
+    def get_edit_url(self):
+        return reverse('tasks.edit_team', args=[self.id])
+
+    def get_friendly_url(self):
+        return reverse('tasks.team_short', args=[self.url_code])
+
+    @classmethod
+    def get_team_by_id_or_url_code(self, kwargs):
+        url_code = kwargs.get('url_code')
+        if not url_code:
+            try:
+                return TaskTeam.objects.get(id=kwargs.get('pk'))
+            except TaskTeam.DoesNotExist:
+                raise Http404(_(u'No team found matching the id'))
+        try:
+            return TaskTeam.objects.get(url_code=url_code)
+        except (TaskTeam.DoesNotExist, MultipleObjectsReturned):
+            raise Http404(_(u'No team found matching the url suffix'))
 
 
 class TaskType(CreatedModifiedModel, CreatedByModel):
@@ -516,17 +544,6 @@ class Task(CreatedModifiedModel, CreatedByModel):
             if user not in users:
                 users.append(user)
         return users
-
-    def _yield_html(self, field):
-        """
-        Return the requested field for a task after parsing them as
-        markdown and bleaching/linkifying them.
-        """
-        linkified_field = bleach.linkify(field, parse_email=True)
-        html = markdown(linkified_field, output_format='html5')
-        cleaned_html = bleach.clean(html, tags=settings.INSTRUCTIONS_ALLOWED_TAGS,
-                                    attributes=settings.INSTRUCTIONS_ALLOWED_ATTRIBUTES)
-        return jinja2.Markup(cleaned_html)
 
     def get_absolute_url(self):
         return reverse('tasks.detail', args=[self.id])

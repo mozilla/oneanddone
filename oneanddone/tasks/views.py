@@ -16,17 +16,19 @@ from rest_framework import generics
 from tower import ugettext as _, ugettext_lazy as _lazy
 
 from oneanddone.base.util import get_object_or_none, SortHeaders
-from oneanddone.tasks.filters import ActivityFilterSet, TasksFilterSet
+from oneanddone.tasks.filters import (ActivityFilterSet, SmallTasksFilterSet,
+                                      TasksFilterSet)
 from oneanddone.tasks.forms import (FeedbackForm, PreviewConfirmationForm,
                                     TaskImportBatchForm,
-                                    TaskInvalidCriteriaFormSet, TaskForm)
+                                    TaskInvalidCriteriaFormSet, TaskForm,
+                                    TeamForm)
 from oneanddone.tasks.mixins import (APIRecordCreatorMixin,
                                      APIOnlyCreatorMayDeleteMixin)
 from oneanddone.tasks.mixins import (TaskMustBeAvailableMixin,
                                      HideNonRepeatableTaskMixin)
 from oneanddone.tasks.mixins import GetUserAttemptMixin
 from oneanddone.tasks.models import (BugzillaBug, Feedback, Task, TaskAttempt,
-                                     TaskMetrics)
+                                     TaskMetrics, TaskTeam)
 from oneanddone.tasks.serializers import TaskSerializer
 from oneanddone.users.models import User
 from oneanddone.users.mixins import (MyStaffUserRequiredMixin,
@@ -377,6 +379,24 @@ class TaskDetailView(generic.DetailView):
         return ctx
 
 
+class TeamView(TaskMustBeAvailableMixin, FilterView):
+    context_object_name = 'tasks'
+    filterset_class = SmallTasksFilterSet
+    paginate_by = 10
+    queryset = Task.objects.all()
+    template_name = 'tasks/team.html'
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(TeamView, self).get_context_data(*args, **kwargs)
+        ctx['team'] = TaskTeam.get_team_by_id_or_url_code(self.kwargs)
+        ctx['task_list_heading'] = _('%s Tasks' % ctx['team'].name)
+        return ctx
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super(TeamView, self).get_queryset(*args, **kwargs)
+        return qs.filter(team=TaskTeam.get_team_by_id_or_url_code(self.kwargs))
+
+
 class UpdateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.UpdateView):
     model = Task
     form_class = TaskForm
@@ -394,6 +414,24 @@ class UpdateTaskView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Updat
 
         messages.success(self.request, _('Your task has been updated.'))
         return redirect('tasks.detail', self.get_object().id)
+
+
+class UpdateTeamView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.UpdateView):
+    model = TaskTeam
+    form_class = TeamForm
+    template_name = 'tasks/team_form.html'
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(UpdateTeamView, self).get_context_data(*args, **kwargs)
+        ctx['action'] = 'Update'
+        ctx['cancel_url'] = reverse('tasks.team', args=[self.get_object().id])
+        return ctx
+
+    def form_valid(self, form):
+        form.save(self.request.user)
+
+        messages.success(self.request, _('The team has been updated.'))
+        return redirect('tasks.team', self.get_object().id)
 
 
 class WhatsNextView(LoginRequiredMixin, generic.DetailView):
