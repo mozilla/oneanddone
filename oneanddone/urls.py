@@ -25,13 +25,7 @@ def handler404(request):
 
 
 urlpatterns = patterns('',
-    (r'', include('oneanddone.base.urls')),
-    (r'', include('oneanddone.users.urls')),
-    (r'', include('oneanddone.tasks.urls')),
-
     (r'^admin/', include(admin.site.urls)),
-
-    (r'', include('django_browserid.urls')),
 
     # Generate robots.txt
     (r'^robots\.txt$',
@@ -39,7 +33,14 @@ urlpatterns = patterns('',
             'User-agent: *\n{0}: /'.format('Allow' if settings.ENGAGE_ROBOTS else 'Disallow'),
             content_type='text/plain'
         )
-    )
+    ),
+
+    (r'', include('django_browserid.urls')),
+
+    (r'', include('oneanddone.base.urls')),
+    (r'', include('oneanddone.users.urls')),
+    (r'', include('oneanddone.tasks.urls'))
+
 )
 
 
