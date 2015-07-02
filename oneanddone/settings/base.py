@@ -407,7 +407,7 @@ def _request_args():
     logo_uri = urllib.quote('data:image/png;base64,{image}'.format(image=site_logo), safe=',:;/')
     return {
         'privacyPolicy': 'https://www.mozilla.org/privacy/websites/',
-        'siteName': _lazy('One and Done'),
+        'siteName': _lazy(u'One and Done'),
         'termsOfService': 'https://www.mozilla.org/about/legal.html',
         'siteLogo': mark_safe(logo_uri),
         'backgroundColor': '#E0DDD4',

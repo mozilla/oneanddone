@@ -40,15 +40,15 @@ class SmallTasksFilterSet(django_filters.FilterSet):
 
     difficulty = django_filters.ChoiceFilter(
         choices=(
-            ('', _lazy('Any')),
-            (Task.BEGINNER, _lazy('Beginner')),
-            (Task.INTERMEDIATE, _lazy('Intermediate')),
-            (Task.ADVANCED, _lazy('Advanced'))),
+            ('', _lazy(u'Any')),
+            (Task.BEGINNER, _lazy(u'Beginner')),
+            (Task.INTERMEDIATE, _lazy(u'Intermediate')),
+            (Task.ADVANCED, _lazy(u'Advanced'))),
         label=_lazy(u'Task Difficulty'),
         required=False)
 
     execution_time = django_filters.ChoiceFilter(
-        choices=(('', _lazy('Any')), (15, 15), (30, 30), (45, 45), (60, 60)),
+        choices=(('', _lazy(u'Any')), (15, 15), (30, 30), (45, 45), (60, 60)),
         label=_lazy(u'Estimated minutes'),
         required=False)
 
@@ -66,10 +66,10 @@ class TasksFilterSet(django_filters.FilterSet):
 
     difficulty = django_filters.ChoiceFilter(
         choices=(
-            ('', _lazy('Any')),
-            (Task.BEGINNER, _lazy('Beginner')),
-            (Task.INTERMEDIATE, _lazy('Intermediate')),
-            (Task.ADVANCED, _lazy('Advanced'))),
+            ('', _lazy(u'Any')),
+            (Task.BEGINNER, _lazy(u'Beginner')),
+            (Task.INTERMEDIATE, _lazy(u'Intermediate')),
+            (Task.ADVANCED, _lazy(u'Advanced'))),
         label=_lazy(u'Task Difficulty'),
         required=False)
 

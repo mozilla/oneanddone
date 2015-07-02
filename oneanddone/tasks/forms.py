@@ -27,7 +27,7 @@ class BaseTaskInvalidCriteriaFormSet(forms.formsets.BaseFormSet):
 
 class FeedbackForm(forms.ModelForm):
     time_spent_in_minutes = forms.IntegerField(
-        label=_lazy(' How many minutes did you spend on the task?'))
+        label=_lazy(u'How many minutes did you spend on the task?'))
 
     class Meta:
         model = Feedback
@@ -51,7 +51,7 @@ class PreviewConfirmationForm(forms.Form):
 
 class TaskForm(forms.ModelForm):
     keywords = (forms.CharField(
-                help_text=_lazy('Please use commas to separate your keywords.'),
+                help_text=_lazy(u'Please use commas to separate your keywords.'),
                 required=False,
                 widget=forms.TextInput(attrs={'class': 'medium-field'})))
     owner = forms.ModelChoiceField(
@@ -203,10 +203,10 @@ TaskInvalidCriteriaFormSet = forms.formsets.formset_factory(
 
 class TeamForm(forms.ModelForm):
     url_code = forms.RegexField(
-        label=_lazy("Team url suffix:"),
-        help_text=_lazy('This will be added to the end of https://oneanddone.mozilla.org/'),
+        label=_lazy(u'Team url suffix:'),
+        help_text=_lazy(u'This will be added to the end of https://oneanddone.mozilla.org/'),
         max_length=30, regex=r'^[a-zA-Z0-9]+$',
-        error_messages={'invalid': _lazy("This value may contain only alphanumeric characters.")})
+        error_messages={'invalid': _lazy(u'This value may contain only alphanumeric characters.')})
 
     def save(self, creator, *args, **kwargs):
         self.instance.creator = creator
