@@ -59,7 +59,7 @@ class MultiFieldFilter(CharFilter):
         lookups = [self._get_lookup(str(field)) for field in self.fields]
         queries = [Q(**{lookup: value}) for lookup in lookups]
         qs = qs.filter(reduce(operator.or_, queries))
-        return qs
+        return qs.distinct()
 
     def _get_lookup(self, field_name):
         for key, lookup_type in self.lookup_types:
