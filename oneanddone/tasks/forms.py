@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django import forms
+from django.core.mail import send_mail
+from django.template.loader import get_template
 
 from django_ace import AceWidget
 from requests.exceptions import RequestException
@@ -11,10 +13,73 @@ from urlparse import urlparse, parse_qs
 from oneanddone.base.widgets import CalendarInput
 from oneanddone.tasks.bugzilla_utils import BugzillaUtils
 from oneanddone.tasks.models import (BugzillaBug, Feedback, Task,
+                                     TaskAttemptCommunication,
                                      TaskImportBatch,
                                      TaskInvalidationCriterion,
                                      TaskTeam)
 from oneanddone.users.models import User
+
+
+class SendEmail(object):
+    """
+    Helper to send emails after user and/or admin actions.
+    """
+    def send_email(self,
+                   attempt,
+                   base_url,
+                   email_type,
+                   communication_content=None,
+                   feedback=None):
+        """
+        Send an email to the user or an admin after a verification action.
+
+        :param attempt: The attempt being verified
+        :param base_url: The base url for the site
+        :param email_type: The type of email to send
+        :param communication_content (default None): The content of the communication
+        :param feedback (default None): A Feedback object
+        """
+        type_data_dict = {
+            'feedback':
+            {'subject': "Feedback on %s from One and Done",
+             'template': 'feedback_email.txt',
+             'to_email': attempt.task.owner.email},
+            'verified':
+            {'subject': "One and Done task '%s' verified as complete!",
+             'template': 'verification_complete_email.txt',
+             'to_email': attempt.user.display_email},
+            'verify_from_user':
+            {'subject': 'One and Done task verification requested for %s',
+             'template': 'verification_email_user.txt',
+             'to_email': attempt.task.owner.email},
+            'verify_from_admin':
+            {'subject': 'One and Done task verification update for %s',
+             'template': 'verification_email_admin.txt',
+             'to_email': attempt.user.display_email}}
+        data = type_data_dict[email_type]
+        task_name = attempt.task.name
+        subject = data['subject'] % task_name
+        template = get_template('tasks/emails/%s' % data['template'])
+        message = template.render({
+            'attempt_link': '%s/tasks/attempt/%s' % (base_url, attempt.id),
+            'content': communication_content,
+            'feedback': feedback and feedback.text,
+            'feedback_link': feedback and '%s/admin/tasks/feedback/%s' % (
+                base_url, feedback.id),
+            'task_link': base_url + attempt.task.get_absolute_url(),
+            'task_name': task_name,
+            'task_state': attempt.get_state_display(),
+            'time_spent_on_task': feedback and feedback.time_spent_in_minutes,
+            'user': attempt.user})
+
+        # Manually replace quotes and double-quotes as these get
+        # escaped by the template and this makes the message look bad.
+        filtered_message = message.replace('&#34;', '"').replace('&#39;', "'")
+        send_mail(
+            subject,
+            filtered_message,
+            'oneanddone@mozilla.com',
+            [data['to_email']])
 
 
 class BaseTaskInvalidCriteriaFormSet(forms.formsets.BaseFormSet):
@@ -25,7 +90,7 @@ class BaseTaskInvalidCriteriaFormSet(forms.formsets.BaseFormSet):
             form.empty_permitted = False
 
 
-class FeedbackForm(forms.ModelForm):
+class FeedbackForm(forms.ModelForm, SendEmail):
     time_spent_in_minutes = forms.IntegerField(
         label=_lazy(u'How many minutes did you spend on the task?'))
 
@@ -47,6 +112,15 @@ class PreviewConfirmationForm(forms.Form):
             raise forms.ValidationError(_('Form data is missing or has been '
                                           'tampered.'))
         return cleaned_data
+
+
+class SubmitVerifiedTaskForm(forms.ModelForm, SendEmail):
+
+    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'class': 'fill-width'}))
+
+    class Meta:
+        model = TaskAttemptCommunication
+        fields = ('content',)
 
 
 class TaskForm(forms.ModelForm):
@@ -83,7 +157,15 @@ class TaskForm(forms.ModelForm):
         end_date = cleaned_data.get('end_date')
         if start_date and end_date:
             if start_date >= end_date:
-                raise forms.ValidationError(_("'End date' must be after 'Start date'"))
+                self.add_error('start_date',
+                               forms.ValidationError(_("'End date' must be after "
+                                                       "'Start date'")))
+        if cleaned_data.get('must_be_verified'):
+            if not cleaned_data.get('verification_instructions'):
+                self.add_error('verification_instructions',
+                               forms.ValidationError(_("If the task is a Verified task "
+                                                       "then you must provide some "
+                                                       "verification instructions")))
         return cleaned_data
 
     def save(self, creator, *args, **kwargs):
@@ -103,7 +185,8 @@ class TaskForm(forms.ModelForm):
         fields = ('name', 'short_description', 'execution_time', 'difficulty',
                   'priority', 'repeatable', 'team', 'project', 'type', 'start_date',
                   'end_date', 'why_this_matters', 'prerequisites', 'instructions',
-                  'is_draft', 'is_invalid', 'owner', 'next_task')
+                  'is_draft', 'is_invalid', 'owner', 'next_task', 'must_be_verified',
+                  'verification_instructions')
         widgets = {
             'name': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),
             'short_description': forms.TextInput(attrs={'size': 100, 'class': 'fill-width'}),
@@ -114,6 +197,7 @@ class TaskForm(forms.ModelForm):
             'end_date': CalendarInput,
             'why_this_matters': forms.Textarea(attrs={'rows': 2, 'class': 'fill-width'}),
             'prerequisites': forms.Textarea(attrs={'rows': 4, 'class': 'fill-width'}),
+            'verification_instructions': forms.Textarea(attrs={'rows': 4, 'class': 'fill-width'}),
         }
 
 

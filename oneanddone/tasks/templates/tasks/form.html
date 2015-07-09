@@ -94,6 +94,11 @@
     {{ form_field(task_form['why_this_matters'], 'why-this-matters') }}
     {{ form_field(task_form['prerequisites']) }}
     {{ form_field(task_form['instructions']) }}
+    <label for="id_must_be_verified">
+      {{ task_form['must_be_verified'] }}
+      {{ _('Must be verified') }}
+    </label>
+    {{ form_field(task_form['verification_instructions']) }}
 
     <div class="actions-container">
       <div class="without-message">

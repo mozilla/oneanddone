@@ -1,0 +1,12 @@
+A user has requested verification of completion of a One and Done task.
+
+User: {{ user }}
+
+The task: {{ task_name }} ({{ task_link }})
+
+Verification information provided by the user:
+
+{{ content }}
+
+You can respond to the user and/or verify the task as completed by visiting the attempt at:
+{{ attempt_link }}

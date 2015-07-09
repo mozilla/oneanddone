@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned
 from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -92,8 +92,26 @@ class TaskAttempt(CreatedModifiedModel):
             return False
 
     @property
+    def needs_verification(self):
+        return self.task.must_be_verified and self.state == self.STARTED
+
+    @property
     def next_task(self):
         return self.task.next_task
+
+    @property
+    def verification_status(self):
+        if (not self.communication_set.exists() or
+                self.communication_set.all()[0].type == TaskAttemptCommunication.ADMIN):
+            return _('Needs Action')
+        return _('Submitted')
+
+    @property
+    def verification_status_classname(self):
+        return self.verification_status.lower().replace(' ', '-')
+
+    def get_absolute_url(self):
+        return reverse('tasks.attempt', args=[self.id])
 
     @classmethod
     def close_expired_task_attempts(self):
@@ -129,6 +147,32 @@ class TaskAttempt(CreatedModifiedModel):
 
     class Meta(CreatedModifiedModel.Meta):
         ordering = ['-modified']
+
+
+class TaskAttemptCommunication(CreatedModifiedModel, CreatedByModel):
+    attempt = models.ForeignKey('TaskAttempt', related_name='communication_set')
+
+    USER = 0
+    ADMIN = 1
+
+    content = models.TextField()
+    type = models.IntegerField(choices=(
+        (USER, 'User'),
+        (ADMIN, 'Admin')))
+
+    @property
+    def type_label(self):
+        if self.type == self.ADMIN:
+            return _('From Admin:')
+        return _('From You:')
+
+    def __unicode__(self):
+        return u'{comm_date}: {type} {content}'.format(
+            comm_date=self.created.strftime('%Y-%m-%d %H:%M:%S'),
+            type=self.type_label, content=self.content)
+
+    class Meta(CreatedModifiedModel.Meta):
+        ordering = ('-created',)
 
 
 class TaskKeyword(CreatedModifiedModel, CreatedByModel):
@@ -395,6 +439,8 @@ class Task(CreatedModifiedModel, CreatedByModel):
     instructions = models.TextField()
     is_draft = models.BooleanField(verbose_name='draft', default=False)
     is_invalid = models.BooleanField(verbose_name='invalid', default=False)
+    must_be_verified = models.BooleanField(verbose_name='must be verified',
+                                           default=False)
     name = models.CharField(max_length=255, verbose_name='title', unique=True)
     prerequisites = models.TextField(blank=True)
     priority = models.IntegerField(
@@ -406,8 +452,11 @@ class Task(CreatedModifiedModel, CreatedByModel):
         default=P3,
         verbose_name='task priority')
     repeatable = models.BooleanField(default=True)
-    short_description = models.CharField(blank=True, null=True, max_length=255, verbose_name='description')
+    short_description = models.CharField(blank=True, null=True, max_length=255,
+                                         verbose_name='description')
     start_date = models.DateTimeField(blank=True, null=True)
+    verification_instructions = models.TextField(blank=True,
+                                                 verbose_name='How to verify')
     why_this_matters = models.TextField(blank=True)
 
     @property
@@ -531,6 +580,10 @@ class Task(CreatedModifiedModel, CreatedByModel):
             state=TaskAttempt.FINISHED)
 
     @property
+    def verification_instructions_html(self):
+        return self._yield_html(self.verification_instructions)
+
+    @property
     def why_this_matters_html(self):
         return self._yield_html(self.why_this_matters)
 
@@ -636,9 +689,6 @@ class Task(CreatedModifiedModel, CreatedByModel):
                 ~pQ(taskattempt_set__state=TaskAttempt.FINISHED)))
 
         return q_filter
-
-    def __unicode__(self):
-        return self.name
 
     class Meta(CreatedModifiedModel.Meta):
         ordering = ['priority', 'difficulty']

@@ -116,10 +116,10 @@ class StartTaskViewTests(TestCase):
             ok_(not TaskAttempt.objects.filter(user=user, task=self.task).exists())
 
 
-class TaskDetailViewTests(TestCase):
+class TaskDisplayViewTests(TestCase):
     def setUp(self):
-        self.view = views.TaskDetailView()
-        self.view.request = Mock()
+        self.view = views.TaskDisplayView()
+        self.view.request = Mock(method='GET')
         self.view.object = Mock()
         self.view.object.name = 'name'
 

@@ -9,13 +9,15 @@ from django.utils import timezone
 
 from mock import patch
 from nose.tools import eq_, ok_
+from tower import ugettext as _
 
 from oneanddone.base.tests import TestCase
-from oneanddone.tasks.models import (Task, TaskAttempt, TaskInvalidationCriterion,
-                                     TaskKeyword, TaskTeam)
+from oneanddone.tasks.models import (Task, TaskAttempt, TaskAttemptCommunication,
+                                     TaskInvalidationCriterion, TaskKeyword,
+                                     TaskTeam)
 from oneanddone.tasks.tests import (BugzillaBugFactory, FeedbackFactory,
-                                    TaskAttemptFactory, TaskFactory,
-                                    TaskImportBatchFactory,
+                                    TaskAttemptFactory, TaskAttemptCommunicationFactory,
+                                    TaskFactory, TaskImportBatchFactory,
                                     TaskInvalidationCriterionFactory, TaskKeywordFactory,
                                     TaskTeamFactory, ValidTaskAttemptFactory)
 from oneanddone.users.tests import UserFactory
@@ -640,6 +642,30 @@ class TaskAttemptTests(TestCase):
         FeedbackFactory.create(attempt=self.attempt)
         eq_(self.attempt.has_feedback, True)
 
+    def test_needs_verification_false_attempt(self):
+        """
+        If the attempt is not 'Started', needs_verification
+        should be False.
+        """
+        self.attempt.task.must_be_verified = True
+        self.attempt.state = TaskAttempt.FINISHED
+        ok_(not self.attempt.needs_verification)
+
+    def test_needs_verification_false_task(self):
+        """
+        If the task.must_be_verified is False, needs_verification
+        should be False.
+        """
+        ok_(not self.attempt.needs_verification)
+
+    def test_needs_verification_true(self):
+        """
+        If the task.must_be_verified is True, and the attempt status
+        is 'Started', needs_verification should be True.
+        """
+        self.attempt.task.must_be_verified = True
+        ok_(self.attempt.needs_verification)
+
     def test_next_task(self):
         attempt = self.attempt
         task2 = TaskFactory.create()
@@ -647,6 +673,37 @@ class TaskAttemptTests(TestCase):
         attempt.task.next_task = task2
         attempt.task.save()
         eq_(attempt.next_task, task2)
+
+    def test_verification_status_needs_action_admin(self):
+        """
+        If the last communication is from an admin, the verification_status
+        should be 'Needs Action'.
+        """
+        TaskAttemptCommunicationFactory.create(attempt=self.attempt, type=TaskAttemptCommunication.ADMIN)
+        eq_(self.attempt.verification_status, _('Needs Action'))
+
+    def test_verification_status_needs_action_empty(self):
+        """
+        If there are no communications, the verification_status
+        should be 'Needs Action'.
+        """
+        eq_(self.attempt.verification_status, _('Needs Action'))
+
+    def test_verification_status_submitted(self):
+        """
+        If the last communication is from a user, the verification_status
+        should be 'Submitted'.
+        """
+        TaskAttemptCommunicationFactory.create(attempt=self.attempt, type=TaskAttemptCommunication.USER)
+        eq_(self.attempt.verification_status, _('Submitted'))
+
+    def test_verification_status_classname(self):
+        """
+        If the last communication is from a user, the verification_status
+        should be 'Submitted'.
+        """
+        TaskAttemptCommunicationFactory.create(attempt=self.attempt, type=TaskAttemptCommunication.ADMIN)
+        eq_(self.attempt.verification_status_classname, 'needs-action')
 
 
 class TaskInvalidationCriterionTests(TestCase):

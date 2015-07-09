@@ -38,3 +38,10 @@
   {% endfor %}
 {%- endmacro %}
 
+{% macro communication_list(communication_iterator) -%}
+  {% for comm in communication_iterator %}
+    <div{% if comm.attempt.needs_verification and comm == communication_iterator|first %} class="latest-communication"{% endif %}>
+      {{ comm }}
+    </div>
+  {% endfor %}
+{%- endmacro %}

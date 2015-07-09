@@ -41,6 +41,18 @@ class HideNonRepeatableTaskMixin(object):
         return task
 
 
+class BaseURLMixin(object):
+    """
+    Store the base url for the current site in self.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        link_prefix = 'http'
+        if self.request.is_secure():
+            link_prefix += 's'
+        self.base_url = link_prefix + '://%s' % self.request.get_host()
+        return super(BaseURLMixin, self).dispatch(request, *args, **kwargs)
+
+
 class TaskMustBeAvailableMixin(object):
     """
     Only allow published tasks to be listed, by filtering the
