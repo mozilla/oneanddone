@@ -156,8 +156,8 @@ https://github.com/jsocol/jingo-minify/archive/2beb546949ed2cb4eb866bab6dd643047
 # sha256: CjPtzXJMot4J4bM5LQRovBDDJbtEKG68S07AhCek_DY
 https://github.com/mozilla/django-mozilla-product-details/archive/d168ab2e689a1b54a30a923386fe7948a74ff334.zip#egg=django-mozilla-product-details
 
-# sha256: mErDoqC0PlVGWZXcYv9OvnmgV8SkXUWGv0WyQ3R8UUI
-https://github.com/jsocol/bleach/archive/7947b26140cd1c380eabf90ed15826de1c454256.zip#egg=bleach
+# sha256: ZSZiwhMQgfaHTTuNJA1bLSjZTu4lsLH0hLSl4nT3xF4
+https://github.com/jsocol/bleach/archive/4e425f767bbf4cc96beafbcb5536aa93cc15a680.zip#egg=bleach
 
 # sha256: vsCdiBnI0dPE-Z_55Mb4faMhyrJsYNMdbCvAlYdwGY8
 https://github.com/mozilla/django-session-csrf/archive/f00ad913c62e139d36078e8a7e07dab65a021386.zip#egg=django-session-csrf
