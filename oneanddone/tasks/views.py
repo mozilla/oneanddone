@@ -419,10 +419,11 @@ class TaskDetailContextMixin(object):
         ctx['users'] = task.users_who_completed_this_task
 
         # add verification form to the context
-        if self.request.method == 'GET':
-            ctx['verification_form'] = SubmitVerifiedTaskForm()
-        else:
-            ctx['verification_form'] = ctx['form']
+        if task.must_be_verified:
+            if self.request.method == 'GET':
+                ctx['verification_form'] = SubmitVerifiedTaskForm()
+            elif self.request.method == 'POST':
+                ctx['verification_form'] = ctx['form']
 
         # determine label for Get Started button
         if task.is_taken:
