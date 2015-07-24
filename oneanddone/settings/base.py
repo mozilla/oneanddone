@@ -62,6 +62,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE_CLASSES = (
+    'sslify.middleware.SSLifyMiddleware',
     'oneanddone.base.middleware.LocaleURLMiddleware',
     'multidb.middleware.PinningRouterMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -142,7 +143,13 @@ WSGI_APPLICATION = 'oneanddone.wsgi.application'
 # Email
 
 EMAIL_HOST = config('EMAIL_HOST', default='localhost')
-SERVER_EMAIL = config('SERVER_EMAIL', default='root@localhost')
+SERVER_EMAIL = config('OUTBOUND_EMAIL_ADDRESS', default='root@localhost')
+
+# Postmark Email addon
+POSTMARK_API_KEY = config('POSTMARK_API_TOKEN', default='inavlid-key')
+POSTMARK_SENDER = SERVER_EMAIL
+POSTMARK_TEST_MODE = False
+POSTMARK_TRACK_OPENS = False
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases

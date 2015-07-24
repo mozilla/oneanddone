@@ -465,11 +465,7 @@ class Task(CreatedModifiedModel, CreatedByModel):
 
     @property
     def abandoned_user_count(self):
-        qs = self.abandoned_attempts.values('task').annotate(
-            user_count=Count('user', distinct=True))
-        if qs:
-            return qs[0]['user_count']
-        return 0
+        return len(self.abandoned_attempts.order_by().distinct('user'))
 
     @property
     def all_attempts(self):
@@ -487,11 +483,7 @@ class Task(CreatedModifiedModel, CreatedByModel):
 
     @property
     def closed_user_count(self):
-        qs = self.closed_attempts.values('task').annotate(
-            user_count=Count('user', distinct=True))
-        if qs:
-            return qs[0]['user_count']
-        return 0
+        return len(self.closed_attempts.order_by().distinct('user'))
 
     @property
     def completed_attempts(self):
@@ -502,11 +494,7 @@ class Task(CreatedModifiedModel, CreatedByModel):
 
     @property
     def completed_user_count(self):
-        qs = self.completed_attempts.values('task').annotate(
-            user_count=Count('user', distinct=True))
-        if qs:
-            return qs[0]['user_count']
-        return 0
+        return len(self.completed_attempts.order_by().distinct('user'))
 
     @property
     def first_previous_task(self):
@@ -525,11 +513,7 @@ class Task(CreatedModifiedModel, CreatedByModel):
 
     @property
     def incomplete_user_count(self):
-        qs = self.incomplete_attempts.values('task').annotate(
-            user_count=Count('user', distinct=True))
-        if qs:
-            return qs[0]['user_count']
-        return 0
+        return len(self.incomplete_attempts.order_by().distinct('user'))
 
     @property
     def instructions_html(self):
@@ -639,7 +623,7 @@ class Task(CreatedModifiedModel, CreatedByModel):
         """
         Invalidate any tasks for which invalidation criteria is met
         """
-        bugzillabug_type = ContentType.objects.get(model="BugzillaBug")
+        bugzillabug_type = ContentType.objects.get(model='bugzillabug')
         tasks = self.objects.filter(
             is_invalid=False,
             content_type=bugzillabug_type)

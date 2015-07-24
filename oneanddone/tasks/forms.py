@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django import forms
+from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import get_template
 
@@ -78,7 +79,7 @@ class SendEmail(object):
         send_mail(
             subject,
             filtered_message,
-            'oneanddone@mozilla.com',
+            settings.SERVER_EMAIL,
             [data['to_email']])
 
 

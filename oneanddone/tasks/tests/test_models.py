@@ -530,8 +530,8 @@ class TaskMetricsSupportTests(TestCase):
     def test_users_who_completed_this_task(self):
         ql = self.task1.users_who_completed_this_task
         eq_(len(ql), 2)
-        eq_(ql[0], self.user1)
-        eq_(ql[1], self.user2)
+        ok_(self.user1 in ql)
+        ok_(self.user2 in ql)
 
 
 class TaskAttemptTests(TestCase):

@@ -57,7 +57,7 @@ class ActivityView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
         qs = TaskAttempt.objects.extra(
             select={
                 'state_display': TaskAttempt.choice_display_extra_expression('state'),
-                'elapsed_time': 'TIMESTAMPDIFF(SECOND, tasks_taskattempt.created, tasks_taskattempt.modified)'
+                'elapsed_time': 'EXTRACT(EPOCH FROM (tasks_taskattempt.modified - tasks_taskattempt.created))'
             })
         return qs.order_by(self.sort_headers.get_order_by())
 

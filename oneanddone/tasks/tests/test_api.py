@@ -83,7 +83,7 @@ class APITests(APITestCase):
         response_data = json.loads(response.content)
         assert_greater(response_data['id'], 0)
         del response_data['id']
-        eq_(response_data, task_data)
+        eq_(sorted(response_data), sorted(task_data))
 
     def test_delete_task(self):
         """
