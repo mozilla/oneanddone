@@ -1,3 +1,6 @@
 #!/bin/bash
 
-python manage.py migrate
+export PATH=/app/.heroku/node/bin:$PATH
+./manage.py collectstatic --noinput
+./manage.py compress_assets
+./manage.py migrate
