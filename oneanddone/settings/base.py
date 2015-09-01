@@ -283,6 +283,7 @@ JINGO_EXCLUDE_APPS = [
     'registration',
     'browserid',
     'memcached',
+    'rest_framework',
 ]
 
 # Bundles is a dictionary of two dictionaries, css and js, which list css files
