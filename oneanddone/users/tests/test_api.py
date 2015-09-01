@@ -35,27 +35,6 @@ class APITests(APITestCase):
         self.token = Token.objects.create(user=self.client_user)
         self.uri = '/api/v1/user/'
 
-    def test_change_user_profile_data(self):
-        """
-        Test Change User Profile Data(name, username and privacy_policy_accepted)
-        """
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-
-        # Create a new user
-        user_data = {'username': 'testname', 'email': 'test@test.com',
-                     'profile': {'name': 'Test Name', 'username': 'testname', 'privacy_policy_accepted': True}}
-        response = self.client.post(self.uri, user_data, format='json')
-
-        # Change Profile Data(name, username, privacy_policy_accepted)
-        changed_data = {'username': 'testname', 'email': 'test@test.com',
-                        'profile': {'name': 'Changed Test Name', 'username': 'testname123', 'privacy_policy_accepted': False}}
-        user_uri = self.uri + user_data['email'] + '/'
-        response = self.client.patch(user_uri, changed_data, format='json')
-
-        self.assert_response_status(response, status.HTTP_200_OK)
-        response_data = json.loads(response.content)
-        eq_(response_data['profile'], changed_data['profile'])
-
     def test_create_new_user(self):
         """
         Test Create new user with Profile Data(name, username and privacy_policy_accepted)

@@ -38,9 +38,9 @@ django-sha2==0.4
 # sha256: 9r_SEEjH38lbOWWaPad3ddbbHB96dFgFzMbGE494O20
 django-sslify==0.2.7
 
-# sha256: G-VKDAhWZhNTQRlZRnkQnibuG3Pj4uQCBoL8WxWNc5M
-# sha256: JeEXgXLGQWwA4JSzsaNo0-Fv58a-A2gHSqyZlAGKg6k
-djangorestframework==2.3.10
+# sha256: IJxixh3NSkTNC1M30mHCjbasWoUWtaCzJyKI87QHXWA
+# sha256: 34H2jOePiMcYbLbS8wzQAW-pa-2ICW5C1XUn5NJcXn4
+djangorestframework==3.2.4
 
 # sha256: x9txeBCraWX2bIzwOYqYydjfmC2jm0zX8WKRHriVlvo
 docutils==0.12
