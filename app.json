@@ -1,0 +1,40 @@
+{
+  "name": "oneanddone",
+  "description": "",
+  "scripts": {
+    "postdeploy": "./bin/heroku_review_apps_postdeploy.sh"
+  },
+  "env": {
+    "HEROKU_APP_NAME": {
+      "required": true
+    },
+    "ALLOWED_HOSTS": {
+      "required": true
+    },
+    "BROWSERID_AUDIENCE": {
+      "required": true
+    },
+    "DJANGO_ADMIN_EMAIL": {
+      "required": true
+    },
+    "DJANGO_DEBUG": {
+      "required": true
+    },
+    "DJANGO_HMAC_KEY": {
+      "required": true
+    },
+    "DJANGO_SECRET_KEY": {
+      "required": true
+    },
+    "OUTBOUND_EMAIL_ADDRESS": {
+      "required": true
+    }
+  },
+  "addons": [
+    "memcachedcloud",
+    "scheduler",
+    "heroku-postgresql:hobby-dev",
+    "postmark",
+    "papertrail"
+  ]
+}
