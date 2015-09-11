@@ -1,7 +1,7 @@
 from .base import *
 
-if 'STACKATO_APP_NAME' in os.environ:
-    from .stackato import *
+if 'DYNO' in os.environ:
+    from .heroku import *
 else:
     try:
         from .local import *

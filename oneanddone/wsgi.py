@@ -29,3 +29,8 @@ NEW_RELIC_APP_NAME = os.environ.get('NEW_RELIC_APP_NAME', False)
 if NEW_RELIC_LICENSE_KEY and NEW_RELIC_APP_NAME:
     newrelic.agent.initialize()
     application = newrelic.agent.wsgi_application()(application)
+
+# Fix django closing connection to memcached after every request (#11331)
+# From https://devcenter.heroku.com/articles/memcachier#django
+from django.core.cache.backends.memcached import BaseMemcachedCache
+BaseMemcachedCache.close = lambda self, **kwargs: None

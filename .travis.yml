@@ -2,10 +2,10 @@ language: python
 python:
   - "2.7"
 before_script:
-  - mysql -e 'create database oneanddone character set utf8;'
+  - psql -c 'create database oneanddone;' -U postgres
   - cp oneanddone/settings/local.py-travis oneanddone/settings/local.py
 install:
-  - pip install -r requirements/requirements.txt
+  - pip install -r requirements.txt
 env:
-  - DJANGO_DEBUG=False DJANGO_SECRET_KEY='FOO' DJANGO_HMAC_KEY='FOO' ALLOWED_HOSTS=localhost, DATABASE_URL=mysql://root:@localhost:3306/oneanddone
+  - DJANGO_DEBUG=False DJANGO_SECRET_KEY='FOO' DJANGO_HMAC_KEY='FOO' ALLOWED_HOSTS=localhost, DATABASE_URL=postgres://postgres:@localhost/oneanddone
 script: python manage.py test

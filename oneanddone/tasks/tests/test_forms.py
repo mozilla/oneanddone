@@ -55,7 +55,7 @@ class TaskFormTests(TestCase):
         task = TaskFactory.create()
         TaskKeywordFactory.create_batch(3, task=task)
         form = TaskForm(instance=task)
-        eq_(form.initial['keywords'], 'test1, test2, test3')
+        eq_(sorted(form.initial['keywords']), sorted('test1, test2, test3'))
 
     def test_save_does_not_add_a_blank_keyword(self):
         """
@@ -89,7 +89,7 @@ class TaskFormTests(TestCase):
         eq_(len(kept_keyword), 1)
 
         # double-check on the keywords_list property
-        eq_(self.task.keywords_list, 'test3, new_keyword')
+        eq_(sorted(self.task.keywords_list), sorted('test3, new_keyword'))
 
     def test_save_processes_keywords_for_clone(self):
         """
@@ -103,7 +103,7 @@ class TaskFormTests(TestCase):
         form.initial['keywords'] = form.data['keywords'] = keywords
         form.save(self.user)
         assert_not_in('keywords', form.changed_data)
-        eq_(self.task.keywords_list, keywords)
+        eq_(sorted(self.task.keywords_list), sorted(keywords))
 
     def test_validation_same_start_date_as_end_date(self):
         """
