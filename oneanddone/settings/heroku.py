@@ -22,3 +22,6 @@ ALLOWED_HOSTS = ['*']
 
 # Send email via postmark
 EMAIL_BACKEND = 'postmark.django_backend.EmailBackend'
+
+if 'HEROKU_APP_NAME' in os.environ:
+    BROWSERID_AUDIENCES = ['https://%s.herokuapp.com' % os.getenv('HEROKU_APP_NAME')]
