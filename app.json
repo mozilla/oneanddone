@@ -28,6 +28,12 @@
     },
     "OUTBOUND_EMAIL_ADDRESS": {
       "required": true
+    },
+    "NEW_RELIC_CONFIG_FILE": {
+      "required": true
+    },
+    "NEW_RELIC_APP_NAME": {
+      "required": true
     }
   },
   "addons": [
