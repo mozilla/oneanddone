@@ -1,9 +1,9 @@
 # sha256: nwLQNXGE3h8JPBABK1LnRUoQCL5qXBhat6Mwes6x0S4
 Babel==1.3
 
-# sha256: Tz-f5OXSD_jtapC10vLfLY_AVOR4zcw9uBxrKb0heGA
-# sha256: TVjkUnRLdodtgZnKRBRKJSwlTokUk5JArjUnxOqhiC8
-Django==1.7.9
+# sha256: HbXa_k_oMC80RJKDhkuqdNDWQBNhOqIAkYGHv3aQLV8
+# sha256: uTV9LOvmGZcFXUF9YH-cZQ6BfNGjg7mhuIvx7a15fHU
+Django==1.7.10
 
 # sha256: LfpotUw1JurEJ_8T2xyrR7nvlpikOp82jIfI8SOIS3g
 django-ace==1.0.2
@@ -69,6 +69,9 @@ ipdb==0.8
 # sha256: PphGaqL-VFQLy6mqbgGjn0ARDWdmjClzQMS5UUt8xJw
 # sha256: MmP8nqIHC-HP-ERXhtbzGLdnaMAGg4n7OFOw0us_THI
 ipython==2.3.1
+
+# sha256: xJWo39CpwdPY7QISG7sotsnTTU2jCqk6fmOcDz17Bjk
+jingo==0.7.1
 
 # sha256: LiSsXQBNtXFJdqBKwOgMbfbkfpjDVMssDYL4h51Pj9s
 Jinja2==2.7.3
@@ -185,10 +188,6 @@ https://github.com/mozilla/django-mozilla-product-details/archive/d168ab2e689a1b
 # django-session-csrf
 # sha256: vsCdiBnI0dPE-Z_55Mb4faMhyrJsYNMdbCvAlYdwGY8
 https://github.com/mozilla/django-session-csrf/archive/f00ad913c62e139d36078e8a7e07dab65a021386.zip#egg=django-session-csrf
-
-# jingo
-# sha256: HBcgpkWQEwtCrzxWtT4n9kjZus00ogWz4yTqmti1BB0
-https://github.com/jbalogh/jingo/archive/fce09043542e71d972cc97d2ae703740741f80d0.zip#egg=jingo
 
 # jingo-minify
 # sha256: 1rhJV1lByVPZ-yeMIc8aLkpmilR1XeBa0DUAiHGrt1c
