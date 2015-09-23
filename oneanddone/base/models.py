@@ -23,9 +23,9 @@ class BaseModel(models.Model):
         Return the requested field for a task after parsing them as
         markdown and bleaching/linkifying them.
         """
-        linkified_field = bleach.linkify(field, parse_email=True)
-        html = markdown(linkified_field, output_format='html5')
-        cleaned_html = bleach.clean(html, tags=settings.INSTRUCTIONS_ALLOWED_TAGS,
+        html = markdown(field, output_format='html5')
+        linkified_html = bleach.linkify(html, parse_email=True)
+        cleaned_html = bleach.clean(linkified_html, tags=settings.INSTRUCTIONS_ALLOWED_TAGS,
                                     attributes=settings.INSTRUCTIONS_ALLOWED_ATTRIBUTES)
         return jinja2.Markup(cleaned_html)
 
