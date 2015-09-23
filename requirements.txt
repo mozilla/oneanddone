@@ -82,8 +82,8 @@ MarkupSafe==0.23
 # sha256: uDndLZwRfHAUMMFJlWkYpCOphjtIsJyQ4wpgE-fS9E8
 mock==1.0.1
 
-# sha256: _d1HqNBI4MX0Lu5RGoqvNYkcmW1slZVTx77Is6x0s8s
-newrelic==2.50.0.39
+# sha256: hbroOd-up9i4YNH1v-t46GEswfnxSzYFm-IEO0HjcAs
+newrelic==2.54.0.41
 
 # sha256: eLAxFrrdDbsu1N7clqSj1CE4uUu4n8Lrmffzvf0Zn1Y
 # sha256: zIrr3sWl-5iZEvFX93s8IaXi8tpiOvkKe0drEGqDSr8
