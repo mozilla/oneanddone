@@ -73,8 +73,10 @@ ipython==2.3.1
 # sha256: LiSsXQBNtXFJdqBKwOgMbfbkfpjDVMssDYL4h51Pj9s
 Jinja2==2.7.3
 
-# sha256: KE6X5W25raA-3pwO0ocMplkM54afMRkQTVNRDevxUz0
-markdown==2.5.2
+# sha256: 3zu65Xjyl2dXG1zmekcC_hTtZxC5e6tZJRpRE7a-w6M
+# sha256: 7hfQ19wJHmRd1IMCouITAcxo8YhQXCBp2GNflFVBcL8
+# sha256: MP83v2QkXF_kxvu2ln76zQO--au9D8HePIiNJqnbyFs
+Markdown==2.6.2
 
 # sha256: pOwa_1m5WhS0XrLiN2GgF56YMZ2lp-t2tW6ozce4ccM
 MarkupSafe==0.23
