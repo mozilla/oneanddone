@@ -79,10 +79,11 @@ class ProfileDetailsView(generic.DetailView):
     template_name = 'users/profile/detail.html'
 
     def get_context_data(self, **kwargs):
+        context = super(ProfileDetailsView, self).get_context_data(**kwargs)
         all_attempts_finished = self.object.user.taskattempt_set.filter(state=TaskAttempt.FINISHED)
         paginator = Paginator(all_attempts_finished, 20)
         page = self.request.GET.get('page', 1)
-
+        
         try:
             attempts_finished = paginator.page(page)
         except PageNotAnInteger:
@@ -90,7 +91,6 @@ class ProfileDetailsView(generic.DetailView):
         except EmptyPage:
             attempts_finished = paginator.page(paginator.num_pages)
 
-        context = super(ProfileDetailsView, self).get_context_data(**kwargs)
         context['attempts_finished'] = attempts_finished
         context['page'] = 'ProfileDetails'
         return context

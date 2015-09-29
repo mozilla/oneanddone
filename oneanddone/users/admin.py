@@ -19,8 +19,8 @@ class MyUserAdmin(UserAdmin):
 
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('name', 'username', 'privacy_policy_accepted', 'email')
-    readonly_fields = ('user', 'name', 'username', 'email')
+    list_display = ('name', 'username', 'privacy_policy_accepted', 'email', 'bugzilla_email')
+    readonly_fields = ('user', 'name', 'username', 'email', 'bugzilla_email')
 
     def get_queryset(self, request):
         """

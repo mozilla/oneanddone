@@ -31,6 +31,17 @@ class UserTests(TestCase):
         tasks = TaskAttemptFactory.create_batch(4, user=user, state=TaskAttempt.STARTED)
         eq_(set(user.attempts_in_progress), set(tasks))
 
+    def test_bugzilla_url_with_bugzilla_email(self):
+        email = 'foo@example.com'
+        user = UserProfileFactory.create(bugzilla_email=email)
+        activity_url = 'https://bugzilla.mozilla.org/page.cgi?'\
+            'id=user_activity.html&action=run&from=-14d&who=%s' % email
+        eq_(user.bugzilla_url, activity_url)
+
+    def test_bugzilla_url_with_no_bugzilla_email(self):
+        user = UserProfileFactory.create()
+        eq_(user.bugzilla_url, None)
+
     def test_display_email_with_consent(self):
         """
         The display_email attribute should return the user's email
@@ -108,7 +119,7 @@ class UserTests(TestCase):
         task = TaskFactory.create()
         TaskAttemptFactory.create(user=user, task=task, state=TaskAttempt.STARTED)
         ok_(not user.has_completed_task(task))
-   
+
     def test_profile_email_with_consent(self):
         """
         The email attribute should return the user's email
