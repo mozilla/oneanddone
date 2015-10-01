@@ -415,7 +415,7 @@ def _request_args():
     return {
         'privacyPolicy': 'https://www.mozilla.org/privacy/websites/',
         'siteName': _lazy(u'One and Done'),
-        'termsOfService': 'https://www.mozilla.org/about/legal.html',
+        'termsOfService': 'https://www.mozilla.org/about/legal/',
         'siteLogo': mark_safe(logo_uri),
         'backgroundColor': '#E0DDD4',
     }
