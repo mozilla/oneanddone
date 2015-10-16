@@ -20,3 +20,4 @@ tmp/*
 /static
 *.sql
 stackato-*.yml
+.env
