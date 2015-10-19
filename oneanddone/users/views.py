@@ -83,7 +83,7 @@ class ProfileDetailsView(generic.DetailView):
         all_attempts_finished = self.object.user.taskattempt_set.filter(state=TaskAttempt.FINISHED)
         paginator = Paginator(all_attempts_finished, 20)
         page = self.request.GET.get('page', 1)
-        
+
         try:
             attempts_finished = paginator.page(page)
         except PageNotAnInteger:
@@ -157,9 +157,9 @@ class Verify(django_browserid.views.Verify):
         return super(Verify, self).login_failure(*args, **kwargs)
 
 
-class UserDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+class UserDetailAPI(generics.RetrieveDestroyAPIView):
     """
-    API endpoint used to get, update and delete user data.
+    API endpoint used to get and delete user data.
     """
     lookup_field = 'email'
     queryset = User.objects.all()
