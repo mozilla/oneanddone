@@ -1,27 +1,25 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import Http404
 from django.shortcuts import redirect
 from django.views import generic
 
-from rest_framework import generics
 from braces.views import LoginRequiredMixin
 import django_browserid.views
-from tower import ugettext as _
 from random import randint
 import re
+from tower import ugettext as _
 
 from oneanddone.base.urlresolvers import reverse_lazy
 from oneanddone.tasks.models import TaskAttempt
 from oneanddone.users.forms import UserProfileForm, SignUpForm
 from oneanddone.users.mixins import UserProfileRequiredMixin
 from oneanddone.users.models import UserProfile
-from serializers import UserSerializer
 
 
 def default_username(email, counter):
@@ -155,21 +153,3 @@ class Verify(django_browserid.views.Verify):
             logging in, let us know by emailing <a href="mailto:{email}">{email}</a>.
         """).format(email='oneanddone@mozilla.com'), extra_tags='safe')
         return super(Verify, self).login_failure(*args, **kwargs)
-
-
-class UserDetailAPI(generics.RetrieveDestroyAPIView):
-    """
-    API endpoint used to get and delete user data.
-    """
-    lookup_field = 'email'
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-class UserListAPI(generics.ListCreateAPIView):
-    """
-    API endpoint used to get a complete list of users
-    and create a new user.
-    """
-    queryset = User.objects.all()
-    serializer_class = UserSerializer

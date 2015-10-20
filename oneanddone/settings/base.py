@@ -323,7 +323,7 @@ LESS_PREPROCESS = False
 LESS_BIN = config('LESSC_BIN', default='lessc')
 
 # Testing configuration.
-NOSE_ARGS = ['--logging-clear-handlers', '--logging-filter=-factory,-south']
+NOSE_ARGS = ['--logging-clear-handlers', '--logging-filter=-factory,-south,-django.db']
 
 # Should robots.txt deny everything or disallow a calculated list of URLs we
 # don't want to be crawled?  Default is false, disallow everything.
