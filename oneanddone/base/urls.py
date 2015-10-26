@@ -7,8 +7,9 @@ from django.conf.urls import patterns, url
 from oneanddone.base import views
 
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     (r'^(?P<path>contribute\.json)$', 'django.views.static.serve',
-     {'document_root': settings.BASE_DIR}),
+     {'document_root': settings.ROOT}),
     url(r'^$', views.HomeView.as_view(), name='base.home'),
 )

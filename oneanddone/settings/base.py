@@ -18,20 +18,48 @@ from django.utils.safestring import mark_safe
 
 import dj_database_url
 from decouple import Csv, config
-
-ROOT = os.path.abspath(
-    os.path.join(
-        os.path.dirname(__file__),
-        '..',
-        '..'
-    ))
+from django_sha2 import get_password_hashers
 
 
-def path(*dirs):
-    return os.path.join(ROOT, *dirs)
+_dirname = os.path.dirname
+ROOT = _dirname(_dirname(_dirname(os.path.abspath(__file__))))
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
+def path(*args):
+    return os.path.join(ROOT, *args)
+
+
+# Environment-dependent settings. These are loaded from environment
+# variables.
+
+DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
+
+DEV = config('DEV', default=DEBUG, cast=bool)
+
+TEMPLATE_DEBUG = config('DEBUG', default=DEBUG, cast=bool)
+
+
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
+
+HMAC_KEYS = {
+    '2015-04-30': config('DJANGO_HMAC_KEY'),
+}
+
+SECRET_KEY = config('DJANGO_SECRET_KEY')
+
+# Database
+# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
+
+DATABASES = {
+    'default': config(
+        'DATABASE_URL',
+        cast=dj_database_url.parse
+    )
+}
+
+ROOT_URLCONF = 'oneanddone.urls'
+
+WSGI_APPLICATION = 'oneanddone.wsgi.application'
 
 # Django Settings
 ##############################################################################
@@ -54,7 +82,6 @@ INSTALLED_APPS = [
     'django_browserid',
     'django_nose',
     'jingo_minify',
-    'product_details',
     'rest_framework',
     'rest_framework.authtoken',
     'tower',
@@ -64,7 +91,6 @@ INSTALLED_APPS = [
 MIDDLEWARE_CLASSES = (
     'sslify.middleware.SSLifyMiddleware',
     'oneanddone.base.middleware.LocaleURLMiddleware',
-    'multidb.middleware.PinningRouterMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -115,30 +141,8 @@ BASE_PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
 )
 
-HMAC_KEYS = {
-    '2015-04-30': config('DJANGO_HMAC_KEY'),
-}
-
-from django_sha2 import get_password_hashers
 PASSWORD_HASHERS = get_password_hashers(BASE_PASSWORD_HASHERS, HMAC_KEYS)
 
-SECRET_KEY = config('DJANGO_SECRET_KEY')
-
-LOCALE_PATHS = (
-    os.path.join(BASE_DIR, 'locale'),
-)
-
-DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
-
-DEV = config('DEV', default=DEBUG, cast=bool)
-
-TEMPLATE_DEBUG = config('DEBUG', default=DEBUG, cast=bool)
-
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
-
-ROOT_URLCONF = 'oneanddone.urls'
-
-WSGI_APPLICATION = 'oneanddone.wsgi.application'
 
 # Email
 
@@ -150,20 +154,6 @@ POSTMARK_API_KEY = config('POSTMARK_API_TOKEN', default='inavlid-key')
 POSTMARK_SENDER = SERVER_EMAIL
 POSTMARK_TEST_MODE = False
 POSTMARK_TRACK_OPENS = False
-
-# Database
-# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-
-DATABASES = {
-    'default': config(
-        'DATABASE_URL',
-        cast=dj_database_url.parse
-    )
-}
-
-SLAVE_DATABASES = []
-
-DATABASE_ROUTERS = ('multidb.PinningMasterSlaveRouter',)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
@@ -183,10 +173,6 @@ TEXT_DOMAIN = 'messages'
 STANDALONE_DOMAINS = [TEXT_DOMAIN, 'javascript']
 TOWER_KEYWORDS = {'_lazy': None}
 TOWER_ADD_HEADERS = True
-
-# Tells the product_details module where to find our local JSON files.
-# This ultimately controls how LANGUAGES are constructed.
-PROD_DETAILS_DIR = path('lib/product_details_json')
 
 # Accepted locales
 PROD_LANGUAGES = ('de', 'en-US', 'es', 'fr',)
@@ -212,13 +198,13 @@ def lazy_langs():
 
 LANGUAGES = lazy(lazy_langs, dict)()
 
-STATIC_ROOT = config('STATIC_ROOT', default=os.path.join(BASE_DIR, 'static'))
-STATIC_URL = config('STATIC_URL', '/static/')
+STATIC_ROOT = config('STATIC_ROOT', default=path('static'))
+STATIC_URL = config('STATIC_URL', default='/static/')
 
-MEDIA_ROOT = config('MEDIA_ROOT', default=os.path.join(BASE_DIR, 'media'))
-MEDIA_URL = config('MEDIA_URL', '/media/')
+MEDIA_ROOT = config('MEDIA_ROOT', default=path('media'))
+MEDIA_URL = config('MEDIA_URL', default='/media/')
 
-SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=True, cast=bool)
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=not DEBUG, cast=bool)
 
 TEMPLATE_LOADERS = (
     'jingo.Loader',
