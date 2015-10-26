@@ -195,9 +195,6 @@ whitenoise==2.0.2
 # sha256: ZSZiwhMQgfaHTTuNJA1bLSjZTu4lsLH0hLSl4nT3xF4
 https://github.com/jsocol/bleach/archive/4e425f767bbf4cc96beafbcb5536aa93cc15a680.zip#egg=bleach
 
-# test-utils
-# sha256: ih29HHrehSBq53DJzl9DCBoJjJX5lK8RP2Q06QBVmmc
-https://github.com/jbalogh/test-utils/archive/e42e031d31ea63d593e47d564545149a0f30b95f.zip#egg=test-utils
 
 # tower
 # sha256: YGxwkMz10Xa-hQf4ePwx4s2rJcoL70yhD6M4TOEZgjE
