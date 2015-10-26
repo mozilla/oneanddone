@@ -278,8 +278,6 @@ CSP_STYLE_SRC = (
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
-SESSION_COOKIE_SECURE = not DEBUG
-
 # Third-party Library Settings
 ##############################################################################
 
