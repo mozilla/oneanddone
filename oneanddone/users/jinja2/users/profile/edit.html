@@ -9,7 +9,7 @@
 <main class="billboard content-container">
   <h1>{{ _('Profile') }}</h1>
   <form method="post" class="edit-profile">
-    {{ csrf() }}
+    {% csrf_token %}
     {{ form.name.errors }}
     <p>
     {{ form.name.label }}

@@ -146,13 +146,13 @@
       </div>
 
       <form method="post" action="{{ url('tasks.abandon', attempt.id) }}">
-        {{ csrf() }}
+        {% csrf_token %}
         <button type="submit" title="{{ _('Abandon this task') }}" class="button" id="abandon-task">{{ _('Abandon this task') }}</button>
       </form>
 
       {% if not task.must_be_verified %}
         <form method="post" action="{{ url('tasks.finish', attempt.id) }}">
-          {{ csrf() }}
+          {% csrf_token %}
           <button type="submit" title="{{ _('Complete this task') }}" class="button" id="complete-task">{{ _('Complete this task') }}</button>
         </form>
       {% endif %}
@@ -164,7 +164,7 @@
              id="get-started">{{ gs_button_label }}</a>
         {% else %}
           <form method="post" action="{{ url('tasks.start', task.id) }}">
-            {{ csrf() }}
+            {% csrf_token %}
             <button type="submit"
                     class="button{% if gs_button_disabled %} insensitive" disabled="disabled{% endif %}"
                     id="get-started">{{ gs_button_label }}</button>

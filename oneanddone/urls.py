@@ -5,8 +5,6 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from oneanddone.base.monkeypatches import patch
-patch()
 
 # Auto-discover admin interface definitions.
 admin.autodiscover()
@@ -24,16 +22,15 @@ def handler404(request):
     return render(request, '404.html', status=404)
 
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     (r'^admin/', include(admin.site.urls)),
 
     # Generate robots.txt
     (r'^robots\.txt$',
         lambda r: HttpResponse(
             'User-agent: *\n{0}: /'.format('Allow' if settings.ENGAGE_ROBOTS else 'Disallow'),
-            content_type='text/plain'
-        )
-    ),
+            content_type='text/plain')),
 
     (r'', include('django_browserid.urls')),
 
@@ -48,7 +45,8 @@ urlpatterns = patterns('',
 # viewable.
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()
-    urlpatterns += patterns('',
+    urlpatterns += patterns(
+        '',
         (r'^403/$', handler403),
         (r'^404/$', handler404),
         (r'^500/$', handler500),

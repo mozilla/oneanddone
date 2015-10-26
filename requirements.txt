@@ -33,6 +33,9 @@ dj-database-url==0.3.0
 # sha256: AMxHk1r7vYMmD90oOwqnkOZY0qcZIgSfbkZ9yooSRTc
 django-filter==0.11.0
 
+# sha256: b0wujFraFwOf8cHji8Ub6pMXrzZ24oRmFIyN9fx48TI
+django-jinja==1.4.1
+
 # sha256: c2rlPj7EfbuzBJmZwYzlRYWvKZ74gXLZony1_aKdqgA
 # sha256: gPnTaQ4NuDDDdq6XFygUjXYN1k1ETRwJJ0fWY6DXL3M
 django-nose==1.4.2
@@ -77,9 +80,6 @@ ipdb==0.8.1
 # sha256: jmS0QeFimMCAJbgmEmste8XBd20tLwcWchZvYV8yeIc
 # sha256: MfXU5lrA5yp-r8Mey5WrfJgbtJ7TFLaTEbykXGq4-ss
 ipython==3.2.0
-
-# sha256: xJWo39CpwdPY7QISG7sotsnTTU2jCqk6fmOcDz17Bjk
-jingo==0.7.1
 
 # sha256: LiSsXQBNtXFJdqBKwOgMbfbkfpjDVMssDYL4h51Pj9s
 Jinja2==2.7.3
@@ -194,10 +194,6 @@ whitenoise==2.0.2
 # bleach
 # sha256: ZSZiwhMQgfaHTTuNJA1bLSjZTu4lsLH0hLSl4nT3xF4
 https://github.com/jsocol/bleach/archive/4e425f767bbf4cc96beafbcb5536aa93cc15a680.zip#egg=bleach
-
-# jingo-minify
-# sha256: 1rhJV1lByVPZ-yeMIc8aLkpmilR1XeBa0DUAiHGrt1c
-https://github.com/jsocol/jingo-minify/archive/2beb546949ed2cb4eb866bab6dd643047d803a95.zip#egg=jingo-minify
 
 # test-utils
 # sha256: ih29HHrehSBq53DJzl9DCBoJjJX5lK8RP2Q06QBVmmc

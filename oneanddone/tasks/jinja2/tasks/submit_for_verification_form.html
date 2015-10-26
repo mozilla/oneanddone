@@ -3,13 +3,13 @@
  # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
 
 <form method="post" class="feedback-form">
-  <input type="hidden" id="pk" name="pk" value="{{ taskattempt.id }}">
-  {{ csrf() }}
+  <input type="hidden" id="pk" name="pk" value="{{ task.id }}">
+  {% csrf_token %}
   <p>
-    {{ form.content }}
-    {{ form.content.errors }}
+    {{ verification_form.content }}
+    {{ verification_form.content.errors }}
   </p>
   <div class="right">
-    <button type="submit" class="button">{{ _('Submit feedback to user') }}</button>
+    <button type="submit" class="button">{{ _('Submit for verification') }}</button>
   </div>
 </form>

@@ -42,7 +42,7 @@
                   <button class="button" id="attempt-feedback">{{ _('Provide feedback to the user') }}</button>
                 </a>
                 <form method="post" action="{{ url('tasks.verify', attempt.id) }}">
-                  {{ csrf() }}
+                  {% csrf_token %}
                   <button type="submit" title="{{ _('Verify task as completed') }}" class="button" id="verify-task">{{ _('Verify this task as completed') }}</button>
                 </form>
               </div>

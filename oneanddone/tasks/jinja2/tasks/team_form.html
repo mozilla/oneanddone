@@ -25,7 +25,7 @@
   {{ form.non_field_errors() }}
 
   <form method="post" class="edit-profile">
-    {{ csrf() }}
+    {% csrf_token %}
     {{ form_field(form['name']) }}
     {{ form_field(form['url_code'], help_text=True) }}
     {{ form_field(form['description']) }}

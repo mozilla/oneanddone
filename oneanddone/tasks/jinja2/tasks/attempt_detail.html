@@ -63,7 +63,7 @@
         </div>
         <div class="actions-container">
           <form method="post" action="{{ url('tasks.verify', taskattempt.id) }}">
-            {{ csrf() }}
+            {% csrf_token %}
             <button type="submit" title="{{ _('Verify task as completed') }}" class="button" id="verify-task">{{ _('Verify this task as completed') }}</button>
           </form>
         </div>

@@ -17,7 +17,7 @@
 
     {% block site_css %}
       <link rel="stylesheet" type="text/css" href="//www.mozilla.org/tabzilla/media/css/tabzilla.css" media="screen" />
-      {{ less_css('base') }}
+{#      {{ less_css('base') }}#}
     {% endblock %}
     {% if settings.GOOGLE_ANALYTICS_ID %}
       <script>
@@ -146,7 +146,7 @@
       navigator.id.logout();
       </script>
       {% endif %}
-      {{ js('base') }}
+{#      {{ js('base') }}#}
     {% endblock %}
   </body>
 </html>

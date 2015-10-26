@@ -33,7 +33,7 @@
   {{ task_form.non_field_errors() }}
 
   <form method="post" class="task-form">
-    {{ csrf() }}
+    {% csrf_token %}
     {% if action == 'Import' %}
       {{ stage_form__preview }}
       {{ form_field(batch_form['description'], help_text=True) }}

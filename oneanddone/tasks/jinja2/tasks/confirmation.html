@@ -15,13 +15,13 @@
     <p> {{ _('You are about to import the {num} tasks listed below. Do you wish to continue?')|f(num=num_tasks) }}</p>
     <div class="actions-container">
       <form method="post">
-        {{ csrf() }}
+        {% csrf_token %}
         {{ hiddenform([batch_form, task_form], [criterion_formset]) }}
         {{ stage_form__fill }}
         <button type="submit" class="button">{{ _('No, cancel import') }}</button>
       </form>
       <form method="post">
-        {{ csrf() }}
+        {% csrf_token %}
         {{ hiddenform([batch_form, task_form], [criterion_formset]) }}
         {{ stage_form__confirm }}
         <button type="submit" class="button">{{ _('Yes, import tasks') }}</button>

@@ -32,7 +32,7 @@
   </p>
 
   <form method="post" class="feedback-form">
-    {{ csrf() }}
+    {% csrf_token %}
     <p>
       {{ form.text }}
       {{ form.text.errors }}
