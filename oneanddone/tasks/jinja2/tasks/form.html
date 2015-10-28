@@ -16,9 +16,9 @@
 
 {% from 'tasks/macros.html' import form_field %}
 {% if action == 'Import' %}
-  {% set title = _('{action} task batch')|f(action=action) %}
+  {% set title = _('{action} task batch')|fe(action=action) %}
 {% else %}
-  {% set title = _('{action} task: {task_name}')|f(action=action,task_name=task_form['name'].value() or '') %}
+  {% set title = _('{action} task: {task_name}')|fe(action=action,task_name=task_form['name'].value() or '') %}
 {% endif %}
 
 {% block content %}
@@ -105,7 +105,7 @@
         <a href="{{ cancel_url }}" class="button" id="cancel">{{ _('Cancel') }}</a>
       </div>
        <button type="submit" class="button">
-          {{ _('{action} {import_obj}')|f(action=action, import_obj=import_obj or 'task') }}
+          {{ _('{action} {import_obj}')|fe(action=action, import_obj=import_obj or 'task') }}
         </button>
     </div>
   </form>

@@ -96,7 +96,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'commonware.middleware.FrameOptionsHeader',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'csp.middleware.CSPMiddleware',
     'oneanddone.base.middleware.TimezoneMiddleware',
     'oneanddone.base.middleware.ClosedTaskNotificationMiddleware',
 )
@@ -294,36 +293,6 @@ PIPELINE_DISABLE_WRAPPER = True
 PIPELINE_YUGLIFY_BINARY = path('node_modules/.bin/yuglify')
 
 PIPELINE_LESS_BINARY = path('node_modules/.bin/lessc')
-
-# Django-CSP
-CSP_DEFAULT_SRC = (
-    "'self'",
-)
-CSP_FONT_SRC = (
-    "'self'",
-    'http://*.mozilla.net',
-    'https://*.mozilla.net'
-)
-CSP_IMG_SRC = (
-    "'self'",
-    'http://*.mozilla.net',
-    'https://*.mozilla.net',
-)
-CSP_SCRIPT_SRC = (
-    "'self'",
-    'http://www.mozilla.org',
-    'https://www.mozilla.org',
-    'http://*.mozilla.net',
-    'https://*.mozilla.net',
-)
-CSP_STYLE_SRC = (
-    "'self'",
-    "'unsafe-inline'",
-    'http://www.mozilla.org',
-    'https://www.mozilla.org',
-    'http://*.mozilla.net',
-    'https://*.mozilla.net',
-)
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 

@@ -12,7 +12,7 @@
 <main class="billboard content-container">
   <h1>{{ title }}</h1>
   <div class="subsection content-container">
-    <p> {{ _('You are about to import the {num} tasks listed below. Do you wish to continue?')|f(num=num_tasks) }}</p>
+    <p> {{ _('You are about to import the {num} tasks listed below. Do you wish to continue?')|fe(num=num_tasks) }}</p>
     <div class="actions-container">
       <form method="post">
         {% csrf_token %}

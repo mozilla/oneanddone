@@ -3,7 +3,7 @@
  # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
 {% extends 'base/base.html' %}
 
-{% set title = _('User profile for {username}')|f(username=userprofile.name) %}
+{% set title = _('User profile for {username}')|fe(username=userprofile.name) %}
 
 {% block content %}
 
