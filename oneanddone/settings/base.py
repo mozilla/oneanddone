@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'django_jinja',
     'django_jinja.contrib._humanize',  # Adds django humanize filters
     'django_nose',
+    'pipeline',
     'rest_framework',
     'rest_framework.authtoken',
     'tower',
@@ -126,17 +127,18 @@ TEMPLATES = [
             'context_processors': CONTEXT_PROCESSORS,
             'undefined': 'jinja2.Undefined',
             'extensions': [
-                'jinja2.ext.do',
-                'jinja2.ext.loopcontrols',
-                'jinja2.ext.with_',
-                'jinja2.ext.i18n',
-                'jinja2.ext.autoescape',
-                'django_jinja.builtins.extensions.CsrfExtension',
                 'django_jinja.builtins.extensions.CacheExtension',
+                'django_jinja.builtins.extensions.CsrfExtension',
+                'django_jinja.builtins.extensions.DjangoFiltersExtension',
+                'django_jinja.builtins.extensions.StaticFilesExtension',
                 'django_jinja.builtins.extensions.TimezoneExtension',
                 'django_jinja.builtins.extensions.UrlsExtension',
-                'django_jinja.builtins.extensions.StaticFilesExtension',
-                'django_jinja.builtins.extensions.DjangoFiltersExtension',
+                'jinja2.ext.autoescape',
+                'jinja2.ext.do',
+                'jinja2.ext.i18n',
+                'jinja2.ext.loopcontrols',
+                'jinja2.ext.with_',
+                'pipeline.templatetags.ext.PipelineExtension',
             ],
             'globals': {
                 'browserid_info': 'django_browserid.helpers.browserid_info',
@@ -244,7 +246,54 @@ STATIC_URL = config('STATIC_URL', default='/static/')
 MEDIA_ROOT = config('MEDIA_ROOT', default=path('media'))
 MEDIA_URL = config('MEDIA_URL', default='/media/')
 
+STATICFILES_STORAGE = 'oneanddone.base.storage.GzipManifestPipelineStorage'
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'pipeline.finders.PipelineFinder',
+)
+
 SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=not DEBUG, cast=bool)
+
+# Django Pipeline
+PIPELINE_CSS = {
+    'base': {
+        'source_filenames': (
+            'browserid/persona-buttons.css',
+            'css/sandstone/sandstone-resp.less',
+            'css/one-and-done.less',
+            'css/slider.css',
+            'css/smoothness/jquery-ui-1.10.4.custom.css',
+            'css/datatables/jquery.dataTables.css'
+        ),
+        'output_filename': 'css/base.min.css'
+    }
+}
+
+PIPELINE_JS = {
+    'base': {
+        'source_filenames': (
+            'js/libs/jquery-2.0.3.min.js',
+            'browserid/api.js',
+            'browserid/browserid.js',
+            'js/site.js',
+            'js/slider.js',
+            'js/libs/jquery-ui-1.10.4.custom.js',
+            'js/libs/jquery.dataTables.js'
+        ),
+        'output_filename': 'js/base.min.js'
+    }
+}
+
+PIPELINE_COMPILERS = (
+    'pipeline.compilers.less.LessCompiler',
+)
+
+PIPELINE_DISABLE_WRAPPER = True
+
+PIPELINE_YUGLIFY_BINARY = path('node_modules/.bin/yuglify')
+
+PIPELINE_LESS_BINARY = path('node_modules/.bin/lessc')
 
 # Django-CSP
 CSP_DEFAULT_SRC = (

@@ -1,0 +1,14 @@
+{
+  "name": "OneAndDone",
+  "description": "Task Tool for Mozilla Contributors",
+  "author": "Mozilla",
+  "license": "MPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mozilla/oneanddone.git"
+  },
+  "dependencies": {
+    "less": "^2.5.3",
+    "yuglify": "^0.1.4"
+  }
+}
