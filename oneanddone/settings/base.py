@@ -18,20 +18,45 @@ from django.utils.safestring import mark_safe
 
 import dj_database_url
 from decouple import Csv, config
-
-ROOT = os.path.abspath(
-    os.path.join(
-        os.path.dirname(__file__),
-        '..',
-        '..'
-    ))
+from django_sha2 import get_password_hashers
 
 
-def path(*dirs):
-    return os.path.join(ROOT, *dirs)
+_dirname = os.path.dirname
+ROOT = _dirname(_dirname(_dirname(os.path.abspath(__file__))))
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
+def path(*args):
+    return os.path.join(ROOT, *args)
+
+
+# Environment-dependent settings. These are loaded from environment
+# variables.
+
+DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
+
+DEV = config('DEV', default=DEBUG, cast=bool)
+
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
+
+HMAC_KEYS = {
+    '2015-04-30': config('DJANGO_HMAC_KEY'),
+}
+
+SECRET_KEY = config('DJANGO_SECRET_KEY')
+
+# Database
+# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
+
+DATABASES = {
+    'default': config(
+        'DATABASE_URL',
+        cast=dj_database_url.parse
+    )
+}
+
+ROOT_URLCONF = 'oneanddone.urls'
+
+WSGI_APPLICATION = 'oneanddone.wsgi.application'
 
 # Django Settings
 ##############################################################################
@@ -52,9 +77,10 @@ INSTALLED_APPS = [
     'commonware.response.cookies',
     'django_ace',
     'django_browserid',
+    'django_jinja',
+    'django_jinja.contrib._humanize',  # Adds django humanize filters
     'django_nose',
-    'jingo_minify',
-    'product_details',
+    'pipeline',
     'rest_framework',
     'rest_framework.authtoken',
     'tower',
@@ -63,19 +89,18 @@ INSTALLED_APPS = [
 
 MIDDLEWARE_CLASSES = (
     'sslify.middleware.SSLifyMiddleware',
-    'oneanddone.base.middleware.LocaleURLMiddleware',
-    'multidb.middleware.PinningRouterMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'session_csrf.CsrfMiddleware',  # Must be after auth middleware.
     'django.contrib.messages.middleware.MessageMiddleware',
     'commonware.middleware.FrameOptionsHeader',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'oneanddone.base.middleware.TimezoneMiddleware',
     'oneanddone.base.middleware.ClosedTaskNotificationMiddleware',
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = (
+CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.debug',
     'django.core.context_processors.media',
@@ -86,14 +111,56 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'oneanddone.base.context_processors.globals',
 )
 
-TEMPLATE_DIRS = (
-    path('templates'),
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django_jinja.backend.Jinja2',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            # Use jinja2/ for jinja templates
+            'app_dirname': 'jinja2',
+            # Don't figure out which template loader to use based on
+            # file extension
+            'match_extension': '',
+            'newstyle_gettext': True,
+            'context_processors': CONTEXT_PROCESSORS,
+            'undefined': 'jinja2.Undefined',
+            'extensions': [
+                'django_jinja.builtins.extensions.CacheExtension',
+                'django_jinja.builtins.extensions.CsrfExtension',
+                'django_jinja.builtins.extensions.DjangoFiltersExtension',
+                'django_jinja.builtins.extensions.StaticFilesExtension',
+                'django_jinja.builtins.extensions.TimezoneExtension',
+                'django_jinja.builtins.extensions.UrlsExtension',
+                'jinja2.ext.autoescape',
+                'jinja2.ext.do',
+                'jinja2.ext.i18n',
+                'jinja2.ext.loopcontrols',
+                'jinja2.ext.with_',
+                'pipeline.templatetags.ext.PipelineExtension',
+            ],
+            'globals': {
+                'browserid_info': 'django_browserid.helpers.browserid_info',
+                'browserid_login': 'django_browserid.helpers.browserid_login',
+                'browserid_logout': 'django_browserid.helpers.browserid_logout'
+            }
+        }
+    },
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'debug': DEBUG,
+            'context_processors': CONTEXT_PROCESSORS
+        }
+    },
+]
 
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
+AUTHENTICATION_BACKENDS = [
     'django_browserid.auth.BrowserIDBackend',
-)
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Sessions
 #
@@ -115,30 +182,8 @@ BASE_PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
 )
 
-HMAC_KEYS = {
-    '2015-04-30': config('DJANGO_HMAC_KEY'),
-}
-
-from django_sha2 import get_password_hashers
 PASSWORD_HASHERS = get_password_hashers(BASE_PASSWORD_HASHERS, HMAC_KEYS)
 
-SECRET_KEY = config('DJANGO_SECRET_KEY')
-
-LOCALE_PATHS = (
-    os.path.join(BASE_DIR, 'locale'),
-)
-
-DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
-
-DEV = config('DEV', default=DEBUG, cast=bool)
-
-TEMPLATE_DEBUG = config('DEBUG', default=DEBUG, cast=bool)
-
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
-
-ROOT_URLCONF = 'oneanddone.urls'
-
-WSGI_APPLICATION = 'oneanddone.wsgi.application'
 
 # Email
 
@@ -150,20 +195,6 @@ POSTMARK_API_KEY = config('POSTMARK_API_TOKEN', default='inavlid-key')
 POSTMARK_SENDER = SERVER_EMAIL
 POSTMARK_TEST_MODE = False
 POSTMARK_TRACK_OPENS = False
-
-# Database
-# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-
-DATABASES = {
-    'default': config(
-        'DATABASE_URL',
-        cast=dj_database_url.parse
-    )
-}
-
-SLAVE_DATABASES = []
-
-DATABASE_ROUTERS = ('multidb.PinningMasterSlaveRouter',)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
@@ -183,10 +214,6 @@ TEXT_DOMAIN = 'messages'
 STANDALONE_DOMAINS = [TEXT_DOMAIN, 'javascript']
 TOWER_KEYWORDS = {'_lazy': None}
 TOWER_ADD_HEADERS = True
-
-# Tells the product_details module where to find our local JSON files.
-# This ultimately controls how LANGUAGES are constructed.
-PROD_DETAILS_DIR = path('lib/product_details_json')
 
 # Accepted locales
 PROD_LANGUAGES = ('de', 'en-US', 'es', 'fr',)
@@ -212,85 +239,25 @@ def lazy_langs():
 
 LANGUAGES = lazy(lazy_langs, dict)()
 
-STATIC_ROOT = config('STATIC_ROOT', default=os.path.join(BASE_DIR, 'static'))
-STATIC_URL = config('STATIC_URL', '/static/')
+STATIC_ROOT = config('STATIC_ROOT', default=path('static'))
+STATIC_URL = config('STATIC_URL', default='/static/')
 
-MEDIA_ROOT = config('MEDIA_ROOT', default=os.path.join(BASE_DIR, 'media'))
-MEDIA_URL = config('MEDIA_URL', '/media/')
+MEDIA_ROOT = config('MEDIA_ROOT', default=path('media'))
+MEDIA_URL = config('MEDIA_URL', default='/media/')
 
-SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=True, cast=bool)
-
-TEMPLATE_LOADERS = (
-    'jingo.Loader',
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
+STATICFILES_STORAGE = 'oneanddone.base.storage.GzipManifestPipelineStorage'
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'pipeline.finders.PipelineFinder',
 )
 
-# Django-CSP
-CSP_DEFAULT_SRC = (
-    "'self'",
-)
-CSP_FONT_SRC = (
-    "'self'",
-    'http://*.mozilla.net',
-    'https://*.mozilla.net'
-)
-CSP_IMG_SRC = (
-    "'self'",
-    'http://*.mozilla.net',
-    'https://*.mozilla.net',
-)
-CSP_SCRIPT_SRC = (
-    "'self'",
-    'http://www.mozilla.org',
-    'https://www.mozilla.org',
-    'http://*.mozilla.net',
-    'https://*.mozilla.net',
-)
-CSP_STYLE_SRC = (
-    "'self'",
-    "'unsafe-inline'",
-    'http://www.mozilla.org',
-    'https://www.mozilla.org',
-    'http://*.mozilla.net',
-    'https://*.mozilla.net',
-)
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=not DEBUG, cast=bool)
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
-SESSION_COOKIE_SECURE = not DEBUG
-
-# Third-party Library Settings
-##############################################################################
-
-
-def JINJA_CONFIG():
-    config = {
-        'extensions': [
-            'tower.template.i18n',
-            'jinja2.ext.do',
-            'jinja2.ext.with_',
-            'jinja2.ext.loopcontrols'
-        ],
-        'finalize': lambda x: x if x is not None else ''
-    }
-    return config
-
-# Because Jinja2 is the default template loader, add any non-Jinja templated
-# apps here:
-JINGO_EXCLUDE_APPS = [
-    'admin',
-    'registration',
-    'browserid',
-    'memcached',
-    'rest_framework',
-]
-
-# Bundles is a dictionary of two dictionaries, css and js, which list css files
-# and js files that can be bundled together by the minify app.
-MINIFY_BUNDLES = {
-    'css': {
-        'base': (
+# Django Pipeline
+PIPELINE_CSS = {
+    'base': {
+        'source_filenames': (
             'browserid/persona-buttons.css',
             'css/sandstone/sandstone-resp.less',
             'css/one-and-done.less',
@@ -298,9 +265,13 @@ MINIFY_BUNDLES = {
             'css/smoothness/jquery-ui-1.10.4.custom.css',
             'css/datatables/jquery.dataTables.css'
         ),
-    },
-    'js': {
-        'base': (
+        'output_filename': 'css/base.min.css'
+    }
+}
+
+PIPELINE_JS = {
+    'base': {
+        'source_filenames': (
             'js/libs/jquery-2.0.3.min.js',
             'browserid/api.js',
             'browserid/browserid.js',
@@ -309,18 +280,24 @@ MINIFY_BUNDLES = {
             'js/libs/jquery-ui-1.10.4.custom.js',
             'js/libs/jquery.dataTables.js'
         ),
+        'output_filename': 'js/base.min.js'
     }
 }
 
-# Use staticfiles loaders for finding resources for minification.
-JINGO_MINIFY_USE_STATIC = True
+PIPELINE_COMPILERS = (
+    'pipeline.compilers.less.LessCompiler',
+)
 
-# Path to Java. Used for compress_assets.
-JAVA_BIN = '/usr/bin/java'
+PIPELINE_DISABLE_WRAPPER = True
 
-# Do not preprocess LESS files.
-LESS_PREPROCESS = False
-LESS_BIN = config('LESSC_BIN', default='lessc')
+PIPELINE_YUGLIFY_BINARY = path('node_modules/.bin/yuglify')
+
+PIPELINE_LESS_BINARY = path('node_modules/.bin/lessc')
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+# Third-party Library Settings
+##############################################################################
 
 # Testing configuration.
 NOSE_ARGS = ['--logging-clear-handlers', '--logging-filter=-factory,-south,-django.db']

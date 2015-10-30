@@ -24,7 +24,7 @@ class MyURLFieldTests(TestCase):
         """
         with patch('oneanddone.base.widgets.requests') as requests:
             requests.get.return_value = Mock(ok=True)
-            eq_(MyURLField().clean('www.mozilla.org'), 'http://www.mozilla.org/')
+            eq_(MyURLField().clean('www.mozilla.org'), 'http://www.mozilla.org')
 
     def test_clean_valid_url_with_protocol(self):
         """
@@ -32,7 +32,7 @@ class MyURLFieldTests(TestCase):
         """
         with patch('oneanddone.base.widgets.requests') as requests:
             requests.get.return_value = Mock(ok=True)
-        eq_(MyURLField().clean('https://www.mozilla.org'), 'https://www.mozilla.org/')
+        eq_(MyURLField().clean('https://www.mozilla.org'), 'https://www.mozilla.org')
 
     def test_clean_invalid_url(self):
         """

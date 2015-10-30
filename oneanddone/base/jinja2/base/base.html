@@ -1,0 +1,152 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
+<!DOCTYPE html>
+<html class="windows no-js" lang="{{ LANG }}" dir="{{ DIR }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% if title|default(None) %}{{ title }} | {% endif %}{{ _('Mozilla One and Done') }}</title>
+
+    <link rel="shortcut icon" href="{{ static('favicon.ico') }}">
+
+    <!--[if lte IE 8]>
+    <script src="{{ static('js/libs/html5shiv.js') }}"></script>
+    <![endif]-->
+
+    {% block site_css %}
+      <link rel="stylesheet" type="text/css" href="//www.mozilla.org/tabzilla/media/css/tabzilla.css" media="screen" />
+      {% stylesheet 'base' %}
+    {% endblock %}
+    {% if settings.GOOGLE_ANALYTICS_ID %}
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', '{{ settings.GOOGLE_ANALYTICS_ID }}', 'mozilla.org');
+        ga('send', 'pageview');
+
+      </script>
+    {% endif %}
+  </head>
+  <body class="{% block body_class %}sand{% endblock %}">
+    {{ browserid_info() }}
+    <div id="outer-wrapper">
+      <div id="wrapper">
+        <header id="masthead">
+          <a href="http://www.mozilla.org/" id="tabzilla">Mozilla</a>
+          <nav id="nav-main" role="menubar" class="drop-down">
+            <span class="toggle" role="button" aria-controls="nav-main-menu" tabindex="0">{{ _('Menu') }}</span>
+            <ul role="menu" id="nav-main-menu">
+              <li role="menuitem">
+                {% if user.is_authenticated() %}
+                  {% if user.display_name %}
+                   <a id="view-profile" href="{{ url('users.profile.mydetails') }}">
+                    {% trans name=user.display_name %}
+                      Welcome, {{ name }}
+                    {% endtrans %}
+                   </a>
+                  {% else %}
+                    {{ _('Welcome!') }}
+                  {% endif %}
+                {% endif %}
+              </li>
+              <li role="menuitem">
+                  <a id="available-tasks" href="{{ url('tasks.available') }}">{{ _('Available Tasks') }}</a>
+              </li>
+              {% if user.is_staff %}
+                <li role="menuitem" class="top-level">
+                  <a href="#">{{ _('Task Admin') }}</a>
+                  <ul>
+                    <li><a href="{{ url('tasks.list') }}">{{ _('List Tasks') }}</a></li>
+                    <li><a href="{{ url('tasks.create') }}">{{ _('Create Task') }}</a></li>
+                    <li><a href="{{ url('tasks.verification_list') }}">{{ _('Tasks Awaiting Verification') }}</a></li>
+                    <li><a href="{{ url('tasks.import') }}">{{ _('Import Tasks') }}</a></li>
+                    <li><a href="{{ url('tasks.activity') }}">{{ _('Task Activity') }}</a></li>
+                    <li><a href="{{ url('tasks.metrics') }}">{{ _('Task Metrics') }}</a></li>
+                    <li><a href="{{ url('tasks.too_short') }}">{{ _('Tasks Completed Too Quickly') }}</a></li>
+                  </ul>
+                </li>
+              {% endif %}
+              <li role="menuitem" {% if not user.is_authenticated() %}class="auth-menu"{% endif %}>
+                {% if user.is_authenticated() %}
+                  {{ browserid_logout(text=_('Sign out')) }}
+                {% else %}
+                  {{ browserid_login(text=_('Sign in'), color='blue') }}
+                {% endif %}
+              </li>
+            </ul>
+          </nav>
+          <h2>
+            <a href="{{ url('base.home') }}" id="logo-container" title="{{ _('Home') }}">
+              <img src="{{ static('img/qa-logo-header.png') }}" width="45" height="45" alt="{{ _('Mozilla QA logo') }}" class="logo">
+              <span class="logo-text">{{ _('One and Done') }}</span>
+            </a>
+          </h2>
+        </header>
+
+        {% for message in messages %}
+          <div class="alert {{ message.tags }}"
+            {% if 'modal' in message.tags %}
+              title="{{ _('One and Done Notification') }}"
+            {% endif %}
+            >
+            {% if 'safe' in message.tags %}
+              {{ message|safe }}
+            {% else %}
+              {{ message }}
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        {% block content %}{% endblock %}
+      </div>
+
+      <footer id="colophon">
+        <div class="row">
+          <div class="footer-logo">
+            <a href="//mozilla.org"><img src="{{ static('img/sandstone/footer-mozilla.png') }}" alt="mozilla"></a>
+          </div>
+
+          <div class="footer-license">
+            <p>
+              {% trans cc_href='//www.mozilla.org/foundation/licensing/website-content.html', this_year=thisyear() %}
+                Portions of this content are &copy;1998–{{ this_year }} by individual mozilla.org contributors. Content available under a <a href="{{ cc_href }}">Creative Commons license</a>.
+              {% endtrans %}
+            </p>
+            <p><a href="https://github.com/mozilla/oneanddone">{{ _('Contribute to this page') }}</a></p>
+          </div>
+          <ul class="footer-nav">
+            <li><a href="//mozilla.org/contact/spaces/">{{ _('Contact Us') }}</a></li>
+            <li><a href="//mozilla.org/privacy/websites/">{{ _('Privacy Policy') }}</a></li>
+            <li><a href="//mozilla.org/about/legal/">{{ _('Legal Notices') }}</a></li>
+            <li><a href="//mozilla.org/legal/fraud-report/">{{ _('Report Trademark Abuse') }}</a></li>
+          </ul>
+
+          <ul class="footer-nav">
+            <li><a href="http://twitter.com/firefox">Twitter</a></li>
+            <li><a href="http://facebook.com/Firefox">Facebook</a></li>
+            <li><a href="https://affiliates.mozilla.org/">{{ _('Firefox Affiliates') }}</a></li>
+          </ul>
+        </div>
+      </footer>
+    </div>
+
+    {% block site_js %}
+      {% if settings.TEMPLATE_DEBUG %}
+        <script src="{{ static('js/libs/less-1.5.0.min.js') }}"></script>
+      {% endif %}
+      <script src="//www.mozilla.org/tabzilla/media/js/tabzilla.js"></script>
+      <script src="//login.persona.org/include.js"></script>
+      {% if user.is_anonymous() %}
+      <script>
+      navigator.id.logout();
+      </script>
+      {% endif %}
+      {% javascript 'base' %}
+    {% endblock %}
+  </body>
+</html>

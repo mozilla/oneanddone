@@ -162,7 +162,8 @@ class ImportTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.Temp
 
         # Create a hidden form for each possible PreviewConfirmationForm stage.
         # These forms are used to signal what the next stage should be.
-        make_stage = lambda x: PreviewConfirmationForm(data={'stage': x})
+        def make_stage(stage):
+            return PreviewConfirmationForm(data={'stage': stage})
         stages = PreviewConfirmationForm.submission_stages
         forms.update({'stage_form__' + s: make_stage(s) for s in stages})
         return forms

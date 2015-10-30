@@ -6,7 +6,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.urlresolvers import reverse
@@ -23,9 +23,9 @@ from oneanddone.tasks.bugzilla_utils import BugzillaUtils
 
 
 class BugzillaBug(models.Model):
-    bugzilla_id = models.IntegerField(max_length=20, unique=True)
+    bugzilla_id = models.IntegerField(unique=True)
     summary = models.CharField(max_length=255)
-    tasks = generic.GenericRelation('Task')
+    tasks = GenericRelation('Task')
 
     def __unicode__(self):
         return ' '.join(['Bug', str(self.bugzilla_id)])
@@ -407,7 +407,7 @@ class Task(CreatedModifiedModel, CreatedByModel):
     # as Moztrap may be possible
     content_type = models.ForeignKey(ContentType, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
-    imported_item = generic.GenericForeignKey('content_type', 'object_id')
+    imported_item = GenericForeignKey('content_type', 'object_id')
     next_task = models.ForeignKey('Task', null=True, blank=True, related_name='previous_task')
     owner = models.ForeignKey(User, related_name='owner')
     project = models.ForeignKey(TaskProject, blank=True, null=True)
@@ -656,7 +656,8 @@ class Task(CreatedModifiedModel, CreatedByModel):
             prepended to the filters.
         """
         # Convenient shorthand for creating a Q filter with the prefix.
-        pQ = lambda **kwargs: Q(**dict((prefix + key, value) for key, value in kwargs.items()))
+        def pQ(**kwargs):
+            return Q(**dict((prefix + key, value) for key, value in kwargs.items()))
 
         now = now or timezone.now()
         # Use just the date to allow caching

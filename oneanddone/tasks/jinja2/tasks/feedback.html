@@ -1,0 +1,51 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
+
+{% extends 'base/base.html' %}
+
+{% set title = attempt.task.name %}
+
+{% block content %}
+<main class="billboard content-container feedback">
+  <h1>{{ attempt.task.name }}</h1>
+  <h4>{{ _('Thank you!') }}</h4>
+  <p>
+    {% trans %}
+      Thank you for contributing to Mozilla QA!
+      Your time and effort are highly appreciated. We'd love to hear from you.
+      Tell us about your experience here.
+    {% endtrans %}
+  </p>
+  <p>
+    {% trans %}
+      We'd love to know what we're doing right, what to keep doing,
+      and what to start doing.
+    {% endtrans %}
+  </p>
+  <p>
+    {% trans %}
+      Your feedback will be shared with task administrators.
+      We may email you for more information or to say thanks.
+      You may update your email preferences inside your profile at any time.
+    {% endtrans %}
+  </p>
+
+  <form method="post" class="feedback-form">
+    {% csrf_token %}
+    <p>
+      {{ form.text }}
+      {{ form.text.errors }}
+    </p>
+    <p>
+      {{ form.time_spent_in_minutes.label }}
+      {{ form.time_spent_in_minutes}}
+      {{ form.time_spent_in_minutes.errors }}
+    </p>
+    <div class="right">
+      <a href="{{ url('tasks.whats_next', attempt.task.id) }}" class="no-feedback">{{ _('No, thanks.') }}</a>
+      <button type="submit" class="button">{{ _('Submit feedback') }}</button>
+    </div>
+  </form>
+</main>
+{% endblock %}

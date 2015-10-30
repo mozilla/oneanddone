@@ -1,0 +1,64 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
+{% extends 'base/base.html' %}
+
+{% set title = _('User profile for {username}')|fe(username=userprofile.name) %}
+
+{% block content %}
+
+<main class="billboard content-container">
+  <h1 id="user-profile-name">
+    {{ _("<span>{name}</span>'s Profile")|fe(name=userprofile.name) }}
+  </h1>
+  {% if userprofile.personal_url %}
+    <h4 id ="user-profile-url">
+      {{ _('Personal URL:') }} <a href="{{ userprofile.personal_url }}" target="_blank"><span>{{ userprofile.personal_url }}</span></a>
+    </h4>
+  {% endif %}
+  {% if userprofile.bugzilla_email %}
+    <h4 id ="bugzilla-email">
+      {{ _('Bugzilla Email:') }} <a href="{{ userprofile.bugzilla_url }}" target="_blank"><span>{{ userprofile.bugzilla_email }}</span></a>
+    </h4>
+  {% endif %}
+  {% if userprofile.user == user %}
+    {% include 'base/dashboard.html' %}
+  {% endif %}
+
+  <section class="task-status">
+
+    <h4 id="completed-tasks-count">
+      {% trans count=userprofile.user.attempts_finished_count %}
+        <span>{{ count }}</span> Task Completed
+      {% pluralize %}
+        <span>{{ count }}</span> Tasks Completed
+      {% endtrans %}
+    </h4>
+    <ul>
+      {% for attempt in attempts_finished %}
+        <li>
+          <a href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a>
+          {% if userprofile.user == user and attempt.next_task %}
+            -
+            <a href="{{ attempt.task.get_next_task_url() }}"
+               title="{{ _('The next task to complete after this task is: {task_name}')|fe(task_name=attempt.next_task.name) }}">
+              {{ _('Try the next task') }}
+            </a>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+
+    {% import 'base/pagination.html' as pagination %}
+    {{ pagination.arrows(request, attempts_finished, attempts_finished.paginator) }}
+
+  </section>
+
+  {% if userprofile.user == user %}
+    <div class="actions-container">
+      <a href="{{ url('tasks.available') }}" class="button" id="pick-a-task">{{ _('Pick a task to do') }}</a>
+      <a href="{{ url('users.profile.update') }}" id="edit-profile" class="button">{{ _('Edit profile') }}</a>
+    </div>
+  {% endif %}
+</main>
+{% endblock %}

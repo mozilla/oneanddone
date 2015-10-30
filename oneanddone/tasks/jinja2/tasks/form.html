@@ -1,0 +1,113 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
+
+{% extends 'base/base.html' %}
+
+{% block site_css %}
+  {{ super() }}
+  {{ task_form.media['css'] }}
+{% endblock %}
+
+{% block site_js %}
+  {{ super() }}
+  {{ task_form.media['js'] }}
+{% endblock %}
+
+{% from 'tasks/macros.html' import form_field %}
+{% if action == 'Import' %}
+  {% set title = _('{action} task batch')|fe(action=action) %}
+{% else %}
+  {% set title = _('{action} task: {task_name}')|fe(action=action,task_name=task_form['name'].value() or '') %}
+{% endif %}
+
+{% block content %}
+<main class="billboard content-container feedback">
+
+  <h4>{{ title }}</h4>
+
+{% if action == 'Import' %}
+  {{ batch_form.non_field_errors() }}
+  {{ criterion_formset.non_form_errors() }}
+{% endif %}
+  {{ task_form.non_field_errors() }}
+
+  <form method="post" class="task-form">
+    {% csrf_token %}
+    {% if action == 'Import' %}
+      {{ stage_form__preview }}
+      {{ form_field(batch_form['description'], help_text=True) }}
+      {{ form_field(batch_form['query'], help_text=True) }}
+      <div class="subsection content-container">
+        <h5>{{ _('Invalidation Criteria') }}</h5>
+        <p>{{_('Under what conditions should the tasks imported by this batch become invalid? (If any one condition is satisfied, the tasks will become invalid.)')}}</p>
+        {% include 'tasks/criterion_formset.html' %}
+      </div>
+      <h5>{{ _('Base Task Description') }}</h5>
+    {% endif %}
+    {% if action == 'Import' %}
+      {{ form_field(task_form['name'], custom_text=_('The task title will be suffixed with "Bug [id]" for each imported bug.')) }}
+    {% else %}
+      {{ form_field(task_form['name']) }}
+    {% endif %}
+    {{ form_field(task_form['short_description']) }}
+    {{ form_field(task_form['keywords'], help_text=True) }}
+    {{ form_field(task_form['owner']) }}
+    {{ form_field(task_form['next_task']) }}
+    <fieldset class="task-category first">
+      {{ form_field(task_form['team']) }}
+      {{ form_field(task_form['project']) }}
+      {{ form_field(task_form['type']) }}
+    </fieldset>
+    <fieldset class="task-info">
+      {{ form_field(task_form['execution_time']) }}
+      {{ form_field(task_form['difficulty']) }}
+      {{ form_field(task_form['priority']) }}
+    </fieldset>
+    <fieldset class="task-dates">
+      {{ form_field(task_form['start_date']) }}
+      {{ form_field(task_form['end_date']) }}
+      {% if action != 'Import' %}
+        <div class="field">
+          {{ task_form['repeatable'].errors }}
+          <label for="id_repeatable">
+            {{ task_form['repeatable'] }}
+            Repeatable
+          </label>
+        </div>
+      {% endif %}
+      <div class="field">
+        {{ task_form['is_draft'].errors }}
+        <label for="id_is_draft">
+          {{ task_form['is_draft'] }}
+          {{ _('Draft') }}
+        </label>
+      </div>
+      <div class="field">
+        {{ task_form['is_invalid'].errors }}
+        <label for="id_is_invalid">
+          {{ task_form['is_invalid'] }}
+          {{ _('Invalid') }}
+        </label>
+      </div>
+    </fieldset>
+    {{ form_field(task_form['why_this_matters'], 'why-this-matters') }}
+    {{ form_field(task_form['prerequisites']) }}
+    {{ form_field(task_form['instructions']) }}
+    <label for="id_must_be_verified">
+      {{ task_form['must_be_verified'] }}
+      {{ _('Must be verified') }}
+    </label>
+    {{ form_field(task_form['verification_instructions']) }}
+
+    <div class="actions-container">
+      <div class="without-message">
+        <a href="{{ cancel_url }}" class="button" id="cancel">{{ _('Cancel') }}</a>
+      </div>
+       <button type="submit" class="button">
+          {{ _('{action} {import_obj}')|fe(action=action, import_obj=import_obj or 'task') }}
+        </button>
+    </div>
+  </form>
+</main>
+{% endblock %}

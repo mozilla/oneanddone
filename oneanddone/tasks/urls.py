@@ -1,12 +1,12 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from oneanddone.tasks import views
 
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^tasks/(?P<pk>\d+)/$', views.TaskDetailView.as_view(), name='tasks.detail'),
     url(r'^tasks/(?P<pk>\d+)/abandon/$', views.AbandonTaskView.as_view(), name='tasks.abandon'),
     url(r'^tasks/(?P<pk>\d+)/finish/$', views.FinishTaskView.as_view(), name='tasks.finish'),
@@ -38,5 +38,4 @@ urlpatterns = patterns('',
     url(r'^api/v1/task/$', views.TaskListAPI.as_view(), name='api-task'),
     url(r'^api/v1/task/(?P<pk>\d+)/$', views.TaskDetailAPI.as_view(),
         name='api-task-detail'),
-
-)
+]

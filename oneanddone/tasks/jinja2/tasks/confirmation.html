@@ -1,0 +1,49 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/. #}
+{% extends 'base/base.html' %}
+
+{% from 'tasks/macros.html' import hiddenform %}
+
+{% set title = _('Import Tasks?') %}
+
+{% block content %}
+
+<main class="billboard content-container">
+  <h1>{{ title }}</h1>
+  <div class="subsection content-container">
+    <p> {{ _('You are about to import the {num} tasks listed below. Do you wish to continue?')|fe(num=num_tasks) }}</p>
+    <div class="actions-container">
+      <form method="post">
+        {% csrf_token %}
+        {{ hiddenform([batch_form, task_form], [criterion_formset]) }}
+        {{ stage_form__fill }}
+        <button type="submit" class="button">{{ _('No, cancel import') }}</button>
+      </form>
+      <form method="post">
+        {% csrf_token %}
+        {{ hiddenform([batch_form, task_form], [criterion_formset]) }}
+        {{ stage_form__confirm }}
+        <button type="submit" class="button">{{ _('Yes, import tasks') }}</button>
+      </form>
+    </div>
+  </div>
+
+  <h2>{{ _('Tasks to Import') }}</h2>
+  <ul>
+  {% for bug in bugs %}
+    <li>
+      <em>
+        {% filter buglinkify %}
+          {{ basename }} Bug {{ bug['id'] }}
+        {% endfilter %}
+      </em>
+      <div>"{{ bug['summary'] }}"</div>
+    </li>
+  {% endfor %}
+  </ul>
+
+
+
+</main>
+{% endblock %}
