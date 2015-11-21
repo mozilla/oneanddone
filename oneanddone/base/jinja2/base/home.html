@@ -24,9 +24,7 @@
       {% endtrans %}
     </p>
   <p>
-    {% trans leader_href=url('tasks.leaderboard') %}
-      Check out our <a href="{{ leader_href }}">Top Contributors</a>.
-    {% endtrans %}
+    {% include 'base/recent_users.html' %}
   </p>
     <p class="auth-menu">
       {% if not user.is_authenticated() %}

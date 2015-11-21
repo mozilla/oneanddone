@@ -1,13 +1,11 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-from datetime import timedelta
 
-from django.conf import settings
 from django.contrib.auth.models import User, UserManager
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import Count, F
+from django.db.models import Max
 
 from tower import ugettext_lazy as _lazy
 
@@ -74,15 +72,14 @@ User.add_to_class('attempts_requiring_notification', user_attempts_requiring_not
 
 
 @classmethod
-def user_users_with_valid_completed_attempt_counts(self):
+def user_recent_users(self):
     users = User.objects.filter(
-        taskattempt__in=TaskAttempt.objects.filter(
-            modified__gt=F('created') + timedelta(seconds=settings.MIN_DURATION_FOR_COMPLETED_ATTEMPTS),
-            state=TaskAttempt.FINISHED)
-    ).annotate(valid_completed_attempts_count=Count('taskattempt')).order_by('-valid_completed_attempts_count')
+        taskattempt__isnull=False,
+        taskattempt__state__in=(TaskAttempt.STARTED, TaskAttempt.FINISHED)).annotate(
+        activity_date=Max('taskattempt__modified')).order_by(
+        '-activity_date')
     return users
-User.add_to_class('users_with_valid_completed_attempt_counts',
-                  user_users_with_valid_completed_attempt_counts)
+User.add_to_class('recent_users', user_recent_users)
 
 
 def user_has_completed_task(self, task):

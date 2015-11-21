@@ -9,7 +9,7 @@ from tower import ugettext as _
 from oneanddone.tasks.filters import TasksFilterSet
 from oneanddone.tasks.models import Task, TaskTeam
 from oneanddone.tasks.mixins import TaskMustBeAvailableMixin
-from oneanddone.users.models import UserProfile
+from oneanddone.users.models import User, UserProfile
 
 
 class HomeView(TaskMustBeAvailableMixin, FilterView):
@@ -23,6 +23,7 @@ class HomeView(TaskMustBeAvailableMixin, FilterView):
         ctx = super(HomeView, self).get_context_data(*args, **kwargs)
         ctx['task_list_heading'] = _('Suggested First Tasks')
         ctx['teams'] = TaskTeam.objects.all()
+        ctx['recent_users'] = User.recent_users()[0:4]
         return ctx
 
     def dispatch(self, request, *args, **kwargs):

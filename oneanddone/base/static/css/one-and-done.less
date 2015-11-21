@@ -37,6 +37,26 @@ code {
     font-size: 14px;
     padding: 1px 4px;
 }
+
+.pill,
+.pill:link,
+.pill:visited {
+    border: 1px solid #d0d0d0;
+    background: #fff;
+    padding: (@baseLine / 5) @baseFontSize;
+    color: @textColorSecondary;
+    font-weight: normal;
+    text-shadow: none;
+    @shadow: 0 0 12px rgba(230,230,230,0.2) inset, 0 -2px #e8e8e8 inset;
+    .box-shadow(@shadow);
+    .border-radius(120px);
+    &:hover,
+    &:focus {
+        color: @textColorSecondary;
+        .box-shadow(@shadow);
+    }
+}
+
 .home main {
     position: relative;
     margin-top: 3%;

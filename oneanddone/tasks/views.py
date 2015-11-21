@@ -250,12 +250,6 @@ class ListTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
         return ctx
 
 
-class LeaderboardView(generic.ListView):
-    template_name = 'tasks/leaderboard.html'
-    queryset = User.users_with_valid_completed_attempt_counts()[0:20]
-    context_object_name = 'leaders'
-
-
 class ListTooShortTasksView(LoginRequiredMixin, MyStaffUserRequiredMixin, generic.ListView):
     context_object_name = 'metrics'
     queryset = TaskMetrics.objects.filter(too_short_completed_attempts_count__gt=0)

@@ -24,7 +24,6 @@ urlpatterns = [
     url(r'^tasks/edit_team/(?P<pk>\d+)/$', views.UpdateTeamView.as_view(), name='tasks.edit_team'),
     url(r'^tasks/feedback/(?P<pk>\d+)/$', views.CreateFeedbackView.as_view(), name='tasks.feedback'),
     url(r'^tasks/import/$', views.ImportTasksView.as_view(), name='tasks.import'),
-    url(r'^tasks/leaderboard/$', views.LeaderboardView.as_view(), name='tasks.leaderboard'),
     url(r'^tasks/list/$', views.ListTasksView.as_view(), name='tasks.list'),
     url(r'^tasks/metrics/$', views.MetricsView.as_view(), name='tasks.metrics'),
     url(r'^tasks/random/$', views.RandomTasksView.as_view(), name='tasks.random'),

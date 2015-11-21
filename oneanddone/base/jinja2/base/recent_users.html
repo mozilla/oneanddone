@@ -1,0 +1,8 @@
+<section>
+  <h4>{{ _('Recent Contributors') }}</h4>
+  {% for user in recent_users %}
+    <a class="button pill" href="{{ user.profile.profile_url }}">
+      {{ user.display_name }}
+    </a>
+  {% endfor %}
+</section>

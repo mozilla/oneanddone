@@ -164,36 +164,34 @@ class UserTests(TestCase):
         user = UserFactory.build(email='foo@example.com')
         eq_(unicode(user), u'Anonymous (Email consent denied)')
 
-    @override_settings(MIN_DURATION_FOR_COMPLETED_ATTEMPTS=10)
-    def test_users_with_valid_completed_attempt_counts(self):
+    def test_recent_users(self):
         """
-        users_with_valid_completed_attempt_counts should return counts of all attempts completed
-        within the time threshold, sorted by highest number of attempts
+        recent_users should return users sorted by most recent task activity
         """
         task = TaskFactory.create()
         user1 = UserFactory.create()
         user2 = UserFactory.create()
-        # Invalid attempt
-        TaskAttemptFactory.create(user=user1,
+        user3 = UserFactory.create()
+        TaskAttemptFactory.create(user=user3,
+                                  state=TaskAttempt.STARTED,
+                                  task=task)
+        TaskAttemptFactory.create(user=user2,
+                                  state=TaskAttempt.STARTED,
+                                  task=task)
+        TaskAttemptFactory.create(user=user2,
                                   state=TaskAttempt.FINISHED,
                                   task=task)
-        # Valid attempts
-        ValidTaskAttemptFactory.create_batch(2,
-                                             user=user1,
-                                             state=TaskAttempt.FINISHED,
-                                             task=task)
-        ValidTaskAttemptFactory.create(user=user2,
-                                       state=TaskAttempt.FINISHED,
-                                       task=task)
-        ValidTaskAttemptFactory.create(user=user1,
-                                       state=TaskAttempt.STARTED,
-                                       task=task)
-        eq_(user1.taskattempt_set.filter(state=TaskAttempt.STARTED).count(), 1)
-        eq_(user1.taskattempt_set.filter(state=TaskAttempt.FINISHED).count(), 3)
-        eq_(user2.taskattempt_set.filter(state=TaskAttempt.FINISHED).count(), 1)
-        qs = User.users_with_valid_completed_attempt_counts()
-        eq_(len(qs), 2)
+        TaskAttemptFactory.create(user=user1,
+                                  state=TaskAttempt.STARTED,
+                                  task=task)
+        TaskAttemptFactory.create(user=user3,
+                                  state=TaskAttempt.ABANDONED,
+                                  task=task)
+        eq_(user1.taskattempt_set.all().count(), 1)
+        eq_(user2.taskattempt_set.all().count(), 2)
+        eq_(user3.taskattempt_set.all().count(), 2)
+        qs = User.recent_users()
+        eq_(len(qs), 3)
         eq_(qs[0], user1)
-        eq_(qs[0].valid_completed_attempts_count, 2)
         eq_(qs[1], user2)
-        eq_(qs[1].valid_completed_attempts_count, 1)
+        eq_(qs[2], user3)
