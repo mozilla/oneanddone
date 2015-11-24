@@ -5,9 +5,9 @@ Babel==2.1.1
 # sha256: p7AqX3bYmnn4YZJvs04CnMQ0PBOAJSXIGFQqOf54jM4
 commonware==0.4.3
 
-# sha256: ZExcwtBko41DlidUnmOCqLwouAokP-XLukCx79K6ves
-# sha256: LRdOSj9UcI0NW2_xv1SucWUug7sG11drOyDZFrKcNlM
-Django==1.8.5
+# sha256: j7aT7P5M1v-a4xNv8KHqpKyuAa8ie7geZG3CutMpXM8
+# sha256: F6Zt5c9Zte6Bw9xXYJsUW7Ra3dwNwGk3uZhZfW57RSM
+django==1.8.7
 
 # sha256: LfpotUw1JurEJ_8T2xyrR7nvlpikOp82jIfI8SOIS3g
 django-ace==1.0.2
@@ -196,7 +196,6 @@ whitenoise==2.0.2
 # bleach
 # sha256: ZSZiwhMQgfaHTTuNJA1bLSjZTu4lsLH0hLSl4nT3xF4
 https://github.com/jsocol/bleach/archive/4e425f767bbf4cc96beafbcb5536aa93cc15a680.zip#egg=bleach
-
 
 # tower
 # sha256: YGxwkMz10Xa-hQf4ePwx4s2rJcoL70yhD6M4TOEZgjE
