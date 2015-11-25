@@ -1,3 +1,13 @@
 from . import base
 
 SSLIFY_DISABLE = True
+INTERNAL_IPS = ('127.0.0.1', 'localhost')
+EMAIL_PORT = '1025'
+SESSION_COOKIE_SECURE = False
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'TIMEOUT': 60,
+    },
+}

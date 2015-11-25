@@ -130,6 +130,9 @@ pep8==1.6.2
 # sha256: as-au751fvddwuzZ2RunSVR5Qauv--af8ghqnjfUkEw
 psycopg2==2.6.1
 
+# sha256: rxL5lFTolenkMMdXI8O5QZwLzNDqd4A2YtaprFb2Qls
+py-bcrypt==0.3
+
 # sha256: Bd9YSinu6poqIRDdNi5T0E4MS7F1S01xI09lGRfzwvA
 # sha256: AmkcI85pnyUodLfCfxTPJuPU6CtY5dWE8AC3q1vjal8
 pyflakes==0.9.2
@@ -138,9 +141,6 @@ pyflakes==0.9.2
 # sha256: Xe0vqQlP19_rPakmNkCf1wKg0H1gYoNQTX7gRAHO5cs
 # sha256: cyCRkITm2sj0VAY4pGRHo71zD8oXKvwX0sA-7SLPT1E
 Pygments==2.0.2
-
-# sha256: rxL5lFTolenkMMdXI8O5QZwLzNDqd4A2YtaprFb2Qls
-py-bcrypt==0.3
 
 # sha256: qh6u2dUdsb-oWFprQwghjpHQ8Q_mPAQvMZdcBjmink4
 python-binary-memcached==0.24.3
