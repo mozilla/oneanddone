@@ -58,8 +58,12 @@ djangorestframework==3.2.4
 # sha256: x9txeBCraWX2bIzwOYqYydjfmC2jm0zX8WKRHriVlvo
 docutils==0.12
 
-# sha256: 1wEkmeUt5aRBPiKu1R34lIUzaFRS3-FrQQAfKPnOWxw
-factory-boy==2.4.1
+# sha256: EWYQoXCRjfNC2yxLr7yPS5F4DEmHj5KdieNg8QrSnSo
+# sha256: deTJeG7SjRnsf7UA88ciGm64d0jLxvXi7qykw9aPMMs
+factory_boy==2.6.0
+
+# sha256: kPUHiRrRBz4Iz2kI61HV4d68PFpdVUQn6MP79zzfEu4
+fake-factory==0.5.3
 
 # sha256: akF58qKszaKyc7_Ybeb3AkzuIDBDzJp8BA_nswa74SA
 fancy-tag==0.2.0

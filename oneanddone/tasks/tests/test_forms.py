@@ -62,7 +62,7 @@ class TaskFormTests(TestCase):
         task = TaskFactory.create()
         TaskKeywordFactory.create_batch(3, task=task)
         form = TaskForm(instance=task)
-        eq_(sorted(form.initial['keywords']), sorted('test1, test2, test3'))
+        eq_(form.initial['keywords'], 'test2, test1, test0')
 
     def test_save_does_not_add_a_blank_keyword(self):
         """
