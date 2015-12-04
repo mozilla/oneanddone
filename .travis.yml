@@ -1,11 +1,59 @@
+# This indicates to Travis that we will not use or need sudo
+# so that we can benefit from and use the cache->directories
+# directive.
+sudo: no
+
+env: PIP_DOWNLOAD_CACHE="pip_cache"
+cache:
+    directories:
+        - pip_cache
+
 language: python
+
 python:
-  - "2.7"
-before_script:
-  - psql -c 'create database oneanddone;' -U postgres
-  - cp oneanddone/settings/local.py-travis oneanddone/settings/local.py
-install:
-  - pip install -r requirements.txt
+    - 2.7
+
+addons:
+  artifacts:
+    paths:
+    - results
+    permissions: public-read
+    bucket: oneanddone-tests
+
 env:
-  - DJANGO_DEBUG=False DJANGO_SECRET_KEY='FOO' DJANGO_HMAC_KEY='FOO' ALLOWED_HOSTS=localhost, DATABASE_URL=postgres://postgres:@localhost/oneanddone
-script: python manage.py test
+  global:
+    - ALLOWED_HOSTS='localhost, 127.0.0.1'
+    - DATABASE_URL=postgres://postgres:@localhost/oneanddone
+    - DISPLAY=:99.0
+    - DJANGO_HMAC_KEY='FOO'
+    - DJANGO_LIVE_TEST_SERVER_ADDRESS=localhost:8081
+    - DJANGO_SECRET_KEY='FOO'
+    - DJANGO_SETTINGS_MODULE=oneanddone.settings
+    - secure: "LYA4hvs1IoWqzX3/edq8ZNp/yMiaZ52xYNTnrvnSf3FFca3jAkTclyhuZE18AGXeNYAuk5iakWkdSm7DLsjZPJCvA2PqKMnV2DFGKSS3N+z3q+FXYl0seAOOg8nFB0HNOd3GbcgbB4kbENZpaGxPjCY0DHKoeyq4F7mItjTLRL8="
+    - secure: "FfX23m67dlVv+j0amt1tzLjyRMaV/1RV4QAqkdoELGgaUlCpmBaL0X4JRzhIMFKaPrbJMHcGq0cbIYSlYGlOPcp98MvTPD0o/QvSxB1HxbNbNVqGH4airG6BYNZehh33HmE4+Mi7xxhBHZhXRvjBhHLX/0/3+N3BV+blvMH7LC4="
+    - secure: "cxofDH+XU47UFIusirAD0ndo62fY/uIi/fUcASv9qqiJbowevrqLZdDiCj/bN433ZLlonLNmidItnavoIQ5DgRsoL5Vn4Z0utlgBmlDC5P54GWVjYuGqUmwOzXuZtZT3Kep5x7Jb8gDjyOAuwW2DA1Kni+oGCNKzEWvBcaAJQ7k="
+    - secure: "ICqGl+qB4W+PknSlrtqgbVCfaCkvosPJuol3RPC5dQ+2FCylFLMA1jmpEENcckmvsTaQGOg7WXhLEH5YARd0fzBRNStgDv43li/1Q7/yQwPMQNM3MI0X/V31PaWGeXd55s0P5ZvM7hUUiFNhm4fNgyBTgQrr/piyH12SdLK71KA="
+
+install:
+  - "pip install -r requirements.txt"
+  - "pip install -r requirements/test.txt"
+  - "npm install"
+  - "psql -c 'create database oneanddone;' -U postgres"
+
+before_script:
+  - "sh -e /etc/init.d/xvfb start"
+  - "cp oneanddone/settings/local.py-travis oneanddone/settings/local.py"
+  - "python manage.py migrate --noinput"
+  - "python manage.py collectstatic --noinput"
+
+script:
+  - "python -m smtpd -n -c DebuggingServer localhost:1025 &"
+  - "python manage.py test oneanddone/tasks/ oneanddone/users/"
+  - "py.test -v --driver Firefox --html results/results.html oneanddone/tests/functional/"
+
+notifications:
+    irc:
+        channels:
+            - "irc.mozilla.org#mozwebqa"
+        on_success: change
+        on_failure: change
