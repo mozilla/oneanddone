@@ -1,14 +1,17 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 from datetime import datetime
+from uuid import uuid4
 
 from django.http import Http404
 
-from mock import Mock, patch
+from mock import Mock, patch, PropertyMock
 from nose.tools import eq_
 
 from oneanddone.base.tests import TestCase
+from oneanddone.base.urlresolvers import reverse_lazy
 from oneanddone.users import views
 from oneanddone.users.tests import UserFactory, UserProfileFactory
 
@@ -112,3 +115,38 @@ class ProfileDetailsViewTests(TestCase):
 
         with self.assertRaises(Http404):
             self.view.get_object()
+
+
+class VerifyViewTests(TestCase):
+
+    def setUp(self):
+        self.view = views.Verify()
+
+    def test_success_url_no_profile(self):
+        """
+        If the user has no profile, return the url to create user profile.
+        """
+        user = UserFactory.create()
+        self.view.user = user
+        eq_(self.view.success_url, reverse_lazy('users.profile.create'))
+
+    def test_success_url_no_privacy_policy(self):
+        """
+        If the user has not accepted the privacy policy,
+        return the url to edit user profile.
+        """
+        profile = UserProfileFactory.create(privacy_policy_accepted=False)
+        self.view.user = profile.user
+        eq_(self.view.success_url, reverse_lazy('users.profile.update'))
+
+    def test_success_url_user_ok(self):
+        """
+        If the user has a profile and has accepted the privacy policy,
+        return the parent success_url.
+        """
+        profile = UserProfileFactory.create(privacy_policy_accepted=True)
+        self.view.user = profile.user
+        with patch('django_browserid.views.Verify.success_url', new_callable=PropertyMock) as parent_success_url:
+            parent_success_url.return_value = str(uuid4())
+            eq_(self.view.success_url, parent_success_url.return_value)
+            parent_success_url.assert_called_once_with()
