@@ -74,6 +74,7 @@ User.add_to_class('attempts_requiring_notification', user_attempts_requiring_not
 @classmethod
 def user_recent_users(self):
     users = User.objects.filter(
+        profile__isnull=False,
         taskattempt__isnull=False,
         taskattempt__state__in=(TaskAttempt.STARTED, TaskAttempt.FINISHED)).annotate(
         activity_date=Max('taskattempt__modified')).order_by(

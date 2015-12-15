@@ -169,9 +169,13 @@ class UserTests(TestCase):
         recent_users should return users sorted by most recent task activity
         """
         task = TaskFactory.create()
-        user1 = UserFactory.create()
-        user2 = UserFactory.create()
-        user3 = UserFactory.create()
+        user1 = UserProfileFactory.create().user
+        user2 = UserProfileFactory.create().user
+        user3 = UserProfileFactory.create().user
+        user4 = UserFactory.create()
+        TaskAttemptFactory.create(user=user4,
+                                  state=TaskAttempt.STARTED,
+                                  task=task)
         TaskAttemptFactory.create(user=user3,
                                   state=TaskAttempt.STARTED,
                                   task=task)
@@ -190,6 +194,7 @@ class UserTests(TestCase):
         eq_(user1.taskattempt_set.all().count(), 1)
         eq_(user2.taskattempt_set.all().count(), 2)
         eq_(user3.taskattempt_set.all().count(), 2)
+        eq_(user4.taskattempt_set.all().count(), 1)
         qs = User.recent_users()
         eq_(len(qs), 3)
         eq_(qs[0], user1)
