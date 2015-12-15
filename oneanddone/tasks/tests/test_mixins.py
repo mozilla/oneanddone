@@ -9,11 +9,11 @@ from django.http import Http404
 from oneanddone.base.tests import TestCase
 from oneanddone.tasks import mixins
 from oneanddone.tasks.models import TaskAttempt
-from oneanddone.tasks.tests import TaskAttemptFactory
+from oneanddone.tasks.tests import FeedbackFactory, TaskAttemptFactory
 from oneanddone.users.tests import UserFactory
 
 
-class GetUserAttemptMixinTests(TestCase):
+class GetUserAttemptForFeedbackTests(TestCase):
     def setUp(self):
         self.view = self.make_view()
 
@@ -25,7 +25,7 @@ class GetUserAttemptMixinTests(TestCase):
             def dispatch(self, request, *args, **kwargs):
                 pass
 
-        class View(mixins.GetUserAttemptMixin, BaseView):
+        class View(mixins.GetUserAttemptForFeedbackMixin, BaseView):
             pass
 
         return View()
@@ -56,6 +56,19 @@ class GetUserAttemptMixinTests(TestCase):
         task attempt, return a 404.
         """
         attempt = TaskAttemptFactory.create()
+        request = Mock(user=UserFactory.create())
+
+        with self.assertRaises(Http404):
+            self.view.dispatch(request, pk=attempt.pk)
+
+    def test_attempt_with_feedback_raises_404(self):
+        """
+        If the current user has an attempt but feedback has already been
+        provided, return a 404.
+        """
+        user = UserFactory.create()
+        attempt = TaskAttemptFactory.create(user=user, state=TaskAttempt.FINISHED)
+        feedback = FeedbackFactory.create(attempt=attempt)
         request = Mock(user=UserFactory.create())
 
         with self.assertRaises(Http404):

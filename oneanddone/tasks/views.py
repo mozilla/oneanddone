@@ -25,7 +25,7 @@ from oneanddone.tasks.forms import (FeedbackForm, SubmitVerifiedTaskForm,
 from oneanddone.tasks.mixins import (APIOnlyCreatorMayDeleteMixin,
                                      APIRecordCreatorMixin,
                                      BaseURLMixin,
-                                     GetUserAttemptMixin,
+                                     GetUserAttemptForFeedbackMixin,
                                      HideNonRepeatableTaskMixin,
                                      TaskMustBeAvailableMixin)
 from oneanddone.tasks.models import (BugzillaBug, Feedback, Task, TaskAttempt,
@@ -76,7 +76,9 @@ class AvailableTasksView(TaskMustBeAvailableMixin, FilterView):
 
 
 class CreateFeedbackView(LoginRequiredMixin,
-                         HideNonRepeatableTaskMixin, GetUserAttemptMixin,
+                         HideNonRepeatableTaskMixin,
+                         GetUserAttemptForFeedbackMixin,
+                         BaseURLMixin,
                          generic.CreateView):
     model = Feedback
     form_class = FeedbackForm

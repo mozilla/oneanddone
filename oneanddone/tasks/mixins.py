@@ -20,15 +20,18 @@ class APIRecordCreatorMixin(object):
         obj.creator = self.request.user
 
 
-class GetUserAttemptMixin(object):
+class GetUserAttemptForFeedbackMixin(object):
     """
     Retrieve a user attempt and add it to the view's self scope
     for later use.
     """
     def dispatch(self, request, *args, **kwargs):
-        self.attempt = get_object_or_404(TaskAttempt, pk=kwargs['pk'], user=request.user,
-                                         state__in=[TaskAttempt.FINISHED, TaskAttempt.ABANDONED])
-        return super(GetUserAttemptMixin, self).dispatch(request, *args, **kwargs)
+        self.attempt = get_object_or_404(TaskAttempt,
+                                         pk=kwargs['pk'],
+                                         user=request.user,
+                                         state__in=[TaskAttempt.FINISHED, TaskAttempt.ABANDONED],
+                                         feedback__isnull=True)
+        return super(GetUserAttemptForFeedbackMixin, self).dispatch(request, *args, **kwargs)
 
 
 class HideNonRepeatableTaskMixin(object):
