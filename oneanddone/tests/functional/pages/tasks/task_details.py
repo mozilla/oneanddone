@@ -11,6 +11,7 @@ from pages.tasks.task_feedback import TaskFeedbackPage
 class TaskDetailsPage(Base):
 
     _name_locator = (By.CSS_SELECTOR, '.content-container > h1')
+    _team_link_locator = (By.CSS_SELECTOR, 'a[href*="team"]')
 
     _abandon_task_button_locator = (By.ID, 'abandon-task')
     _complete_task_button_locator = (By.ID, 'complete-task')
@@ -37,6 +38,11 @@ class TaskDetailsPage(Base):
         from pages.home import HomePage
         return HomePage(self.base_url, self.selenium).wait_for_page_to_load()
 
+    def click_team(self):
+        self.selenium.find_element(*self._team_link_locator).click()
+        from pages.tasks.team_details import TeamDetailsPage
+        return TeamDetailsPage(self.base_url, self.selenium).wait_for_page_to_load()
+
     @property
     def is_abandon_task_button_visible(self):
         return self.is_element_visible(self._abandon_task_button_locator)
@@ -56,3 +62,7 @@ class TaskDetailsPage(Base):
     @property
     def name(self):
         return self.selenium.find_element(*self._name_locator).text
+
+    @property
+    def team(self):
+        return self.selenium.find_element(*self._team_link_locator).text

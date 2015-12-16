@@ -23,3 +23,7 @@ class AvailableTasksPage(Base):
     @property
     def displayed_profile_name(self):
         return self.selenium.find_element(*self._displayed_profile_name_locator).text
+
+    @property
+    def is_available_tasks_list_visible(self):
+        return self.is_element_visible(self._available_tasks_list_locator)

@@ -19,6 +19,7 @@ class HomePage(Base):
     _pick_a_task_locator = (By.ID, 'pick-a-task')
     _suggested_first_tasks_heading_locator = (By.CSS_SELECTOR, '.task-list-container h3')
     _suggested_first_task_locator = (By.CSS_SELECTOR, '.task-list > li')
+    _available_tasks_locator = (By.ID, 'available-tasks')
 
     @property
     def displayed_profile_name(self):
@@ -47,4 +48,8 @@ class HomePage(Base):
 
     def click_pick_a_task_button(self):
         self.selenium.find_element(*self._pick_a_task_locator).click()
+        return AvailableTasksPage(self.base_url, self.selenium).wait_for_page_to_load()
+
+    def click_available_tasks(self):
+        self.selenium.find_element(*self._available_tasks_locator).click()
         return AvailableTasksPage(self.base_url, self.selenium).wait_for_page_to_load()
