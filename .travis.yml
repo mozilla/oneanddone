@@ -49,7 +49,7 @@ before_script:
 script:
   - "python -m smtpd -n -c DebuggingServer localhost:1025 &"
   - "python manage.py test oneanddone/tasks/ oneanddone/users/"
-  - "py.test -v --driver Firefox --html results/results.html oneanddone/tests/functional/"
+  - "py.test -v -s --driver Firefox --html results/results.html oneanddone/tests/functional/"
 
 notifications:
     irc:

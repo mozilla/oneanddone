@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import json
+
 import pytest
 import requests
 
@@ -14,7 +16,26 @@ def capabilities(capabilities):
 
 @pytest.fixture
 def persona_test_user():
-    return requests.get('http://personatestuser.org/email').json()
+    max_retries = 5
+    attempt = 1
+    while attempt <= max_retries:
+        msg = 'There was a problem getting a personatestuser -- attempt {num}: '.format(
+            num=attempt)
+        try:
+            response = requests.get('http://personatestuser.org/email')
+            user_info = response.json()
+            if user_info.get('email'):
+                return user_info
+        except ValueError:
+            msg += 'No json was returned from personatestuser.org. \n'
+            msg += 'Response status / content: {status} / {content}'.format(
+                status=response.status_code,
+                content=response.content)
+        else:
+            msg += json.dumps(user_info, indent=4, sort_keys=True)
+        print msg
+        attempt += 1
+    raise Exception(msg)
 
 
 @pytest.fixture(scope='function')
