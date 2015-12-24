@@ -112,7 +112,9 @@
       <div>
         <h2>{{_('List of users who completed this task') }}</h2>
         {% for each_user in users %}
-          <a href="{{ each_user.profile.profile_url }}">{{ each_user.profile.name }}</a>{% if not loop.last %},{% endif %}         
+          {% if each_user.profile %}
+            <a href="{{ each_user.profile.profile_url }}">{{ each_user.profile.name }}</a>{% if not loop.last %},{% endif %}
+          {% endif %}
         {% endfor %}
       </div>
     </div>

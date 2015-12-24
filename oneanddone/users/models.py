@@ -40,7 +40,7 @@ User.add_to_class('display_email', user_display_email)
 @property
 def user_display_name(self):
     """
-    Return this user's display name, or 'Anonymous' if they don't have a
+    Return this user's display name, or None if they don't have a
     profile.
     """
     try:
