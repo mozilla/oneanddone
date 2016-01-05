@@ -33,8 +33,8 @@ class UserProfileDetailsPage(Base):
 
     @property
     def completed_tasks(self):
-        return [self.Task(self.base_url, self.selenium, web_element)
-                for web_element in self.selenium.find_elements(*self._completed_tasks_list_locator)]
+        return [self.Task(self.base_url, self.selenium, web_element) for web_element in
+                self.selenium.find_elements(*self._completed_tasks_list_locator)]
 
     @property
     def user_profile_name(self):

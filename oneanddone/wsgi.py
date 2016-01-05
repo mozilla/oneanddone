@@ -8,13 +8,14 @@ https://docs.djangoproject.com/en/1.7/howto/deployment/wsgi/
 """
 
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'oneanddone.settings')
 
 from django.conf import settings
+from django.core.cache.backends.memcached import BaseMemcachedCache
 from django.core.wsgi import get_wsgi_application
 
 from whitenoise.django import DjangoWhiteNoise
 
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'oneanddone.settings')
 application = get_wsgi_application()
 application = DjangoWhiteNoise(application)
 
@@ -24,5 +25,4 @@ if settings.MEDIA_ROOT and settings.MEDIA_URL:
 
 # Fix django closing connection to memcached after every request (#11331)
 # From https://devcenter.heroku.com/articles/memcachier#django
-from django.core.cache.backends.memcached import BaseMemcachedCache
 BaseMemcachedCache.close = lambda self, **kwargs: None

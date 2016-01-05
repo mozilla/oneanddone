@@ -15,9 +15,9 @@ class ClosedTaskNotificationMiddleware(object):
     def process_request(self, request):
         if request.user.is_authenticated():
             for attempt in request.user.attempts_requiring_notification:
-                messages.warning(request,
-                                 _('The task that you were working on, "%s", has expired or become invalid '
-                                   'and therefore has been closed.' % attempt.task.name),
+                messages.warning(request, _('The task that you were working on, "%s", '
+                                            'has expired or become invalid '
+                                            'and therefore has been closed.' % attempt.task.name),
                                  extra_tags='modal-message')
                 attempt.requires_notification = False
                 attempt.save()

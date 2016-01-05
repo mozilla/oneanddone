@@ -17,7 +17,8 @@ def user_unicode(self):
     """
     Change user string representation to use the user's email address.
     """
-    return u'{name} ({email})'.format(name=self.display_name or u'Anonymous', email=self.display_email)
+    return u'{name} ({email})'.format(
+        name=self.display_name or u'Anonymous', email=self.display_email)
 User.add_to_class('__unicode__', user_unicode)
 
 
@@ -92,8 +93,10 @@ User.add_to_class('has_completed_task', user_has_completed_task)
 class OneAndDoneUserManager(UserManager):
     # UserManager that prefetches user profiles when getting users.
     def get_queryset(self):
-        return super(OneAndDoneUserManager, self).get_queryset().prefetch_related('profile')
-        # Note: changed this from select_related to prefetch_related due to https://code.djangoproject.com/ticket/15040
+        return super(
+            OneAndDoneUserManager, self).get_queryset().prefetch_related('profile')
+        # Note: changed this from select_related to prefetch_related
+        # due to https://code.djangoproject.com/ticket/15040
 User.add_to_class('objects', OneAndDoneUserManager())
 
 

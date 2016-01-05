@@ -341,7 +341,8 @@ LOGIN_REDIRECT_URL_FAILURE = reverse_lazy('users.login')
 LOGOUT_REDIRECT_URL = reverse_lazy('base.home')
 
 BROWSERID_AUDIENCES = config('BROWSERID_AUDIENCE',
-                             default='http://localhost:8000, http://127.0.0.1:8000, http://localhost:8081',
+                             default='http://localhost:8000, '
+                             'http://127.0.0.1:8000, http://localhost:8081',
                              cast=Csv())
 
 # Paths that don't require a locale code in the URL.

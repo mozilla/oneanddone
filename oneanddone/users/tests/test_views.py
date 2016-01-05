@@ -146,7 +146,9 @@ class VerifyViewTests(TestCase):
         """
         profile = UserProfileFactory.create(privacy_policy_accepted=True)
         self.view.user = profile.user
-        with patch('django_browserid.views.Verify.success_url', new_callable=PropertyMock) as parent_success_url:
+        success_url_patch = patch('django_browserid.views.Verify.success_url',
+                                  new_callable=PropertyMock)
+        with success_url_patch as parent_success_url:
             parent_success_url.return_value = str(uuid4())
             eq_(self.view.success_url, parent_success_url.return_value)
             parent_success_url.assert_called_once_with()

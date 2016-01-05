@@ -1,13 +1,12 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-from django.test.utils import override_settings
 
 from nose.tools import eq_, ok_
 
 from oneanddone.base.tests import TestCase
 from oneanddone.tasks.models import TaskAttempt
-from oneanddone.tasks.tests import TaskAttemptFactory, TaskFactory, ValidTaskAttemptFactory
+from oneanddone.tasks.tests import TaskAttemptFactory, TaskFactory
 from oneanddone.users.models import User
 from oneanddone.users.tests import UserFactory, UserProfileFactory
 

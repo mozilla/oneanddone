@@ -66,9 +66,11 @@ class SortHeaders:
                     default_order_field = i
                     break
         if default_order_field is None:
-            raise AttributeError('No default_order_field was specified and none of the header definitions given were sortable.')
+            raise AttributeError('No default_order_field was specified and '
+                                 'none of the header definitions given were sortable.')
         if default_order_type not in ('asc', 'desc'):
-            raise AttributeError('If given, default_order_type must be one of \'asc\' or \'desc\'.')
+            raise AttributeError('If given, default_order_type must be one of '
+                                 '\'asc\' or \'desc\'.')
         if additional_params is None:
             additional_params = {}
 
@@ -128,7 +130,8 @@ class SortHeaders:
             yield {
                 'text': header,
                 'sortable': order_criterion is not None,
-                'url': self.get_query_string({self.order_var: i, self.order_type_var: new_order_type}),
+                'url': self.get_query_string(
+                    {self.order_var: i, self.order_type_var: new_order_type}),
                 'class_attr': {'class': ' '.join(th_classes)},
                 'title': title,
             }

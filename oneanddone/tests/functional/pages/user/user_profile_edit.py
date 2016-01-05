@@ -22,7 +22,8 @@ class UserProfileEditPage(Base):
 
     @property
     def bugzilla_email(self):
-        return self.selenium.find_element(*self._bugzilla_email_input_locator).get_attribute('value')
+        return self.selenium.find_element(
+            *self._bugzilla_email_input_locator).get_attribute('value')
 
     @property
     def display_name(self):
@@ -34,7 +35,8 @@ class UserProfileEditPage(Base):
 
     @property
     def user_profile_url(self):
-        return self.selenium.find_element(*self._user_profile_url_input_locator).get_attribute('value')
+        return self.selenium.find_element(
+            *self._user_profile_url_input_locator).get_attribute('value')
 
     @property
     def username(self):

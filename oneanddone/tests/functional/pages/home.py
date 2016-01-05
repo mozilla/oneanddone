@@ -39,8 +39,8 @@ class HomePage(Base):
 
     @property
     def suggested_first_tasks(self):
-        return [Task(self.base_url, self.selenium, web_element)
-                for web_element in self.selenium.find_elements(*self._suggested_first_task_locator)]
+        return [Task(self.base_url, self.selenium, web_element) for web_element in
+                self.selenium.find_elements(*self._suggested_first_task_locator)]
 
     def click_task_in_progress(self):
         self.selenium.find_element(*self._task_in_progress_locator).click()

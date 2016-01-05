@@ -38,7 +38,10 @@ class HorizCheckboxSelect(CheckboxSelectMultiple):
 
     def render(self, *args, **kwargs):
         output = super(HorizCheckboxSelect, self).render(*args, **kwargs)
-        return mark_safe(output.replace(u'<ul>', u'').replace(u'</ul>', u'').replace(u'<li>', u'').replace(u'</li>', u''))
+        return mark_safe(output.replace(u'<ul>', u'')
+                               .replace(u'</ul>', u'')
+                               .replace(u'<li>', u'')
+                               .replace(u'</li>', u''))
 
 
 class HorizRadioRenderer(RadioSelect.renderer):

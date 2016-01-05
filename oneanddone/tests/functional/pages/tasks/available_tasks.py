@@ -17,8 +17,8 @@ class AvailableTasksPage(Base):
 
     @property
     def available_tasks(self):
-        return [Task(self.base_url, self.selenium, web_element)
-                for web_element in self.selenium.find_elements(*self._available_tasks_list_locator)]
+        return [Task(self.base_url, self.selenium, web_element) for web_element in
+                self.selenium.find_elements(*self._available_tasks_list_locator)]
 
     @property
     def displayed_profile_name(self):

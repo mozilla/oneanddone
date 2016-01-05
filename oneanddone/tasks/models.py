@@ -12,7 +12,7 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.core.urlresolvers import reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Avg, Count, F, Q
+from django.db.models import Avg, F, Q
 from django.http import Http404
 from django.utils import timezone
 
@@ -295,10 +295,14 @@ class TaskMetrics(CreatedModifiedModel):
             avg_closed_users=Avg('closed_users'),
             avg_completed_users=Avg('completed_users'),
             avg_incomplete_users=Avg('incomplete_users'),
-            avg_user_completes_then_completes_another_count=Avg('user_completes_then_completes_another_count'),
-            avg_user_completes_then_takes_another_count=Avg('user_completes_then_takes_another_count'),
-            avg_user_takes_then_quits_count=Avg('user_takes_then_quits_count'),
-            avg_too_short_completed_attempts_count=Avg('too_short_completed_attempts_count'))
+            avg_user_completes_then_completes_another_count=Avg(
+                'user_completes_then_completes_another_count'),
+            avg_user_completes_then_takes_another_count=Avg(
+                'user_completes_then_takes_another_count'),
+            avg_user_takes_then_quits_count=Avg(
+                'user_takes_then_quits_count'),
+            avg_too_short_completed_attempts_count=Avg(
+                'too_short_completed_attempts_count'))
 
     @classmethod
     def update_task_metrics(cls, force_update=False):
@@ -310,7 +314,8 @@ class TaskMetrics(CreatedModifiedModel):
         if force_update:
             tasks_to_update = Task.objects.all()
         else:
-            tasks_to_update = Task.objects.filter(taskattempt_set__modified__gte=timestamp_of_last_update)
+            tasks_to_update = Task.objects.filter(
+                taskattempt_set__modified__gte=timestamp_of_last_update)
         for task in tasks_to_update:
             metrics, created = cls.objects.get_or_create(task=task)
             metrics.abandoned_users = task.abandoned_user_count
@@ -337,9 +342,12 @@ class TaskMetrics(CreatedModifiedModel):
                 if not (attempt.attempts_by_same_user
                         .filter(created__gt=attempt.modified).exists()):
                     takes_then_leaves_users.add(attempt.user)
-            metrics.user_completes_then_completes_another_count = len(completes_then_completes_users)
-            metrics.user_completes_then_takes_another_count = len(completes_then_takes_users)
-            metrics.user_takes_then_quits_count = len(takes_then_leaves_users)
+            metrics.user_completes_then_completes_another_count = len(
+                completes_then_completes_users)
+            metrics.user_completes_then_takes_another_count = len(
+                completes_then_takes_users)
+            metrics.user_takes_then_quits_count = len(
+                takes_then_leaves_users)
             metrics.save()
         return len(tasks_to_update)
 
@@ -489,7 +497,8 @@ class Task(CreatedModifiedModel, CreatedByModel):
     def completed_attempts(self):
 
         return self.taskattempt_set.filter(
-            modified__gt=F('created') + timedelta(seconds=settings.MIN_DURATION_FOR_COMPLETED_ATTEMPTS),
+            modified__gt=F('created') + timedelta(
+                seconds=settings.MIN_DURATION_FOR_COMPLETED_ATTEMPTS),
             state=TaskAttempt.FINISHED)
 
     @property
@@ -560,7 +569,8 @@ class Task(CreatedModifiedModel, CreatedByModel):
     @property
     def too_short_completed_attempts(self):
         return self.taskattempt_set.filter(
-            modified__lte=F('created') + timedelta(seconds=settings.MIN_DURATION_FOR_COMPLETED_ATTEMPTS),
+            modified__lte=F('created') + timedelta(
+                seconds=settings.MIN_DURATION_FOR_COMPLETED_ATTEMPTS),
             state=TaskAttempt.FINISHED)
 
     @property
@@ -670,8 +680,8 @@ class Task(CreatedModifiedModel, CreatedByModel):
 
         q_filter = q_filter & (
             pQ(repeatable=True) | (
-                ~pQ(taskattempt_set__state=TaskAttempt.STARTED) &
-                ~pQ(taskattempt_set__state=TaskAttempt.FINISHED)))
+                ~pQ(taskattempt_set__state=TaskAttempt.STARTED) & ~pQ(
+                    taskattempt_set__state=TaskAttempt.FINISHED)))
 
         return q_filter
 

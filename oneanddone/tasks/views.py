@@ -31,7 +31,6 @@ from oneanddone.tasks.mixins import (APIOnlyCreatorMayDeleteMixin,
 from oneanddone.tasks.models import (BugzillaBug, Feedback, Task, TaskAttempt,
                                      TaskAttemptCommunication, TaskMetrics, TaskTeam)
 from oneanddone.tasks.serializers import TaskSerializer
-from oneanddone.users.models import User
 from oneanddone.users.mixins import MyStaffUserRequiredMixin
 
 
@@ -57,7 +56,8 @@ class ActivityView(LoginRequiredMixin, MyStaffUserRequiredMixin, FilterView):
         qs = TaskAttempt.objects.extra(
             select={
                 'state_display': TaskAttempt.choice_display_extra_expression('state'),
-                'elapsed_time': 'EXTRACT(EPOCH FROM (tasks_taskattempt.modified - tasks_taskattempt.created))'
+                'elapsed_time':
+                    'EXTRACT(EPOCH FROM (tasks_taskattempt.modified - tasks_taskattempt.created))'
             })
         return qs.order_by(self.sort_headers.get_order_by())
 

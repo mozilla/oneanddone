@@ -155,7 +155,8 @@ class TaskFormTests(TestCase):
 
         self.assertFalse(form.is_valid())
         eq_(form.errors['verification_instructions'],
-            ['If the task is a Verified task then you must provide some verification instructions'])
+            ['If the task is a Verified task then you must '
+             'provide some verification instructions'])
 
 
 class PreviewConfirmationFormTests(TestCase):

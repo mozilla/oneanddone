@@ -11,7 +11,8 @@ from rest_framework.authtoken.models import Token
 from nose.tools import eq_, assert_true, assert_greater
 
 from oneanddone.users.tests import UserFactory
-from oneanddone.tasks.tests import TaskFactory, TaskProjectFactory, TaskTeamFactory, TaskTypeFactory, TaskAttemptFactory
+from oneanddone.tasks.tests import (TaskFactory, TaskProjectFactory, TaskTeamFactory,
+                                    TaskTypeFactory, TaskAttemptFactory)
 
 
 class APITests(APITestCase):
@@ -26,7 +27,8 @@ class APITests(APITestCase):
         project = TaskProjectFactory.create()
         type = TaskTypeFactory.create()
 
-        return TaskFactory.create(team=team, project=project, type=type, creator=creator, owner=creator)
+        return TaskFactory.create(team=team, project=project, type=type,
+                                  creator=creator, owner=creator)
 
     def setUp(self):
         self.client_user = UserFactory.create()
@@ -68,11 +70,20 @@ class APITests(APITestCase):
         project = TaskProjectFactory.create()
         type = TaskTypeFactory.create()
 
-        task_data = {"name": "Sample Task", "short_description": "Task Desc",
-                     "instructions": "Task Inst", "prerequisites": "Task Prerequisite",
-                     "execution_time": 30, "is_draft": False, "is_invalid": False,
-                     "project": project.name, "team": team.name, "type": type.name, "repeatable": False,
-                     "start_date": None, "end_date": None, "difficulty": 1,
+        task_data = {"name": "Sample Task",
+                     "short_description": "Task Desc",
+                     "instructions": "Task Inst",
+                     "prerequisites": "Task Prerequisite",
+                     "execution_time": 30,
+                     "is_draft": False,
+                     "is_invalid": False,
+                     "project": project.name,
+                     "team": team.name,
+                     "type": type.name,
+                     "repeatable": False,
+                     "start_date": None,
+                     "end_date": None,
+                     "difficulty": 1,
                      "why_this_matters": "Task matters",
                      "keyword_set": [{"name": "testing"}, {"name": "mozwebqa"}],
                      "taskattempt_set": [{"user": self.client_user.email, "state": 0}],
@@ -129,14 +140,24 @@ class APITests(APITestCase):
         task_attempt = TaskAttemptFactory.create(user=user, task=test_task)
         task_uri = self.uri + str(test_task.id) + '/'
 
-        task_data = {"id": test_task.id, "name": test_task.name, "short_description": test_task.short_description,
-                     "instructions": test_task.instructions, "prerequisites": test_task.prerequisites,
-                     "execution_time": test_task.execution_time, "is_draft": test_task.is_draft,
-                     "is_invalid": test_task.is_invalid, "project": test_task.project.name,
-                     "team": test_task.team.name, "type": test_task.type.name, "repeatable": test_task.repeatable,
-                     "start_date": test_task.start_date, "end_date": test_task.end_date, "difficulty": test_task.difficulty,
+        task_data = {"id": test_task.id,
+                     "name": test_task.name,
+                     "short_description": test_task.short_description,
+                     "instructions": test_task.instructions,
+                     "prerequisites": test_task.prerequisites,
+                     "execution_time": test_task.execution_time,
+                     "is_draft": test_task.is_draft,
+                     "is_invalid": test_task.is_invalid,
+                     "project": test_task.project.name,
+                     "team": test_task.team.name,
+                     "type": test_task.type.name,
+                     "repeatable": test_task.repeatable,
+                     "start_date": test_task.start_date,
+                     "end_date": test_task.end_date,
+                     "difficulty": test_task.difficulty,
                      "why_this_matters": test_task.why_this_matters,
-                     "keyword_set": [{"name": keyword.name} for keyword in test_task.keyword_set.all()],
+                     "keyword_set": [
+                         {"name": keyword.name} for keyword in test_task.keyword_set.all()],
                      "taskattempt_set": [{"user": user.email, "state": task_attempt.state}],
                      "owner": user.email}
 
@@ -154,14 +175,24 @@ class APITests(APITestCase):
 
         test_task = self.create_task(user)
         task_attempt = TaskAttemptFactory.create(user=user, task=test_task)
-        task_data = {"id": test_task.id, "name": test_task.name, "short_description": test_task.short_description,
-                     "instructions": test_task.instructions, "prerequisites": test_task.prerequisites,
-                     "execution_time": test_task.execution_time, "is_draft": test_task.is_draft,
-                     "is_invalid": test_task.is_invalid, "project": test_task.project.name,
-                     "team": test_task.team.name, "type": test_task.type.name, "repeatable": test_task.repeatable,
-                     "start_date": test_task.start_date, "end_date": test_task.end_date, "difficulty": test_task.difficulty,
+        task_data = {"id": test_task.id,
+                     "name": test_task.name,
+                     "short_description": test_task.short_description,
+                     "instructions": test_task.instructions,
+                     "prerequisites": test_task.prerequisites,
+                     "execution_time": test_task.execution_time,
+                     "is_draft": test_task.is_draft,
+                     "is_invalid": test_task.is_invalid,
+                     "project": test_task.project.name,
+                     "team": test_task.team.name,
+                     "type": test_task.type.name,
+                     "repeatable": test_task.repeatable,
+                     "start_date": test_task.start_date,
+                     "end_date": test_task.end_date,
+                     "difficulty": test_task.difficulty,
                      "why_this_matters": test_task.why_this_matters,
-                     "keyword_set": [{"name": keyword.name} for keyword in test_task.keyword_set.all()],
+                     "keyword_set": [
+                         {"name": keyword.name} for keyword in test_task.keyword_set.all()],
                      "taskattempt_set": [{"user": user.email, "state": task_attempt.state}],
                      "owner": user.email}
 

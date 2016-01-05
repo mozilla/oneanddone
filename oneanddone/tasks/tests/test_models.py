@@ -1,6 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 from datetime import datetime, timedelta
 
 from django.http import Http404
@@ -679,7 +680,9 @@ class TaskAttemptTests(TestCase):
         If the last communication is from an admin, the verification_status
         should be 'Needs Action'.
         """
-        TaskAttemptCommunicationFactory.create(attempt=self.attempt, type=TaskAttemptCommunication.ADMIN)
+        TaskAttemptCommunicationFactory.create(
+            attempt=self.attempt,
+            type=TaskAttemptCommunication.ADMIN)
         eq_(self.attempt.verification_status, _('Needs Action'))
 
     def test_verification_status_needs_action_empty(self):
@@ -694,7 +697,9 @@ class TaskAttemptTests(TestCase):
         If the last communication is from a user, the verification_status
         should be 'Submitted'.
         """
-        TaskAttemptCommunicationFactory.create(attempt=self.attempt, type=TaskAttemptCommunication.USER)
+        TaskAttemptCommunicationFactory.create(
+            attempt=self.attempt,
+            type=TaskAttemptCommunication.USER)
         eq_(self.attempt.verification_status, _('Submitted'))
 
     def test_verification_status_classname(self):
@@ -702,7 +707,9 @@ class TaskAttemptTests(TestCase):
         If the last communication is from a user, the verification_status
         should be 'Submitted'.
         """
-        TaskAttemptCommunicationFactory.create(attempt=self.attempt, type=TaskAttemptCommunication.ADMIN)
+        TaskAttemptCommunicationFactory.create(
+            attempt=self.attempt,
+            type=TaskAttemptCommunication.ADMIN)
         eq_(self.attempt.verification_status_classname, 'needs-action')
 
 

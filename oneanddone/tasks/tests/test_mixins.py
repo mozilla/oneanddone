@@ -68,7 +68,7 @@ class GetUserAttemptForFeedbackTests(TestCase):
         """
         user = UserFactory.create()
         attempt = TaskAttemptFactory.create(user=user, state=TaskAttempt.FINISHED)
-        feedback = FeedbackFactory.create(attempt=attempt)
+        FeedbackFactory.create(attempt=attempt)
         request = Mock(user=UserFactory.create())
 
         with self.assertRaises(Http404):

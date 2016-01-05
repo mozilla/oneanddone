@@ -16,7 +16,7 @@ from oneanddone.tasks.forms import (TaskImportBatchForm,
                                     TaskInvalidCriteriaFormSet)
 from oneanddone.tasks.models import (BugzillaBug, Task, TaskAttempt,
                                      TaskImportBatch)
-from oneanddone.tasks.tests import (TaskAttemptFactory, TaskFactory,
+from oneanddone.tasks.tests import (TaskFactory,
                                     TaskImportBatchFactory,
                                     TaskInvalidationCriterionFactory,
                                     TaskKeywordFactory)
@@ -33,7 +33,8 @@ class CreateTaskViewTests(TestCase):
         The 'Add' action and correct cancel_url
         should be included in the context data.
         """
-        with patch('oneanddone.tasks.views.generic.CreateView.get_context_data') as get_context_data:
+        context_patch = patch('oneanddone.tasks.views.generic.CreateView.get_context_data')
+        with context_patch as get_context_data:
             get_context_data.return_value = {}
             ctx = self.view.get_context_data()
             eq_(ctx['action'], 'Add')
@@ -156,7 +157,8 @@ class TaskDisplayViewTests(TestCase):
         self.view.object.is_taken = False
         self.view.object.is_completed = False
 
-        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
+        context_patch = patch('oneanddone.tasks.views.generic.CreateView.get_context_data')
+        with context_patch as get_context_data:
             get_context_data.return_value = {}
             ctx = self.view.get_context_data()
             eq_(ctx['gs_button_label'], _('Get Started'))
@@ -170,7 +172,8 @@ class TaskDisplayViewTests(TestCase):
         self.view.object.is_taken = False
         self.view.object.is_completed = True
 
-        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
+        context_patch = patch('oneanddone.tasks.views.generic.CreateView.get_context_data')
+        with context_patch as get_context_data:
             get_context_data.return_value = {}
             ctx = self.view.get_context_data()
             eq_(ctx['gs_button_label'], _('Completed'))
@@ -183,7 +186,8 @@ class TaskDisplayViewTests(TestCase):
         """
         self.view.request.user.is_authenticated.return_value = False
 
-        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
+        context_patch = patch('oneanddone.tasks.views.generic.CreateView.get_context_data')
+        with context_patch as get_context_data:
             get_context_data.return_value = {}
             ctx = self.view.get_context_data()
             ok_('attempt' not in ctx)
@@ -195,7 +199,8 @@ class TaskDisplayViewTests(TestCase):
         self.view.request.user.is_authenticated.return_value = False
         self.view.object.is_taken = True
 
-        with patch('oneanddone.tasks.views.generic.DetailView.get_context_data') as get_context_data:
+        context_patch = patch('oneanddone.tasks.views.generic.CreateView.get_context_data')
+        with context_patch as get_context_data:
             get_context_data.return_value = {}
             ctx = self.view.get_context_data()
             eq_(ctx['gs_button_label'], _('Taken'))
@@ -281,7 +286,7 @@ class ImportTasksViewTests(TestCase):
             'fill' stage (i.e. user is entering form data)
         """
         self.view.request.method = 'GET'
-        response = self.view.get(self.view.request)
+        self.view.get(self.view.request)
         eq_(self.view.stage, 'fill')
 
     def test_form_template_after_get_request(self):
@@ -302,7 +307,7 @@ class ImportTasksViewTests(TestCase):
             get_forms.return_value = bad_forms
             self.view.request.method = 'POST'
             self.view.request.POST = {'stage': 'preview'}
-            response = self.view.post(self.view.request)
+            self.view.post(self.view.request)
             eq_(self.view.stage, 'fill')
 
     def test_confirmation_template_after_post_and_preview(self):
@@ -387,7 +392,7 @@ class ImportTasksViewTests(TestCase):
         self.view.done(forms)
 
         batch = TaskImportBatch.objects.get(creator=user)
-        bug51 = BugzillaBug.objects.get(bugzilla_id=51)
+        BugzillaBug.objects.get(bugzilla_id=51)
 
         ok_(Task.objects.filter(creator=user,
                                 batch=batch).exists())
