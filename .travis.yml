@@ -37,6 +37,7 @@ env:
 install:
   - "pip install -r requirements.txt"
   - "pip install -r requirements/test.txt"
+  - "pip install -r requirements/test-local.txt"
   - "npm install"
   - "psql -c 'create database oneanddone;' -U postgres"
 
@@ -50,7 +51,7 @@ script:
   - "python -m smtpd -n -c DebuggingServer localhost:1025 &"
   - "flake8 ."
   - "python manage.py test oneanddone/tasks/ oneanddone/users/"
-  - "py.test -v -s --driver Firefox --html results/results.html oneanddone/tests/functional/"
+  - "py.test -v -s --driver Firefox --html results/results.html --reuse-db oneanddone/tests/functional/"
 
 notifications:
     irc:

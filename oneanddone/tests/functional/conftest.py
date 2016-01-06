@@ -50,12 +50,24 @@ def new_user(persona_test_user):
 
 
 @pytest.fixture(scope='session')
-def base_url(base_url, live_server):
-    return base_url or live_server.url
+def base_url(base_url, request):
+    return base_url or request.getfuncargvalue("live_server").url
 
 
 @pytest.fixture(scope='function')
-def task(base_url, transactional_db):
-    if '127.0.0.1' in base_url or 'localhost' in base_url:
+def is_local(base_url):
+    return '127.0.0.1' in base_url or 'localhost' in base_url
+
+
+@pytest.fixture(scope='function', autouse=True)
+def use_transactional_db(base_url, is_local, request):
+    if is_local:
+        # if we are running locally we need the transactional_db fixture
+        request.getfuncargvalue("transactional_db")
+
+
+@pytest.fixture(scope='function')
+def task(base_url, is_local):
+    if is_local:
         from oneanddone.tasks.tests import TaskFactory
         return TaskFactory.create()
