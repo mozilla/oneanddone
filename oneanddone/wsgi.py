@@ -8,14 +8,14 @@ https://docs.djangoproject.com/en/1.7/howto/deployment/wsgi/
 """
 
 import os
-
-from django.conf import settings
-from django.core.cache.backends.memcached import BaseMemcachedCache
-from django.core.wsgi import get_wsgi_application
-
-from whitenoise.django import DjangoWhiteNoise
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'oneanddone.settings')
+
+from django.conf import settings  # NOQA
+from django.core.cache.backends.memcached import BaseMemcachedCache  # NOQA
+from django.core.wsgi import get_wsgi_application  # NOQA
+
+from whitenoise.django import DjangoWhiteNoise  # NOQA
+
 application = get_wsgi_application()
 application = DjangoWhiteNoise(application)
 
