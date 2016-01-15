@@ -48,7 +48,6 @@ before_script:
   - "python manage.py collectstatic --noinput"
 
 script:
-  - "python -m smtpd -n -c DebuggingServer localhost:1025 &"
   - "flake8 ."
   - "python manage.py test oneanddone/tasks/ oneanddone/users/"
   - "py.test -v -s --driver Firefox --html results/results.html --reuse-db oneanddone/tests/functional/"

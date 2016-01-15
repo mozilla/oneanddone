@@ -44,9 +44,6 @@ HMAC_KEYS = {
 
 SECRET_KEY = config('DJANGO_SECRET_KEY')
 
-# Database
-# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-
 DATABASES = {
     'default': config(
         'DATABASE_URL',
@@ -187,14 +184,20 @@ PASSWORD_HASHERS = get_password_hashers(BASE_PASSWORD_HASHERS, HMAC_KEYS)
 
 # Email
 
-EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 SERVER_EMAIL = config('OUTBOUND_EMAIL_ADDRESS', default='root@localhost')
 
 # Postmark Email addon
-POSTMARK_API_KEY = config('POSTMARK_API_TOKEN', default='inavlid-key')
+POSTMARK_API_KEY = config('POSTMARK_API_TOKEN', default='')
 POSTMARK_SENDER = SERVER_EMAIL
 POSTMARK_TEST_MODE = False
 POSTMARK_TRACK_OPENS = False
+
+# Log emails to console if the Postmark credentials are missing.
+if POSTMARK_API_KEY:
+    EMAIL_BACKEND = 'postmark.django_backend.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
