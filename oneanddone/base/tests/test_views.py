@@ -1,11 +1,13 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-from mock import Mock, patch
-from nose.tools import eq_, ok_
-from tower import ugettext as _
 
 from django.db.models.query import QuerySet
+from django.utils.translation import ugettext as _
+
+from mock import Mock, patch
+from nose.tools import eq_, ok_
+
 from oneanddone.base.tests import TestCase
 from oneanddone.base.views import HomeView
 from oneanddone.users.tests import UserFactory

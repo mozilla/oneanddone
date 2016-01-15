@@ -4,8 +4,7 @@
 
 from django.contrib import messages
 from django.utils import timezone
-
-from tower import ugettext as _
+from django.utils.translation import ugettext as _
 
 
 class ClosedTaskNotificationMiddleware(object):

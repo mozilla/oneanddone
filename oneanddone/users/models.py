@@ -6,8 +6,7 @@ from django.contrib.auth.models import User, UserManager
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Max
-
-from tower import ugettext_lazy as _lazy
+from django.utils.translation import ugettext_lazy as _lazy
 
 from oneanddone.tasks.models import TaskAttempt
 

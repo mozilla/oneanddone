@@ -200,7 +200,3 @@ whitenoise==2.0.2
 # bleach
 # sha256: ZSZiwhMQgfaHTTuNJA1bLSjZTu4lsLH0hLSl4nT3xF4
 https://github.com/jsocol/bleach/archive/4e425f767bbf4cc96beafbcb5536aa93cc15a680.zip#egg=bleach
-
-# tower
-# sha256: YGxwkMz10Xa-hQf4ePwx4s2rJcoL70yhD6M4TOEZgjE
-https://github.com/clouserw/tower/archive/1df74f9c7c353b9fc76d28a50f511ad452093340.zip#egg=tower

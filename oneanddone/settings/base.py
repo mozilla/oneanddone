@@ -80,7 +80,6 @@ INSTALLED_APPS = [
     'pipeline',
     'rest_framework',
     'rest_framework.authtoken',
-    'tower',
     'session_csrf',
 ]
 
@@ -233,12 +232,6 @@ USE_L10N = config('USE_L10N', default=True, cast=bool)
 
 USE_TZ = config('USE_TZ', default=True, cast=bool)
 
-# Gettext text domain
-TEXT_DOMAIN = 'messages'
-STANDALONE_DOMAINS = [TEXT_DOMAIN, 'javascript']
-TOWER_KEYWORDS = {'_lazy': None}
-TOWER_ADD_HEADERS = True
-
 # Accepted locales
 PROD_LANGUAGES = ('de', 'en-US', 'es', 'fr',)
 
@@ -257,11 +250,12 @@ LANGUAGE_URL_MAP = lazy(lazy_lang_url_map, dict)()
 def lazy_langs():
     from django.conf import settings
     from product_details import product_details
-    langs = DEV_LANGUAGES if settings.DEV else settings.PROD_LANGUAGES
-    return dict([(lang.lower(), product_details.languages[lang]['native'])
-                 for lang in langs if lang in product_details.languages])
+    langs = sorted(DEV_LANGUAGES if settings.DEV else settings.PROD_LANGUAGES)
+    return [(lang.lower(), product_details.languages[lang]['native'])
+            for lang in langs if lang in product_details.languages]
 
-LANGUAGES = lazy(lazy_langs, dict)()
+LANGUAGES = lazy(lazy_langs, list)()
+
 
 STATIC_ROOT = config('STATIC_ROOT', default=path('static'))
 STATIC_URL = config('STATIC_URL', default='/static/')
@@ -357,19 +351,6 @@ ANON_ALWAYS = True
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Tells the extract script what files to look for L10n in and what function
-# handles the extraction. The Tower library expects this.
-DOMAIN_METHODS = {
-    'messages': [
-        ('oneanddone/**.py',
-            'tower.management.commands.extract.extract_tower_python'),
-        ('oneanddone/**/templates/**.html',
-            'tower.management.commands.extract.extract_tower_template'),
-        ('templates/**.html',
-            'tower.management.commands.extract.extract_tower_template'),
-    ],
-}
-
 # Error Reporting
 ##############################################################################
 
@@ -434,7 +415,7 @@ PORT = 80
 # Lazy-load request args since they depend on certain settings.
 def _request_args():
     from django.contrib.staticfiles import finders
-    from tower import ugettext_lazy as _lazy
+    from django.utils.translation import ugettext_lazy as _lazy
 
     site_logo = open(finders.find('img/qa-logo.png'), 'rb').read().encode('base64')
     logo_uri = urllib.quote('data:image/png;base64,{image}'.format(image=site_logo), safe=',:;/')

@@ -1,11 +1,12 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 from django import forms
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _lazy
 
 import django_filters
-from tower import ugettext_lazy as _lazy
 
 from oneanddone.base.filters import MultiFieldFilter, MyDateRangeFilter
 from oneanddone.tasks.models import Task, TaskAttempt, TaskProject, TaskTeam, TaskType

@@ -6,13 +6,13 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.forms.models import model_to_dict
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.translation import ugettext as _, ugettext_lazy as _lazy
 from django.views import generic
 
 from braces.views import LoginRequiredMixin
 from datetime import date, timedelta
 from django_filters.views import FilterView
 from rest_framework import generics
-from tower import ugettext as _, ugettext_lazy as _lazy
 
 from oneanddone.base.util import get_object_or_none, SortHeaders
 from oneanddone.tasks.filters import (ActivityFilterSet, SmallTasksFilterSet,

@@ -1,14 +1,15 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 from django import forms
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import get_template
+from django.utils.translation import ugettext as _, ugettext_lazy as _lazy
 
 from django_ace import AceWidget
 from requests.exceptions import RequestException
-from tower import ugettext as _, ugettext_lazy as _lazy
 from urlparse import urlparse, parse_qs
 
 from oneanddone.base.widgets import CalendarInput

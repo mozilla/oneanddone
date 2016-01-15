@@ -1,6 +1,9 @@
-from django import forms
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from tower import ugettext as _
+from django import forms
+from django.utils.translation import ugettext as _
 
 from oneanddone.base.widgets import MyURLField
 from oneanddone.users.models import UserProfile

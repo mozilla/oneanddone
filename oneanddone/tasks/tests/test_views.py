@@ -4,10 +4,10 @@
 
 from django.core.urlresolvers import reverse
 from django.http import HttpRequest
+from django.utils.translation import ugettext as _
 
 from mock import Mock, patch
 from nose.tools import eq_, ok_, assert_dict_contains_subset
-from tower import ugettext as _
 
 from oneanddone.base.tests import TestCase
 from oneanddone.tasks import views

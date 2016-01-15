@@ -3,8 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 from django.shortcuts import redirect
 from django_filters.views import FilterView
-
-from tower import ugettext as _
+from django.utils.translation import ugettext as _
 
 from oneanddone.tasks.filters import TasksFilterSet
 from oneanddone.tasks.models import Task, TaskTeam

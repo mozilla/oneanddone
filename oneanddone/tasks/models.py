@@ -15,8 +15,7 @@ from django.db import models
 from django.db.models import Avg, F, Q
 from django.http import Http404
 from django.utils import timezone
-
-from tower import ugettext as _
+from django.utils.translation import ugettext as _
 
 from oneanddone.base.models import CreatedByModel, CreatedModifiedModel
 from oneanddone.tasks.bugzilla_utils import BugzillaUtils

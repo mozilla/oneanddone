@@ -7,9 +7,9 @@ from django.forms import CheckboxSelectMultiple, MultiWidget, URLField
 from django.forms import ValidationError
 from django.forms.widgets import DateInput, Input, RadioSelect
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 import requests
-from tower import ugettext as _
 
 
 class CalendarInput(DateInput):

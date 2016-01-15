@@ -7,10 +7,10 @@ from datetime import datetime, timedelta
 from django.http import Http404
 from django.test.utils import override_settings
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 
 from mock import patch
 from nose.tools import eq_, ok_
-from tower import ugettext as _
 
 from oneanddone.base.tests import TestCase
 from oneanddone.tasks.models import (Task, TaskAttempt, TaskAttemptCommunication,

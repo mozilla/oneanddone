@@ -7,13 +7,13 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import Http404
 from django.shortcuts import redirect
+from django.utils.translation import ugettext as _
 from django.views import generic
 
 from braces.views import LoginRequiredMixin
 import django_browserid.views
 from random import randint
 import re
-from tower import ugettext as _
 
 from oneanddone.base.urlresolvers import reverse_lazy
 from oneanddone.tasks.models import TaskAttempt
