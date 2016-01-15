@@ -325,9 +325,6 @@ LOGGING = {
         },
     },
     'loggers': {
-        'django': {
-            'handlers': ['console'],
-        },
         'django_browserid': {
             'handlers': ['console'],
         },
