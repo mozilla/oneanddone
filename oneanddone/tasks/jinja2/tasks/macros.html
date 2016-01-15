@@ -9,7 +9,9 @@
     {% if help_text %}
       {{ field.help_text }}
     {% endif %}
-    {{ custom_text }}
+    {% if custom_text %}
+      {{ custom_text }}
+    {% endif %}
     </div>
     {{ field }}
   </div>
