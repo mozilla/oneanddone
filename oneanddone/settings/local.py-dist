@@ -7,10 +7,3 @@ import base
 # INSTALLED_APPS = base.INSTALLED_APPS + ['debug_toolbar']
 
 SSLIFY_DISABLE = True
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'TIMEOUT': 60,
-    },
-}

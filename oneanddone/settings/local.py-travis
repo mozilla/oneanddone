@@ -3,10 +3,3 @@ from . import base  # NOQA
 SSLIFY_DISABLE = True
 INTERNAL_IPS = ('127.0.0.1', 'localhost')
 SESSION_COOKIE_SECURE = False
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'TIMEOUT': 60,
-    },
-}
