@@ -222,7 +222,6 @@ else:
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/1.7/topics/i18n/
 
 LANGUAGE_CODE = config('LANGUAGE_CODE', default='en-us')
 
@@ -321,19 +320,42 @@ PIPELINE_LESS_BINARY = path('node_modules/.bin/lessc')
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+        },
+        'django_browserid': {
+            'handlers': ['console'],
+        },
+    }
+}
+
 # Third-party Library Settings
 ##############################################################################
 
 # Testing configuration.
-NOSE_ARGS = ['--logging-clear-handlers', '--logging-filter=-factory,-south,-django.db']
+NOSE_ARGS = ['--logging-clear-handlers', '--logging-filter=-factory,-django.db']
 
 # Should robots.txt deny everything or disallow a calculated list of URLs we
 # don't want to be crawled?  Default is false, disallow everything.
 # Also see http://www.google.com/support/webmasters/bin/answer.py?answer=93710
-ENGAGE_ROBOTS = True
+ENGAGE_ROBOTS = False
 
 # Always generate a CSRF token for anonymous users.
 ANON_ALWAYS = True
+
+# Honor the 'X-Forwarded-Proto' header for request.is_secure()
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Tells the extract script what files to look for L10n in and what function
 # handles the extraction. The Tower library expects this.
