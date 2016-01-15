@@ -585,7 +585,7 @@ class Task(CreatedModifiedModel, CreatedByModel):
         users = []
         ql = User.objects.filter(
             taskattempt__in=TaskAttempt.objects.filter(
-                task=self.id, state=TaskAttempt.FINISHED)).order_by('taskattempt')
+                task=self.id, state=TaskAttempt.FINISHED)).order_by('-taskattempt__id')
         for user in ql:
             if user not in users:
                 users.append(user)
