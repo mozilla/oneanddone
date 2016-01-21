@@ -18,7 +18,6 @@ from django.utils.safestring import mark_safe
 
 import dj_database_url
 from decouple import Csv, config
-from django_sha2 import get_password_hashers
 
 
 _dirname = os.path.dirname
@@ -163,22 +162,6 @@ AUTHENTICATION_BACKENDS = [
 # By default, be at least somewhat secure with our session cookies.
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = True
-
-# Auth
-# The first hasher in this list will be used for new passwords.
-# Any other hasher in the list can be used for existing passwords.
-# Playdoh ships with Bcrypt+HMAC by default because it's the most secure.
-# To use bcrypt, fill in a secret HMAC key in your local settings.
-BASE_PASSWORD_HASHERS = (
-    'django_sha2.hashers.BcryptHMACCombinedPasswordVerifier',
-    'django_sha2.hashers.SHA512PasswordHasher',
-    'django_sha2.hashers.SHA256PasswordHasher',
-    'django.contrib.auth.hashers.SHA1PasswordHasher',
-    'django.contrib.auth.hashers.MD5PasswordHasher',
-    'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
-)
-
-PASSWORD_HASHERS = get_password_hashers(BASE_PASSWORD_HASHERS, HMAC_KEYS)
 
 
 # Email

@@ -45,9 +45,6 @@ django-pipeline==1.5.4
 # sha256: RORjnsBXprap3duGnU46SBj8knjsSQzOOa7whEBZKpM
 django-session-csrf==0.5
 
-# sha256: sGqGRRqZ1sJr-mUIKZnb9ljgh-WW6SkszmiLU-q6qto
-django-sha2==0.4
-
 # sha256: 9r_SEEjH38lbOWWaPad3ddbbHB96dFgFzMbGE494O20
 django-sslify==0.2.7
 
