@@ -5,9 +5,9 @@ babel==2.1.1
 # sha256: p7AqX3bYmnn4YZJvs04CnMQ0PBOAJSXIGFQqOf54jM4
 commonware==0.4.3
 
-# sha256: n3ygTG288It5Ty6lKDxgFWo36_K4MW0QJ_WU80_2EQE
-# sha256: opqsRqaGyt5tqHzn5yh9XVPN2rxB13fGIwpYPDYkShg
-django==1.9.1
+# sha256: zC7pF2mvASZUrkkEtnBPL6DMayg2dYacLy7Yeeq6Eeg
+# sha256: eiMzIu6zXaX9gxX55d1I8hcd5Dyiz7EbE4YH2qS_ii8
+django==1.9.2
 
 # sha256: LfpotUw1JurEJ_8T2xyrR7nvlpikOp82jIfI8SOIS3g
 django-ace==1.0.2
