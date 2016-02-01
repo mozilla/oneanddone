@@ -3,4 +3,3 @@ pytest==2.8.5
 pytest-selenium
 pytest-xdist==1.13.1
 requests==2.8.1
-selenium==2.48.0
