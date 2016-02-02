@@ -11,7 +11,7 @@ class TestAvailableTasks():
 
     @pytest.mark.nondestructive
     def test_available_tasks(self, base_url, selenium, task):
-        home_page = HomePage(base_url, selenium).open()
+        home_page = HomePage(selenium, base_url).open()
         assert not home_page.is_user_logged_in
 
         available_tasks_page = home_page.click_available_tasks()

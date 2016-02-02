@@ -8,14 +8,14 @@ from pages.home import HomePage
 class TestLogin():
 
     def test_that_a_new_user_can_login(self, base_url, selenium, new_user):
-        home_page = HomePage(base_url, selenium).open()
+        home_page = HomePage(selenium, base_url).open()
         assert not home_page.is_user_logged_in
 
         edit_profile = home_page.login(new_user)
         assert edit_profile.is_user_logged_in
 
-        edit_profile.type_name(new_user['name'])
-        edit_profile.type_username(new_user['name'])
+        edit_profile.display_name = new_user['name']
+        edit_profile.username = new_user['name']
         assert edit_profile.is_privacy_policy_checkbox_checked
         home_page = edit_profile.click_save_button('home_page')
 

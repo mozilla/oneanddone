@@ -8,7 +8,7 @@ from pages.home import HomePage
 class TestUserTasks():
 
     def test_that_user_can_complete_a_task(self, base_url, selenium, new_user, task):
-        home_page = HomePage(base_url, selenium).open()
+        home_page = HomePage(selenium, base_url).open()
         home_page.login_and_complete_profile(new_user)
 
         available_tasks_page = home_page.click_pick_a_task_button()
@@ -45,7 +45,7 @@ class TestUserTasks():
         assert task_name == profile_details.completed_tasks[0].name
 
     def test_that_user_can_abandon_a_task(self, base_url, selenium, new_user, task):
-        home_page = HomePage(base_url, selenium).open()
+        home_page = HomePage(selenium, base_url).open()
         home_page.login_and_complete_profile(new_user)
 
         available_tasks_page = home_page.click_pick_a_task_button()

@@ -14,13 +14,9 @@ class TaskFeedbackPage(Base):
     _no_thanks_button_locator = (By.CSS_SELECTOR, 'a.no-feedback')
 
     @property
-    def _page_title(self):
-        return '%s | Mozilla One and Done' % self.name
-
-    @property
     def name(self):
-        return self.selenium.find_element(*self._name_locator).text
+        return self.find_element(self._name_locator).text
 
     def click_no_thanks_button(self):
-        self.selenium.find_element(*self._no_thanks_button_locator).click()
-        return WhatsNextPage(self.base_url, self.selenium).wait_for_page_to_load()
+        self.find_element(self._no_thanks_button_locator).click()
+        return WhatsNextPage(self.selenium, self.base_url).wait_for_page_to_load()

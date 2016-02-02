@@ -17,13 +17,13 @@ class TeamDetailsPage(Base):
 
     @property
     def page_heading(self):
-        return self.selenium.find_element(*self._page_heading).text
+        return self.find_element(self._page_heading).text
 
     @property
     def task_list_header(self):
-        return self.selenium.find_element(*self._task_list_header_locator).text
+        return self.find_element(self._task_list_header_locator).text
 
     @property
     def available_tasks(self):
-        return [Task(self.base_url, self.selenium, web_element)
-                for web_element in self.selenium.find_elements(*self._available_task_list_locator)]
+        return [Task(self, web_element)
+                for web_element in self.find_elements(self._available_task_list_locator)]

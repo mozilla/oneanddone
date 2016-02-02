@@ -11,7 +11,7 @@ class TestTeamDetails():
 
     @pytest.mark.nondestructive
     def test_that_person_can_view_team_details(self, base_url, selenium, task):
-        home_page = HomePage(base_url, selenium).open()
+        home_page = HomePage(selenium, base_url).open()
         assert not home_page.is_user_logged_in
 
         task = home_page.suggested_first_tasks[0]

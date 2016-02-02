@@ -10,7 +10,7 @@ from pages.home import HomePage
 class TestUserProfile():
 
     def test_that_user_can_edit_profile(self, base_url, selenium, new_user):
-        home_page = HomePage(base_url, selenium).open()
+        home_page = HomePage(selenium, base_url).open()
         home_page.login_and_complete_profile(new_user)
 
         profile_details = home_page.click_user_profile_details()
@@ -20,10 +20,10 @@ class TestUserProfile():
 
         new_name = str(uuid.uuid4())
         new_username = str(uuid.uuid4()).replace('-', '')[10:]
-        edit_profile.type_name(new_name)
-        edit_profile.type_username(new_username)
-        edit_profile.type_user_profile_url(new_user['url'])
-        edit_profile.type_bugzilla_email(new_user['email'])
+        edit_profile.display_name = new_name
+        edit_profile.username = new_username
+        edit_profile.user_profile_url = new_user['url']
+        edit_profile.bugzilla_email = new_user['email']
         profile_details = edit_profile.click_save_button('user_profile_details')
 
         assert new_name == profile_details.user_profile_name
@@ -37,7 +37,7 @@ class TestUserProfile():
         assert new_user['email'] == edit_profile.bugzilla_email
 
     def test_that_user_can_delete_profile(self, base_url, selenium, new_user):
-        home_page = HomePage(base_url, selenium).open()
+        home_page = HomePage(selenium, base_url).open()
         home_page.login_and_complete_profile(new_user)
 
         profile_details = home_page.click_user_profile_details()

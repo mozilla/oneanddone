@@ -10,15 +10,13 @@ from pages.home import HomePage
 
 class UserProfileDeletePage(Base):
 
-    _page_title = 'Delete profile | Mozilla One and Done'
-
     _cancel_button_locator = (By.ID, 'cancel-button')
     _confirm_button_locator = (By.ID, 'confirm-button')
 
     def click_cancel_button(self):
-        self.selenium.find_element(*self._cancel_button_locator).click()
-        return HomePage(self.base_url, self.selenium).wait_for_page_to_load()
+        self.find_element(self._cancel_button_locator).click()
+        return HomePage(self.selenium, self.base_url).wait_for_page_to_load()
 
     def click_confirm_button(self):
-        self.selenium.find_element(*self._confirm_button_locator).click()
-        return HomePage(self.base_url, self.selenium).wait_for_page_to_load()
+        self.find_element(self._confirm_button_locator).click()
+        return HomePage(self.selenium, self.base_url).wait_for_page_to_load()

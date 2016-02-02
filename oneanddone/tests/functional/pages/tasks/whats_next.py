@@ -6,6 +6,4 @@ from pages.base import Base
 
 class WhatsNextPage(Base):
 
-    @property
-    def _page_title(self):
-        return "What's next? | Mozilla One and Done"
+    pass

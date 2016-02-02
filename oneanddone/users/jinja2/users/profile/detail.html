@@ -37,7 +37,7 @@
     <ul>
       {% for attempt in attempts_finished %}
         <li>
-          <a href="{{ attempt.task.get_absolute_url() }}">{{ attempt.task.name }}</a>
+          <a href="{{ attempt.task.get_absolute_url() }}" class="task-name">{{ attempt.task.name }}</a>
           {% if userprofile.user == user and attempt.next_task %}
             -
             <a href="{{ attempt.task.get_next_task_url() }}"

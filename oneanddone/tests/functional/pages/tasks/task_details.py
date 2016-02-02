@@ -18,51 +18,47 @@ class TaskDetailsPage(Base):
     _get_started_button_locator = (By.ID, 'get-started')
     _save_for_later_button_locator = (By.ID, 'save-for-later')
 
-    @property
-    def _page_title(self):
-        return '%s | Mozilla One and Done' % self.name
-
     def click_abandon_task_button(self):
-        self.selenium.find_element(*self._abandon_task_button_locator).click()
-        return TaskFeedbackPage(self.base_url, self.selenium).wait_for_page_to_load()
+        self.find_element(self._abandon_task_button_locator).click()
+        return TaskFeedbackPage(self.selenium, self.base_url).wait_for_page_to_load()
 
     def click_complete_task_button(self):
-        self.selenium.find_element(*self._complete_task_button_locator).click()
-        return TaskFeedbackPage(self.base_url, self.selenium).wait_for_page_to_load()
+        self.find_element(self._complete_task_button_locator).click()
+        return TaskFeedbackPage(self.selenium, self.base_url).wait_for_page_to_load()
 
     def click_get_started_button(self):
-        self.selenium.find_element(*self._get_started_button_locator).click()
+        self.find_element(self._get_started_button_locator).click()
 
     def click_save_for_later_button(self):
-        self.selenium.find_element(*self._save_for_later_button_locator).click()
+        self.find_element(self._save_for_later_button_locator).click()
         from pages.home import HomePage
-        return HomePage(self.base_url, self.selenium).wait_for_page_to_load()
+        return HomePage(self.selenium, self.base_url).wait_for_page_to_load()
 
     def click_team(self):
-        self.selenium.find_element(*self._team_link_locator).click()
+        self.find_element(self._team_link_locator).click()
         from pages.tasks.team_details import TeamDetailsPage
-        return TeamDetailsPage(self.base_url, self.selenium).wait_for_page_to_load()
+        return TeamDetailsPage(self.selenium, self.base_url).wait_for_page_to_load()
 
     @property
     def is_abandon_task_button_visible(self):
-        return self.is_element_visible(self._abandon_task_button_locator)
+        return self.is_element_displayed(self._abandon_task_button_locator)
 
     @property
     def is_complete_task_button_visible(self):
-        return self.is_element_visible(self._complete_task_button_locator)
+        return self.is_element_displayed(self._complete_task_button_locator)
 
     @property
     def is_get_started_button_visible(self):
-        return self.is_element_visible(self._get_started_button_locator)
+        return self.is_element_displayed(self._get_started_button_locator)
 
     @property
     def is_save_for_later_button_visible(self):
-        return self.is_element_visible(self._save_for_later_button_locator)
+        return self.is_element_displayed(self._save_for_later_button_locator)
 
     @property
     def name(self):
-        return self.selenium.find_element(*self._name_locator).text
+        return self.find_element(self._name_locator).text
 
     @property
     def team(self):
-        return self.selenium.find_element(*self._team_link_locator).text
+        return self.find_element(self._team_link_locator).text
