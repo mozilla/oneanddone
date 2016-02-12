@@ -37,6 +37,7 @@ class TestUserTasks():
         feedback = task_details.click_complete_task_button()
 
         whats_next = feedback.click_no_thanks_button()
+        assert "What's next? | Mozilla One and Done" == selenium.title
 
         profile_details = whats_next.click_user_profile_details()
 
@@ -53,6 +54,7 @@ class TestUserTasks():
         task_details.click_get_started_button()
         feedback = task_details.click_abandon_task_button()
         whats_next = feedback.click_no_thanks_button()
+        assert "What's next? | Mozilla One and Done" == selenium.title
 
         profile_details = whats_next.click_user_profile_details()
 
