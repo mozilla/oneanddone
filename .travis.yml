@@ -27,7 +27,7 @@ env:
     - DATABASE_URL=postgres://postgres:@localhost/oneanddone
     - DISPLAY=:99.0
     - DJANGO_HMAC_KEY='FOO'
-    - DJANGO_LIVE_TEST_SERVER_ADDRESS=localhost:8081
+    - DJANGO_LIVE_TEST_SERVER_ADDRESS=localhost:8100
     - DJANGO_SECRET_KEY='FOO'
     - DJANGO_SETTINGS_MODULE=oneanddone.settings
     - secure: "LYA4hvs1IoWqzX3/edq8ZNp/yMiaZ52xYNTnrvnSf3FFca3jAkTclyhuZE18AGXeNYAuk5iakWkdSm7DLsjZPJCvA2PqKMnV2DFGKSS3N+z3q+FXYl0seAOOg8nFB0HNOd3GbcgbB4kbENZpaGxPjCY0DHKoeyq4F7mItjTLRL8="

@@ -185,8 +185,8 @@ sphinx-autobuild==0.5.2
 # sha256: dPYz7Tph2h0dWcMYVIPIGp1zRr8Oe18prQdkpvFZtoo
 sphinx_rtd_theme==0.1.8
 
-# sha256: dafTE4z6nNgadgwvikPz2Alh7cjk8nBD3BQSIGySYoc
-uwsgi==2.0.11.1
+# sha256: MGtR25dkjW0ju36s125aQTQ0V18iDawd4jHIwm0z5Ak
+uWSGI==2.0.12
 
 # sha256: VYVza7U0XcnLcEwSkq997IUSZmqw-RbG8mduDwYCMeg
 # sha256: kpfCKE84KWGnvdmJeFlixWKX1HYUJT57vdglG2nUrOQ
