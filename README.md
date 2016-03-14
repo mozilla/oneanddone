@@ -227,13 +227,6 @@ curl -X DELETE http://127.0.0.1:8000/api/v1/user/testuser@testmail.com/ -H 'Auth
 Token used in examples above is just a sample and actual Tokens can be generated from the admin panel by going to `Authtoken > Tokens`.
 
 
-Functional Tests
------------------
-Functional (Selenium) tests for oneanddone are maintained by the Web QA team and can be found at [oneanddone-tests].
-
-[oneanddone-tests]: https://github.com/mozilla/oneanddone-tests
-
-
 License
 -------
 This software is licensed under the [Mozilla Public License v. 2.0](http://mozilla.org/MPL/2.0/). For more
