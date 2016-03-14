@@ -68,7 +68,7 @@ you don't have `pip` installed, you can install it with `easy_install pip`.
 
 5. Install the requirements:
    ```sh
-   $ ./bin/peep.py install -r requirements/requirements.txt
+   $ ./bin/peep.py install -r requirements.txt
    ```
    _Note_: On OS X (in particular 10.8.5, Xcode 5.1), you may encounter the following error: `clang: error: unknown argument. '-mno-fused-madd'`. Try running peep with the `ARCHFLAGS` environment variable set, as follows: `ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future ./bin/peep.py install -r requirements/requirements.txt` 
 
@@ -193,6 +193,11 @@ $ python manage.py test oneanddone.tasks.tests.test_helpers -v 2
 $ python manage.py test oneanddone.tasks.tests.test_helpers:PageUrlTests.test_basic -v 2
 
 ```
+
+Functional Tests
+-----------------
+You will find information about setting up and running test automation
+in the [Functional Tests directory.](https://github.com/mozilla/oneanddone/tree/master/oneanddone/tests/functional)
 
 REST API Support
 ----------------
