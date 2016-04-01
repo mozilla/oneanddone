@@ -80,6 +80,13 @@ your virtualenv, like so:
 $ pip install -Ur requirements/test-local.txt
 ```
 
+Run collectstatic which is required for running local tests. In a terminal, 
+from the the project root, issue the following command:
+
+```bash
+$ python manage.py collectstatic --noinput
+```
+
 To run the tests against a local instance the command line would be:
 
 ```bash
