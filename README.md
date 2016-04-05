@@ -256,6 +256,12 @@ Then fill in the generated file with logic, fixtures, etc. You can then apply th
 
 Running the Development Server
 ------------------------------
+You will need to have the Node.js package manager npm installed. You can install it by running:
+
+```sh
+$ npm install
+```
+
 You can launch the development server like so:
 
 ```sh
