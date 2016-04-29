@@ -1,0 +1,17 @@
+version: '2'
+services:
+  db:
+    container_name: oneanddone_db
+    image: postgres:9.3
+    environment:
+    - POSTGRES_USER=postgres
+    - POSTGRES_DB=oneanddone
+  web:
+    container_name: oneanddone_web
+    build: ../.
+    env_file: .env-docker
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
