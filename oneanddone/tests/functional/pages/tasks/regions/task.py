@@ -14,8 +14,8 @@ class Task(Region):
 
     @property
     def name(self):
-        return self.find_element(self._name_locator).text
+        return self.find_element(*self._name_locator).text
 
     def click(self):
-        self.find_element(self._name_locator).click()
-        return TaskDetailsPage(self.selenium, self.base_url).wait_for_page_to_load()
+        self.find_element(*self._name_locator).click()
+        return TaskDetailsPage(self.selenium, self.page.base_url).wait_for_page_to_load()
