@@ -21,7 +21,7 @@ class UserProfileEditPage(Base):
     @property
     def bugzilla_email(self):
         return self.find_element(
-            self._bugzilla_email_input_locator).get_attribute('value')
+            *self._bugzilla_email_input_locator).get_attribute('value')
 
     @bugzilla_email.setter
     def bugzilla_email(self, value):
@@ -29,7 +29,7 @@ class UserProfileEditPage(Base):
 
     @property
     def display_name(self):
-        return self.find_element(self._name_input_locator).get_attribute('value')
+        return self.find_element(*self._name_input_locator).get_attribute('value')
 
     @display_name.setter
     def display_name(self, fullname):
@@ -37,12 +37,12 @@ class UserProfileEditPage(Base):
 
     @property
     def is_privacy_policy_checkbox_checked(self):
-        return self.find_element(self._privacy_policy_checkbox_locator).is_selected()
+        return self.find_element(*self._privacy_policy_checkbox_locator).is_selected()
 
     @property
     def user_profile_url(self):
         return self.find_element(
-            self._user_profile_url_input_locator).get_attribute('value')
+            *self._user_profile_url_input_locator).get_attribute('value')
 
     @user_profile_url.setter
     def user_profile_url(self, url):
@@ -50,19 +50,19 @@ class UserProfileEditPage(Base):
 
     @property
     def username(self):
-        return self.find_element(self._username_input_locator).get_attribute('value')
+        return self.find_element(*self._username_input_locator).get_attribute('value')
 
     @username.setter
     def username(self, username):
         self.set_field(self._username_input_locator, username)
 
     def click_delete_profile_button(self):
-        self.find_element(self._delete_profile_button_locator).click()
+        self.find_element(*self._delete_profile_button_locator).click()
         return UserProfileDeletePage(self.selenium, self.base_url).wait_for_page_to_load()
 
     def click_save_button(self, expectation):
-        self.find_element(self._save_button_locator).click()
+        self.find_element(*self._save_button_locator).click()
         return self.expected_page(expectation)
 
     def toggle_privacy_policy_checkbox(self):
-        self.find_element(self._privacy_policy_checkbox_locator).click()
+        self.find_element(*self._privacy_policy_checkbox_locator).click()

@@ -22,25 +22,25 @@ class UserProfileDetailsPage(Base):
 
     @property
     def bugzilla_email(self):
-        return self.find_element(self._bugzilla_email_locator).text
+        return self.find_element(*self._bugzilla_email_locator).text
 
     @property
     def completed_tasks_count(self):
-        return int(self.find_element(self._tasks_completed_locator).text)
+        return int(self.find_element(*self._tasks_completed_locator).text)
 
     @property
     def completed_tasks(self):
         return [Task(self, web_element) for web_element in
-                self.find_elements(self._completed_tasks_list_locator)]
+                self.find_elements(*self._completed_tasks_list_locator)]
 
     @property
     def user_profile_name(self):
-        return self.find_element(self._user_profile_name_locator).text
+        return self.find_element(*self._user_profile_name_locator).text
 
     @property
     def user_profile_url(self):
-        return self.find_element(self._user_profile_url_locator).text
+        return self.find_element(*self._user_profile_url_locator).text
 
     def click_edit_profile_button(self):
-        self.find_element(self._edit_profile_button_locator).click()
+        self.find_element(*self._edit_profile_button_locator).click()
         return UserProfileEditPage(self.selenium, self.base_url).wait_for_page_to_load()
