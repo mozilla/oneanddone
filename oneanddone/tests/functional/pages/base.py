@@ -23,21 +23,21 @@ class Base(Page):
 
     @property
     def is_user_logged_in(self):
-        return not self.is_element_displayed(self._login_locator)
+        return not self.is_element_displayed(*self._login_locator)
 
     @property
     def is_login_button_visible(self):
-        return self.is_element_displayed(self._login_locator)
+        return self.is_element_displayed(*self._login_locator)
 
     @property
     def profile_link_text(self):
-        return self.find_element(self._profile_link_locator).text
+        return self.find_element(*self._profile_link_locator).text
 
     def click_login(self):
-        self.find_element(self._login_locator).click()
+        self.find_element(*self._login_locator).click()
 
     def click_user_profile_details(self):
-        self.find_element(self._profile_link_locator).click()
+        self.find_element(*self._profile_link_locator).click()
         from pages.user.user_profile_details import UserProfileDetailsPage
         return UserProfileDetailsPage(self.selenium, self.base_url).wait_for_page_to_load()
 

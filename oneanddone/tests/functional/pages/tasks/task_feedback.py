@@ -15,8 +15,8 @@ class TaskFeedbackPage(Base):
 
     @property
     def name(self):
-        return self.find_element(self._name_locator).text
+        return self.find_element(*self._name_locator).text
 
     def click_no_thanks_button(self):
-        self.find_element(self._no_thanks_button_locator).click()
+        self.find_element(*self._no_thanks_button_locator).click()
         return WhatsNextPage(self.selenium, self.base_url).wait_for_page_to_load()

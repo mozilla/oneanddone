@@ -18,12 +18,12 @@ class AvailableTasksPage(Base):
     @property
     def available_tasks(self):
         return [Task(self, web_element) for web_element in
-                self.find_elements(self._available_tasks_list_locator)]
+                self.find_elements(*self._available_tasks_list_locator)]
 
     @property
     def displayed_profile_name(self):
-        return self.find_element(self._displayed_profile_name_locator).text
+        return self.find_element(*self._displayed_profile_name_locator).text
 
     @property
     def is_available_tasks_list_visible(self):
-        return self.is_element_displayed(self._available_tasks_list_locator)
+        return self.is_element_displayed(*self._available_tasks_list_locator)
