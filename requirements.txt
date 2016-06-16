@@ -97,7 +97,7 @@ MarkupSafe==0.23
 # sha256: X36m-zqpr-FG0H_W1c7feIdH2LDCnkRzJFPCstsePRY
 mccabe==0.3.1
 
-# sha256: uDndLZwRfHAUMMFJlWkYpCOphjtIsJyQ4wpgE-fS9E8
+# sha256: j4MIDaoknQNsvM-4rlzG_wB7iNbZN1ITca-r57Gbrbw
 mock==1.0.1
 
 # sha256: hbroOd-up9i4YNH1v-t46GEswfnxSzYFm-IEO0HjcAs
