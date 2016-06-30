@@ -24,6 +24,16 @@ About the project:
 
 Development Setup
 -----------------
+
+
+Development can take place by either setting up a local environment that uses a locally installed PostgresSQL server or using Docker containers.
+
+* [Local enviroment](#Local-Environment) setup and usage
+* [Docker environment](#Docker-Environment) setup and usage
+
+### Local Environment ###
+
+
 These instructions assume you have [git][], [python][], and `pip` installed. If
 you don't have `pip` installed, you can install it with `easy_install pip`.
 
@@ -122,6 +132,80 @@ you don't have `pip` installed, you can install it with `easy_install pip`.
      Applying sessions.0001_initial... OK
      Applying tasks.0001_initial... OK
      Applying users.0001_initial... OK
+   ```
+
+### Docker Environment ###
+This documentation assumes you have a working Docker environment set up locally. You can find excellent documentation at [docs.docker.com](http://docs.docker.com).
+
+Ensure you have the latest versions installed, several features are specific to your installation being up-to-date:
+
+* Docker
+* Docker-compose
+
+Note, the documentation assumes your Docker installation defaults to [http://localhost](http://localhost).
+
+Documentation specific for your operating system can be found here:
+
+* [docs.docker.com/linux](https://docs.docker.com/linux/)
+* [docs.docker.com/windows](https://docs.docker.com/windows/)
+* [docs.docker.com/mac](https://docs.docker.com/mac/)
+ 
+#### Linux and OSX ####
+Initial setup is taken care of by the `setup.sh` script in this repository. There is a timing issue that the script corrects; the database needs to be up and running before the Django server tries to connect to it.
+
+The dev environment runs on [http://localhost:8000](http://localhost:8000).
+
+##### Initial setup and use: #####
+  
+   ```
+   # Downloads the correct images, starts Postgres & Django, and runs migrations on the db 
+   cd docker/
+   ./setup.sh
+   # To stop the containers
+   <ctrl-c>
+   ```
+
+##### After initial setup: #####
+The `setup.sh` script only needs to be run once. Future use can be accomplished by;
+
+   ```
+   # Start the containers
+   docker-compose up
+   # Stop the server
+   <ctrl-c>
+   # Optionally rebuild the Django container
+   docker-compose build web
+   ```
+
+#### Windows ####
+Windows users will need to run the commands contained in the `setup.sh` file manually.
+
+The dev environment runs on [http://localhost:8000](http://localhost:8000).
+
+##### Initial setup and use: #####
+
+   ```
+   # Create the database first to ensure it is configured correctly before
+   # Django attempts to connect to it.
+   docker-compose up -d db
+   docker-compose up -d web
+
+   # Run Django migrations
+   docker-compose exec -d web python manage.py migrate
+   # Tail the logs
+   docker-compose logs -f
+   ```
+
+##### After initial setup: #####
+The `setup.sh` script only needs to be run once. Future use can be accomplished by;
+
+   ```
+   # Start the containers
+   docker-compose up
+   # Stop the server
+   <ctrl-c>
+   # Optionally rebuild the Django container
+   docker-compose build web
    ```
 
 Users
