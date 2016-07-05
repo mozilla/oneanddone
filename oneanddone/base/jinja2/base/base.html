@@ -41,6 +41,11 @@
           <nav id="nav-main" role="menubar" class="drop-down">
             <span class="toggle" role="button" aria-controls="nav-main-menu" tabindex="0">{{ _('Menu') }}</span>
             <ul role="menu" id="nav-main-menu">
+               <li role="menuitem">
+                {% trans help_href = 'https://one-and-done.readthedocs.org/en/latest/index.html' %}
+                  <a href="{{ help_href }}" >Help</a>
+                {% endtrans %}
+              </li>
               <li role="menuitem">
                 {% if user.is_authenticated() %}
                   {% if user.display_name %}
