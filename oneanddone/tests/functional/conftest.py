@@ -86,6 +86,7 @@ def assigned_task(base_url, is_local):
             state=TaskAttempt.STARTED,
             task=task)
         return task
+    pytest.skip('Requires local instance for testing')
 
 
 @pytest.fixture(scope='function')
@@ -93,3 +94,4 @@ def nonrepeatable_task(base_url, is_local):
     if is_local:
         from oneanddone.tasks.tests import TaskFactory
         return TaskFactory.create(repeatable=False)
+    pytest.skip('Requires local instance for testing')
