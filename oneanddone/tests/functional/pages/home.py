@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 from pages.base import Base
 from pages.tasks.regions.task import Task
@@ -18,6 +19,7 @@ class HomePage(Base):
     _suggested_first_tasks_heading_locator = (By.CSS_SELECTOR, '.task-list-container h3')
     _suggested_first_task_locator = (By.CSS_SELECTOR, '.task-list > li')
     _available_tasks_locator = (By.ID, 'available-tasks')
+    _search_button_locator = (By.ID, 'id_search')
 
     @property
     def displayed_profile_name(self):
@@ -51,3 +53,8 @@ class HomePage(Base):
     def click_available_tasks(self):
         self.find_element(*self._available_tasks_locator).click()
         return AvailableTasksPage(self.selenium, self.base_url).wait_for_page_to_load()
+
+    def search_for_task(self, task_name):
+        search_text = self.find_element(*self._search_button_locator)
+        search_text.send_keys(task_name)
+        search_text.send_keys(Keys.RETURN)

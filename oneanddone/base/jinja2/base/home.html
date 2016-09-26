@@ -7,20 +7,13 @@
 
 {% block content %}
   <section class="home-header">
-    <h4>{{ _('Contribute to Mozilla - One task at a time, One day at a time.') }}</h4>
+    <h4>{{ _('One and Done will be retired on October 31, 2016. ') }}</h4>
     <p>
       {% trans %}
-           One and Done gives users a wide variety of ways to contribute to Mozilla.
-           You can pick an easy task that only takes a few minutes &#45; or take on a bigger
-           challenge. This includes working on manual testing, automation, bug verification,
-           mobile testing and more. Tasks are from a variety of Mozilla teams &#45; so you can get involved
-           with
-      {% endtrans %}
-      {% for team in teams %}
-        <a href="{{ team.get_absolute_url() }}">{{ team.name }}</a>,
-      {% endfor %}
-      {% trans nightly_url=url('tasks.available') %}
-        <a href="{{ nightly_url }}?search=nightly&team=2">Firefox Nightly</a> and more.
+           The decision has been made to retire the One and Done project on October 31, 2016. All user and task data will be deleted.
+
+          We thank the many contributors who participated over the years. Your work lives on, even as this site is closed!
+          If you would like to continue contributing, we recommend starting with <a href="http://whatcanidoformozilla.org/#!/progornoprog/proglang"> What Can I Do for Mozilla?</a>
       {% endtrans %}
     </p>
   <p>
@@ -28,6 +21,7 @@
   </p>
     <p class="auth-menu">
       {% if not user.is_authenticated() %}
+        <a href="http://127.0.0.1:8000/accounts/fxa/login/?process=login"> Sign in with Firefox Accounts</a> or 
         {{ browserid_login(text=_('Sign in with Mozilla Persona'), color='blue') }}
       {% endif %}
     </p>
