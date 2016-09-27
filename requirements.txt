@@ -4,7 +4,8 @@ babel==2.1.1
 
 # sha256: p7AqX3bYmnn4YZJvs04CnMQ0PBOAJSXIGFQqOf54jM4
 commonware==0.4.3
-# sha256: 5KoiH8UvMgdPKV_IFIblTTX-F2KE1qGci_msrt3QWLQ
+
+# sha256: u5xN3BKLOnp8YVNN6cDeXBvwzMZ8XnoHUz_15NTxHEs
 django==1.9.10
 
 # sha256: LfpotUw1JurEJ_8T2xyrR7nvlpikOp82jIfI8SOIS3g
