@@ -28,8 +28,8 @@ Development Setup
 
 Development can take place by either setting up a local environment that uses a locally installed PostgresSQL server or using Docker containers.
 
-* [Local enviroment](#Local-Environment) setup and usage
-* [Docker environment](#Docker-Environment) setup and usage
+* [Local enviroment](#local-environment) setup and usage
+* [Docker environment](#docker-environment) setup and usage
 
 ### Local Environment ###
 
