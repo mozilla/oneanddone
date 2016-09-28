@@ -2,6 +2,9 @@
 Welcome to One and Done
 =======================
 
+One and Done has been decommissioned, as of October 31st, 2016.
+---------------------------------------------------------------
+
 One and Done is a tool built by Mozilla.  One and Done matches new contributors with tasks to help out a variety of Mozilla teams.
 
 Useful links
