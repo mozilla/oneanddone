@@ -1,3 +1,0 @@
-# We need to use a commit of mine which re-enables static asset serving with the live_server
-# See https://github.com/pytest-dev/pytest-django/issues/294
--e git+https://github.com/bobsilverberg/pytest-django.git@6d8d45c4fd1eb58b553045dd844e35885fcf67e6#egg=pytest_django

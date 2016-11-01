@@ -1,3 +1,0 @@
-Congratulations! An adminsitrator has verified your completion of the One and Done task: '{{ task_name }}' ({{ task_link }}).
-
-Thank you for using One and Done!

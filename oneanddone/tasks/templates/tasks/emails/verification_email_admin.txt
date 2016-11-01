@@ -1,9 +1,0 @@
-An adminsitrator has provided feedback to your request for verification of the One and Done task '{{ task_name }}'.
-
-You can respond to the feedback by visiting the task at {{ task_link }}.
-
-The feedback provided is:
-
-{{ content }}
-
-Thank you for using One and Done!
